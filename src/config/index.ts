@@ -42,3 +42,5 @@ export const PRODUCT_CATEGORIES = [
     ],
   },
 ]
+
+export const transactionFee = 1
