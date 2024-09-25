@@ -56,10 +56,10 @@ export function constructMetadata({
       title,
       description,
       images: [image],
-      creator: '@LeopoldHsing',
+      creator: '@joshtriedcoding',
     },
     icons,
-    metadataBase: new URL('https://digitalhippo.leopoldhsing.com'),
+    metadataBase: new URL('https://digitalhippo.up.railway.app'),
     ...(noIndex && {
       robots: {
         index: false,
