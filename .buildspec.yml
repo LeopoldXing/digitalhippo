@@ -1,0 +1,38 @@
+install:
+  runtime-versions:
+    docker: 19 # specify Docker version 19 as the application runtime
+  commands:
+    - echo Installing kubectl... # install kubectl
+    - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+    - chmod +x ./kubectl
+    - mv ./kubectl /usr/local/bin/kubectl
+    - echo Installing aws-iam-authenticator... # install the aws-iam-authenticator to help kubectl authenticate with the EKS cluster
+    - curl -o aws-iam-authenticator https://amazon-eks.s3.us-west-2.amazonaws.com/1.18.9/2020-11-02/bin/linux/amd64/aws-iam-authenticator
+    - chmod +x ./aws-iam-authenticator
+    - mv ./aws-iam-authenticator /usr/local/bin
+  pre_build:
+    commands:
+      - echo Logging in to Amazon ECR... # log in to Amazon Elastic Container Registry
+      - $(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)
+      - REPOSITORY_URI=127745533311.dkr.ecr.eu-west-1.amazonaws.com/aritra-eks-demo # define ECR repository URI and set up an image tag using the commit hash
+      - COMMIT_HASH=$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | cut -c 1-7)
+      - IMAGE_TAG=${COMMIT_HASH:=latest}
+      - echo Setting up Kubernetes context... # update the Kubernetes config to ensure CodeBuild can interact with the EKS cluster
+      - aws eks update-kubeconfig --name digitalhippo-backend-cluster --region ca-central-1
+  build:
+    commands:
+      - echo Build started on `date`
+      - echo Building the Docker image...
+      - cd application # navigate to our application directory
+      - docker build -t $REPOSITORY_URI:$IMAGE_TAG  . # create the Docker image, tagging it appropriately
+      - docker tag $REPOSITORY_URI:$IMAGE_TAG $REPOSITORY_URI:$IMAGE_TAG
+  post_build:
+    commands:
+      - echo Pushing the Docker image...
+      - docker push $REPOSITORY_URI:$IMAGE_TAG # push new docker image to ECR
+      - echo Writing new image into Kubernetes deployment file... # update Kubernetes deployment file with the new image and apply the changes using kubectl
+      - sed -i "s|127745533311.dkr.ecr.eu-west-1.amazonaws.com/aritra-eks-demo:[^ ]*|$REPOSITORY_URI:$IMAGE_TAG|" deployment.yaml
+      - cat deployment.yaml
+      - echo Apply deployment to Kubernetes...
+      - kubectl apply -f deployment.yaml # updated deployment is then applied to the EKS cluster
+      - echo Build completed on `date` # update complete

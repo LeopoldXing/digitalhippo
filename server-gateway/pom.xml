@@ -75,7 +75,7 @@
                 <version>3.4.1</version>
                 <configuration>
                     <to>
-                        <image>leopoldhsing2/digitalhippo.${artifactId}:latest</image>
+                        <image>digitalhippo/gateway:latest</image>
                     </to>
                 </configuration>
             </plugin>

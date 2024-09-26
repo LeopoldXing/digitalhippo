@@ -1,0 +1,25 @@
+services:
+  redis:
+    image: redis:7.0.14
+    container_name: redis-digitalhippo-dev
+    environment:
+      - REDIS_PASSWORD=1234
+    command: [ "redis-server", "--requirepass", "1234" ]
+    ports:
+      - "6379:6379"
+    networks:
+      - digitalhippo-dev-network
+  db:
+    image: postgres:16.4-alpine
+    container_name: postgres-digitalhippo-dev
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: 1234567890
+    networks:
+      - digitalhippo-dev-network
+
+networks:
+  digitalhippo-dev-network:
+    name: digitalhippo-dev-network
+    driver: bridge
