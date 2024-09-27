@@ -1,5 +1,6 @@
 package com.leopoldhsing.digitalhippo.user.service.impl
 
+import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
@@ -15,8 +16,9 @@ class UserServiceImpl @Autowired constructor(
 
     override fun createUser(email: String, password: String, role: UserRole): User {
         // 1. Determine if the email already exists
-        userRepository.findUserByEmail(email)?.let {
-            throw IllegalArgumentException("Email already exists")
+        val userOptional = userRepository.findUserByEmail(email)
+        if (userOptional?.isPresent!!) {
+            throw UserAlreadyExistsException(email)
         }
 
         // 2. Calculate hashed password
@@ -24,7 +26,7 @@ class UserServiceImpl @Autowired constructor(
         val hashedPassword = PasswordUtil.hashPassword(password, salt)
 
         // 3. Construct user object
-        val newUser = User(email, email, hashedPassword, String (salt), role, false, false)
+        val newUser = User(email, email, hashedPassword, String(salt), role, false, false)
 
         // 4. Save to database
         val savedUser = userRepository.save(newUser)
