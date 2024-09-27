@@ -1,12 +1,9 @@
 package com.leopoldhsing.digitalhippo.model.entity;
 
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Table(name = "users")
@@ -20,16 +17,12 @@ public class User extends BaseEntity {
     private UserRole role;
     private boolean verified;
     private boolean locked;
-    private OffsetDateTime lockUntil;
+    private LocalDateTime lockUntil;
 
     public User() {
     }
 
-    public User(Long id, OffsetDateTime createdAt, OffsetDateTime updatedAt, String createdBy, String updatedBy) {
-        super(id, createdAt, updatedAt, createdBy, updatedBy);
-    }
-
-    public User(String username, String email, String passwordHash, String salt, UserRole role, boolean verified, boolean locked, OffsetDateTime lockUntil) {
+    public User(String username, String email, String passwordHash, String salt, UserRole role, boolean verified, boolean locked) {
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;
@@ -37,19 +30,6 @@ public class User extends BaseEntity {
         this.role = role;
         this.verified = verified;
         this.locked = locked;
-        this.lockUntil = lockUntil;
-    }
-
-    public User(Long id, OffsetDateTime createdAt, OffsetDateTime updatedAt, String createdBy, String updatedBy, String username, String email, String passwordHash, String salt, UserRole role, boolean verified, boolean locked, OffsetDateTime lockUntil) {
-        super(id, createdAt, updatedAt, createdBy, updatedBy);
-        this.username = username;
-        this.email = email;
-        this.passwordHash = passwordHash;
-        this.salt = salt;
-        this.role = role;
-        this.verified = verified;
-        this.locked = locked;
-        this.lockUntil = lockUntil;
     }
 
     @Override
@@ -122,11 +102,11 @@ public class User extends BaseEntity {
         this.locked = locked;
     }
 
-    public OffsetDateTime getLockUntil() {
+    public LocalDateTime getLockUntil() {
         return lockUntil;
     }
 
-    public void setLockUntil(OffsetDateTime lockUntil) {
+    public void setLockUntil(LocalDateTime lockUntil) {
         this.lockUntil = lockUntil;
     }
 

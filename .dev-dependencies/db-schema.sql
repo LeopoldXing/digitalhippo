@@ -1,8 +1,6 @@
 CREATE
 DATABASE digitalhippo;
 
--- This script is intended to be run on the "digitalhippo" database
-
 -- user microservice
 CREATE TABLE public.users
 (
@@ -14,10 +12,10 @@ CREATE TABLE public.users
     "role"        varchar NULL,
     verified      boolean DEFAULT false NOT NULL,
     "locked"      boolean DEFAULT false NOT NULL,
-    lock_until    timetamp with time zone NULL,
-    created_at    timetamp with time zone   NOT NULL,
+    lock_until    timestamp NULL,
+    created_at    timestamp   NOT NULL,
     created_by    varchar               NOT NULL,
-    updated_at    timetamp with time zone   NOT NULL,
+    updated_at    timestamp   NOT NULL,
     updated_by    varchar               NOT NULL,
     CONSTRAINT users_pk PRIMARY KEY (id)
 );

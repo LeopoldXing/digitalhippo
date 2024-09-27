@@ -34,7 +34,7 @@ spring:
         - id: service_user
           uri: lb://user
           predicates:
-            - Path=/api/*/user/**
+            - Path=/api/user/**
 
 eureka:
   instance:

@@ -1,44 +1,45 @@
 package com.leopoldhsing.digitalhippo.model.entity;
 
 import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import java.time.OffsetDateTime;
+import java.io.Serial;
+import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @MappedSuperclass
-public class BaseEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class BaseEntity implements Serializable {
+
+    @Serial
+    private static final long serialVersionUID = -6163675075289529459L;
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @CreatedDate
     @Column(updatable = false)
-    private OffsetDateTime createdAt;
+    private LocalDateTime createdAt;
 
+    @Temporal(TemporalType.TIMESTAMP)
     @LastModifiedDate
-    @Column(insertable = false)
-    private OffsetDateTime updatedAt;
+    private LocalDateTime updatedAt;
 
-    @CreatedDate
+    @CreatedBy
     @Column(updatable = false)
     private String createdBy;
 
     @LastModifiedBy
-    @Column(insertable = false)
     private String updatedBy;
 
     public BaseEntity() {
-    }
-
-    public BaseEntity(Long id, OffsetDateTime createdAt, OffsetDateTime updatedAt, String createdBy, String updatedBy) {
-        this.id = id;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-        this.createdBy = createdBy;
-        this.updatedBy = updatedBy;
     }
 
     @Override
@@ -60,19 +61,19 @@ public class BaseEntity {
         this.id = id;
     }
 
-    public OffsetDateTime getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(OffsetDateTime createdAt) {
+    public void setCreatedAt(LocalDateTime createdAt) {
         this.createdAt = createdAt;
     }
 
-    public OffsetDateTime getUpdatedAt() {
+    public LocalDateTime getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
+    public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
 
