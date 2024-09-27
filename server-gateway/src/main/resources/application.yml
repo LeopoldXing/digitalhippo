@@ -31,10 +31,10 @@ spring:
           enabled: false
           lower-case-service-id: true
       routes:
-        - id: service_product
-          uri: lb://product
+        - id: service_user
+          uri: lb://user
           predicates:
-            - Path=/api/*/product/**
+            - Path=/api/*/user/**
 
 eureka:
   instance:

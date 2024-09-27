@@ -2,6 +2,8 @@ server:
   port: 9004
 
 spring:
+  application:
+    name: user
   datasource:
     url: jdbc:postgresql://localhost:5432/postgres
     username: postgres
