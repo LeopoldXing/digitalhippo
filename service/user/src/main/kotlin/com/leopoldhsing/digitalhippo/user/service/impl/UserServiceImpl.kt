@@ -6,10 +6,10 @@ import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
 import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
-import com.leopoldhsing.digitalhippo.user.config.AwsSqsProperties
+import com.leopoldhsing.digitalhippo.user.config.AwsSnsProperties
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
-import io.awspring.cloud.sqs.operations.SqsTemplate
+import io.awspring.cloud.sns.core.SnsTemplate
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
@@ -18,9 +18,9 @@ import java.util.concurrent.TimeUnit
 @Service
 class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
-    private val sqsTemplate: SqsTemplate,
+    private val snsTemplate: SnsTemplate,
     private val redisTemplate: StringRedisTemplate,
-    private val awsSqsProperties: AwsSqsProperties
+    private val awsSnsProperties: AwsSnsProperties
 ) : UserService {
 
     override fun createUser(email: String, password: String, role: UserRole): User {
@@ -51,12 +51,12 @@ class UserServiceImpl @Autowired constructor(
                 3,
                 TimeUnit.DAYS
             )
-        // construct sqs message
-        val emailVerificationParams: Map<String, String> = mapOf("email" to savedUser.email, "verificationToken" to verificationToken)
-        // send message to AWS SQS
-        sqsTemplate.send { to ->
-            to.queue(awsSqsProperties.name).payload(emailVerificationParams)
-        }
+        // construct sns notification
+        val emailVerificationParams: Map<String, String> =
+            mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
+
+        // send message to AWS SNS
+        snsTemplate.sendNotification(awsSnsProperties.arn, emailVerificationParams, "verification email")
 
         // 6. Return result
         return savedUser

@@ -1,0 +1,44 @@
+server:
+  port: 9005
+
+spring:
+  application:
+    name: email
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_KEY}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GOOGLE_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+aws:
+  sqs:
+    verificationQueueName: ${VERIFICATION_SQS_QUEUE_NAME}
+    verificationQueueUrl: ${VERIFICATION_SQS_QUEUE_URL}
+
+digitalhippo:
+  email:
+    frontendAddress: ${FRONTEND_ADDRESS}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:9002/eureka/

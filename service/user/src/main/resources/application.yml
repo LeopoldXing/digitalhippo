@@ -22,14 +22,13 @@ spring:
       credentials:
         access-key: ${ACCESS_KEY}
         secret-key: ${SECRET_KEY}
-      sqs:
+      sns:
         enabled: true
-        endpoint: ${SQS_ENDPOINT}
         region: ${AWS_REGION}
 
 aws:
-  sqs:
-    name: ${SQS_QUEUE_NAME}
+  sns:
+    arn: ${SNS_TOPIC_ARN}
 
 eureka:
   instance:
