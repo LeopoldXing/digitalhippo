@@ -1,5 +1,5 @@
 import { AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
-import { useMutation } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
 import { ErrorResponseType, User } from "@/types";
 
@@ -27,14 +27,38 @@ const useCreateUserApi = () => {
 
   const { mutateAsync: createUser, isLoading, isError, error, isSuccess } = useMutation(createUserRequest);
 
-  if (isError) {
+  if (isError && !isLoading) {
     toast.error(`${error}`);
   }
-  if (isSuccess) {
+  if (isSuccess && !isLoading) {
     toast.success("Verification email sent")
   }
 
   return { createUser, isLoading }
 }
 
-export { useCreateUserApi }
+/**
+ * verify user account's email
+ */
+const useVerifyEmailApi = (token: string) => {
+  const verifyEmailRequest = async (): Promise<boolean> => {
+    const response = await fetch(`${BASE_URL}/api/user/verify-email`, {
+      method: 'GET',
+      headers: {
+        token
+      },
+      cache: 'no-cache'
+    });
+    if (!response.ok) {
+      const res: ErrorResponseType = await response.json();
+      throw new Error(`${res.message}`)
+    }
+    return response.json()
+  }
+
+  const { data: isVerified, isLoading, isError } = useQuery('verify-email', verifyEmailRequest);
+
+  return { isVerified, isLoading, isError }
+}
+
+export { useCreateUserApi, useVerifyEmailApi }
