@@ -4,25 +4,38 @@ import { Icons } from '@/components/Icons'
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
-import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
-import { useForm } from "react-hook-form";
+import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthCredentialValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { useCreateUserApi } from "@/api/UserApi";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { toast } from "sonner";
+import { useRouter } from 'next/navigation'
+import { useState } from "react";
 
 const Page = () => {
-  const {
-    register,
-    handleSubmit,
-    formState: { errors }
-  } = useForm<AuthCredentialValidatorType>({ resolver: zodResolver(AuthCredentialValidator) });
+  const router = useRouter();
+  const form = useForm<AuthCredentialValidatorType>({
+    resolver: zodResolver(AuthCredentialValidator),
+    defaultValues: {
+      email: "",
+      password: "",
+    }
+  });
 
-  const { createUser } = useCreateUserApi();
+  const { createUser, isSuccess } = useCreateUserApi();
+  const [email, setEmail] = useState("");
   const handleSignUp = async ({ email, password }: AuthCredentialValidatorType) => {
-    const res = await createUser({ email, password });
-    console.log(res);
+    await createUser({ email, password });
+    setEmail(email)
+  }
+
+  if(isSuccess) {
+    toast.success(`Verification email sent to ${email}`);
+    // redirect user to sign in
+    router.push(`/verify-email?to=${email}`)
   }
 
   return (
@@ -41,26 +54,38 @@ const Page = () => {
             </div>
 
             <div className="grid gap-6">
-              <form onSubmit={handleSubmit(handleSignUp)}>
-                <div className="grid gap-2">
-                  <div className="py-2 grid gap-1">
-                    <Label htmlFor='email'>Email</Label>
-                    <Input {...register('email')} type='email' className={cn({ "focus-visible:ring-red-500": errors.email })}
-                           placeholder='xxx@example.com'/>
-                  </div>
-                  <div className="py-2 grid gap-1">
-                    <Label htmlFor='password'>Password</Label>
-                    <Input {...register('password')} type='password' className={cn({ "focus-visible:ring-red-500": errors.password })}
-                           placeholder='password'/>
-                  </div>
-                  <Button>Sign up</Button>
-                </div>
-              </form>
+              <FormProvider {...form}>
+                <form onSubmit={form.handleSubmit(handleSignUp)} className="grid gap-2">
+                  <FormField control={form.control} name='email' render={({ field }) => (
+                      <FormItem className="py-2 grid gap-1">
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input {...field} type='email' className={cn({ "focus-visible:ring-red-500": form.formState.errors.email })}
+                                 placeholder='xxx@example.com'/>
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                  )}/>
+                  <FormField control={form.control} name='password' render={({ field }) => (
+                      <FormItem className="py-2 grid gap-1">
+                        <FormLabel>Password</FormLabel>
+                        <FormControl>
+                          <Input {...field} type='password'
+                                 className={cn({ "focus-visible:ring-red-500": form.formState.errors.password })}
+                                 placeholder='password'/>
+                        </FormControl>
+                        <FormMessage/>
+                      </FormItem>
+                  )}/>
+                  <Button type='submit'>Sign up</Button>
+                </form>
+              </FormProvider>
             </div>
           </div>
         </div>
       </>
-  );
+  )
+      ;
 };
 
 export default Page;

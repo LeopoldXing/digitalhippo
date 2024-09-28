@@ -25,16 +25,16 @@ const useCreateUserApi = () => {
     return response.json()
   }
 
-  const { mutateAsync: createUser, isLoading, isError, error, isSuccess } = useMutation(createUserRequest);
+  const { mutateAsync: createUser, isLoading, isError, error, isSuccess } = useMutation(createUserRequest, {
+    retry: false
+  });
 
-  if (isError && !isLoading) {
+  if (isError) {
     toast.error(`${error}`);
-  }
-  if (isSuccess && !isLoading) {
-    toast.success("Verification email sent")
+    console.log(error)
   }
 
-  return { createUser, isLoading }
+  return { createUser, isLoading, isSuccess, isError }
 }
 
 /**
@@ -56,7 +56,9 @@ const useVerifyEmailApi = (token: string) => {
     return response.json()
   }
 
-  const { data: isVerified, isLoading, isError } = useQuery('verify-email', verifyEmailRequest);
+  const { data: isVerified, isLoading, isError } = useQuery('verify-email', verifyEmailRequest, {
+    retry: false
+  });
 
   return { isVerified, isLoading, isError }
 }
