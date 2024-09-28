@@ -15,6 +15,21 @@ spring:
     port: 6379
     password: 1234
     database: 1
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_KEY}
+      sqs:
+        enabled: true
+        endpoint: ${SQS_ENDPOINT}
+        region: ${AWS_REGION}
+
+aws:
+  sqs:
+    name: ${SQS_QUEUE_NAME}
 
 eureka:
   instance:
