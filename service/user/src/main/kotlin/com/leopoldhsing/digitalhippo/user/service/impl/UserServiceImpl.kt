@@ -1,7 +1,9 @@
 package com.leopoldhsing.digitalhippo.user.service.impl
 
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
+import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
+import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
 import com.leopoldhsing.digitalhippo.model.entity.User
@@ -23,6 +25,9 @@ class UserServiceImpl @Autowired constructor(
     private val awsSnsProperties: AwsSnsProperties
 ) : UserService {
 
+    /**
+     * create new user
+     */
     override fun createUser(email: String, password: String, role: UserRole): User {
         // 1. Determine if the email already exists
         val userOptional = userRepository.findUserByEmail(email)
@@ -46,8 +51,8 @@ class UserServiceImpl @Autowired constructor(
         // put verification token into AWS ElastiCache
         redisTemplate.opsForValue()
             .set(
-                RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + savedUser.id,
-                verificationToken,
+                RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + verificationToken,
+                savedUser.id.toString(),
                 3,
                 TimeUnit.DAYS
             )
@@ -60,5 +65,35 @@ class UserServiceImpl @Autowired constructor(
 
         // 6. Return result
         return savedUser
+    }
+
+    /**
+     * verify user email
+     */
+    override fun verifyEmail(token: String): Boolean {
+        // 1. get verification token key
+        val verificationTokenKey = RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + token
+
+        // 2. search token in ElastiCache
+        val hasVerificationToken =
+            redisTemplate.hasKey(verificationTokenKey)
+        if (!hasVerificationToken) {
+            throw VerificationTokenExpiredException(token)
+        }
+
+        // 3. check the user id
+        val userId = redisTemplate.opsForValue().get(verificationTokenKey)
+
+        // 4. change userId to verified
+        if (userId != null) {
+            val user = userRepository.findById(userId.toLong()).orElseThrow { ResourceNotFoundException("User", "userId", userId) }
+            user.isVerified = true
+            userRepository.save(user)
+        } else {
+            throw ResourceNotFoundException("User", "userId", userId)
+        }
+
+        // 6. return result
+        return true;
     }
 }

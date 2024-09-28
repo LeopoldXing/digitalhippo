@@ -19,9 +19,9 @@ class EmailServiceImpl @Autowired constructor(
         // recipient
         message.setRecipients(MimeMessage.RecipientType.TO, email)
         // subject
-        message.subject = "DigitalHippo Email Verification"
+        message.subject = "DigitalHippo Account Verification"
         // content
-        val htmlContent = "<a href='https://${emailProperties.frontendAddress}/verify-email'>verify link</a>"
+        val htmlContent = "<a href='https://${emailProperties.frontendAddress}/verify-email?token=${verificationToken}'>verify account</a>"
         message.setContent(htmlContent, "text/html; charset=utf-8")
 
         // 2. send email
