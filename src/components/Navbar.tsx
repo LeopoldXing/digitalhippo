@@ -5,9 +5,14 @@ import { Icons } from "@/components/Icons";
 import NavItems from "@/components/NavItems";
 import { buttonVariants } from "@/components/ui/button";
 import Cart from "@/components/Cart";
+import { cookies } from "next/headers";
+import { getUserRequest } from "@/api/UserRequest";
+import UserAccountNav from "@/components/UserAccountNav";
 
-const Navbar = () => {
-  const user = null
+const Navbar = async () => {
+  const cookieStore = cookies()
+  const accessToken = cookieStore.get('digitalhippo-access-token')?.value
+  const user = await getUserRequest(accessToken);
 
   return (
       <div className="bg-white sticky z-50 top-0 inset-x-0 h-16">
@@ -27,15 +32,11 @@ const Navbar = () => {
                 <div className="ml-auto flex items-center">
                   <div className="hidden lg:flex lg:flex-1 lg:items-center lg:justify-end lg:space-x-6">
                     {user ? (
-                        <>
-                          <span className='h-6 w-px bg-gray-200' aria-hidden='true'/>
-                        </>
+                        <UserAccountNav user={user}/>
                     ) : (
                         <>
                           {/*  logged out  */}
-                          <Link href='/sign-in' className={buttonVariants({ variant: 'ghost' })}>
-                            Sign in
-                          </Link>
+                          <Link href='/sign-in' className={buttonVariants({ variant: 'ghost' })}>Sign in</Link>
                           <span className='h-6 w-px bg-gray-200' aria-hidden='true'/>
                           <Link href='/sign-up' className={buttonVariants({ variant: 'ghost' })}>Create account</Link>
                           <div className="flex lg:ml-6">

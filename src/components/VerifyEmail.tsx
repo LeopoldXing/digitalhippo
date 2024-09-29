@@ -4,14 +4,14 @@ import { Loader2, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
-import { useVerifyEmailApi } from "@/api/UserApi";
+import { useVerifyEmail } from "@/hooks/useAuth";
 
 interface VerifyEmailProps {
   token: string
 }
 
 const VerifyEmail = ({ token }: VerifyEmailProps) => {
-  const { isVerified, isError, isLoading } = useVerifyEmailApi(token)
+  const { isVerified, isError, isLoading } = useVerifyEmail(token)
 
   if (isError) {
     return (

@@ -10,13 +10,18 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthCredentialValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { toast } from "sonner";
-import { useRouter } from 'next/navigation'
-import { useState } from "react";
-import { useSignUp } from "@/hooks/useAuth";
+import { useRouter, useSearchParams } from "next/navigation";
+import { setCookie } from "cookies-next";
+import { useSignIn } from "@/hooks/useAuth";
 
 const Page = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isSeller = searchParams.get('as') === 'seller'
+
+  // redirect user to where they are before after signing in
+  const origin = searchParams.get('origin')
+
   const form = useForm<AuthCredentialValidatorType>({
     resolver: zodResolver(AuthCredentialValidator),
     defaultValues: {
@@ -25,17 +30,37 @@ const Page = () => {
     }
   });
 
-  const { createUser, isSuccess } = useSignUp();
-  const [email, setEmail] = useState("");
-  const handleSignUp = async ({ email, password }: AuthCredentialValidatorType) => {
-    await createUser({ email, password });
-    setEmail(email)
+  const continueAsSeller = () => {
+    router.push('?as=seller')
+  }
+  const continueAsBuyer = () => {
+    router.push('/sign-in', undefined)
   }
 
-  if(isSuccess) {
-    toast.success(`Verification email sent to ${email}`);
-    // redirect user to sign in
-    router.push(`/verify-email?to=${email}`)
+  /*  sign in  */
+  const { signIn, isLoading } = useSignIn()
+  const handleSignIn = async ({ email, password }: AuthCredentialValidatorType) => {
+    const signInToken = await signIn({ email, password });
+    const expirationTime = new Date();
+    expirationTime.setHours(expirationTime.getHours() + 1);
+    // save access token into cookie
+    setCookie('digitalhippo-access-token', signInToken, {
+      expires: expirationTime
+    })
+
+    if (origin) {
+      // redirect user to where they were before signing in
+      router.push(`/${origin}`)
+      router.refresh();
+      return
+    }
+    if (isSeller) {
+      router.push('/sell')
+      router.refresh();
+      return
+    }
+    router.push('/')
+    router.refresh();
   }
 
   return (
@@ -45,16 +70,16 @@ const Page = () => {
             <div className='flex flex-col items-center space-y-2 text-center'>
               <Icons.logo className='h-20 w-20'/>
               <h1 className='text-2xl font-semibold tracking-tight'>
-                Create an account
+                Sign in to your {isSeller ? 'seller' : ''}{' '}account
               </h1>
-              <Link href='/sign-in' className={buttonVariants({ variant: 'link', className: 'gap-1.5' })}>
-                Already have an account? Sign-in<ArrowRight className='h-4 w-4'/>
+              <Link href='/sign-up' className={buttonVariants({ variant: 'link', className: 'gap-1.5' })}>
+                Don&apos;t have an account? <ArrowRight className='h-4 w-4'/>
               </Link>
             </div>
 
             <div className="grid gap-6">
               <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(handleSignUp)} className="grid gap-2">
+                <form onSubmit={form.handleSubmit(handleSignIn)} className="grid gap-2">
                   <FormField control={form.control} name='email' render={({ field }) => (
                       <FormItem className="py-2 grid gap-1">
                         <FormLabel>Email</FormLabel>
@@ -76,15 +101,27 @@ const Page = () => {
                         <FormMessage/>
                       </FormItem>
                   )}/>
-                  <Button type='submit'>Sign up</Button>
+                  <Button type='submit'>Sign in</Button>
                 </form>
               </FormProvider>
+              <div className='relative'>
+                <div aria-hidden={true} className='absolute inset-0 flex items-center'>
+                  <span className='w-full border-t'/>
+                </div>
+                <div className='relative flex justify-center text-xs uppercase'>
+                  <span className='bg-background px-2 text-muted-foreground'>or</span>
+                </div>
+              </div>
+              {isSeller ? (
+                  <Button onClick={continueAsBuyer} variant='secondary' disabled={isLoading}>Continue as customer</Button>
+              ) : (
+                  <Button onClick={continueAsSeller} variant='secondary' disabled={isLoading}>Continue as seller</Button>
+              )}
             </div>
           </div>
         </div>
       </>
-  )
-      ;
+  );
 };
 
 export default Page;
