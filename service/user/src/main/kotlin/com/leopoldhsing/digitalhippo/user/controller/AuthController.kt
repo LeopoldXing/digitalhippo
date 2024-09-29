@@ -28,6 +28,12 @@ class AuthController @Autowired constructor(private val userService: UserService
         return ResponseEntity.status(HttpStatus.OK).body(userService.signIn(email, password))
     }
 
+    @PostMapping("/sign-out")
+    fun signOut(): ResponseEntity<Void> {
+        userService.signOut()
+        return ResponseEntity.ok().build()
+    }
+
     @PostMapping("/sign-up")
     fun createUser(@RequestBody userCreationVo: UserCreationVo): ResponseEntity<User> {
         val email = userCreationVo.email

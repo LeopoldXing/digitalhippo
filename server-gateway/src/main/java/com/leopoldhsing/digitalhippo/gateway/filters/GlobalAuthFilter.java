@@ -70,11 +70,12 @@ public class GlobalAuthFilter implements GlobalFilter {
             return prepareErrorResponse(exchange, request, "Request Denied, you are trying to access restricted resources!");
         }
 
-        // 2.4 handle sign-up sign-in requests
+        // 2.4 handle sign-up | sign-in | sign out requests
         String signInUriPattern = gatewayUrlAuthConfig.getSignInUriPatterns();
         String signUpUriPattern = gatewayUrlAuthConfig.getSignUpUriPatterns();
-        if (antPathMatcher.match(signInUriPattern, path) || antPathMatcher.match(signUpUriPattern, path)) {
-            // sign-in and sign-up requests will be passed directly
+        String signOutUriPattern = gatewayUrlAuthConfig.getSignOutUriPatterns();
+        if (antPathMatcher.match(signInUriPattern, path) || antPathMatcher.match(signUpUriPattern, path) || antPathMatcher.match(signOutUriPattern, path)) {
+            // sign-in and sign-up and sign-out requests will be passed directly
             return chain.filter(exchange);
         }
 
@@ -113,6 +114,7 @@ public class GlobalAuthFilter implements GlobalFilter {
         }
         // get response
         ServerHttpResponse response = exchange.getResponse();
+        response.setStatusCode(HttpStatus.UNAUTHORIZED);
         // add proper response header
         DataBuffer wrap = response.bufferFactory().wrap(errorResponseBytes);
         response.getHeaders().add("Content-Type", "application/json;charset=UTF-8");

@@ -9,6 +9,8 @@ interface UserService {
 
     fun signIn(email: String, password: String): String
 
+    fun signOut()
+
     fun createUser(email: String, password: String, role: UserRole): User
 
     fun verifyEmail(token: String): Boolean

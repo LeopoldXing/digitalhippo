@@ -43,6 +43,7 @@ url:
   auth:
     sign-in-uri-patterns: /api/user/sign-in
     sign-up-uri-patterns: /api/user/sign-up
+    sign-out-uri-patterns: /api/user/sign-out
     inner-uri-patterns: /api/**/inner/**
     trusted-uri-patterns:
       - /css/**

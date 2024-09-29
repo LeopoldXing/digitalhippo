@@ -73,6 +73,27 @@ class UserServiceImpl @Autowired constructor(
     }
 
     /**
+     * user sign out
+     */
+    override fun signOut() {
+        // 1. get userId
+        val uid = RequestUtil.getUid()
+
+        // 2. verify user login status
+        if (!redisTemplate.hasKey(RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + uid)) {
+            return
+        }
+
+        // 3. get and delete userToken
+        val tokenKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + uid
+        val token = redisTemplate.opsForValue().get(tokenKey)
+        redisTemplate.delete(tokenKey)
+
+        // 4. remove reversed token uid
+        redisTemplate.delete(RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + token)
+    }
+
+    /**
      * create new user
      */
     override fun createUser(email: String, password: String, role: UserRole): User {

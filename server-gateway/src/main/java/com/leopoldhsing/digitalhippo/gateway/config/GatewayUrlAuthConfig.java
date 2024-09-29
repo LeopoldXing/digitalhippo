@@ -11,15 +11,17 @@ import java.util.Objects;
 public class GatewayUrlAuthConfig {
     private String signUpUriPatterns;
     private String signInUriPatterns;
+    private String signOutUriPatterns;
     private List<String> trustedUriPatterns;
     private List<String> innerUriPatterns;
 
     public GatewayUrlAuthConfig() {
     }
 
-    public GatewayUrlAuthConfig(String signUpUriPatterns, String signInUriPatterns, List<String> trustedUriPatterns, List<String> innerUriPatterns) {
+    public GatewayUrlAuthConfig(String signUpUriPatterns, String signInUriPatterns, String signOutUriPatterns, List<String> trustedUriPatterns, List<String> innerUriPatterns) {
         this.signUpUriPatterns = signUpUriPatterns;
         this.signInUriPatterns = signInUriPatterns;
+        this.signOutUriPatterns = signOutUriPatterns;
         this.trustedUriPatterns = trustedUriPatterns;
         this.innerUriPatterns = innerUriPatterns;
     }
@@ -38,6 +40,14 @@ public class GatewayUrlAuthConfig {
 
     public void setSignInUriPatterns(String signInUriPatterns) {
         this.signInUriPatterns = signInUriPatterns;
+    }
+
+    public String getSignOutUriPatterns() {
+        return signOutUriPatterns;
+    }
+
+    public void setSignOutUriPatterns(String signOutUriPatterns) {
+        this.signOutUriPatterns = signOutUriPatterns;
     }
 
     public List<String> getTrustedUriPatterns() {
@@ -62,13 +72,14 @@ public class GatewayUrlAuthConfig {
         if (o == null || getClass() != o.getClass()) return false;
 
         GatewayUrlAuthConfig that = (GatewayUrlAuthConfig) o;
-        return Objects.equals(signUpUriPatterns, that.signUpUriPatterns) && Objects.equals(signInUriPatterns, that.signInUriPatterns) && Objects.equals(trustedUriPatterns, that.trustedUriPatterns) && Objects.equals(innerUriPatterns, that.innerUriPatterns);
+        return Objects.equals(signUpUriPatterns, that.signUpUriPatterns) && Objects.equals(signInUriPatterns, that.signInUriPatterns) && Objects.equals(signOutUriPatterns, that.signOutUriPatterns) && Objects.equals(trustedUriPatterns, that.trustedUriPatterns) && Objects.equals(innerUriPatterns, that.innerUriPatterns);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hashCode(signUpUriPatterns);
         result = 31 * result + Objects.hashCode(signInUriPatterns);
+        result = 31 * result + Objects.hashCode(signOutUriPatterns);
         result = 31 * result + Objects.hashCode(trustedUriPatterns);
         result = 31 * result + Objects.hashCode(innerUriPatterns);
         return result;
