@@ -1,6 +1,6 @@
 package com.leopoldhsing.digitalhippo.common.utils;
 
-import com.leopoldhsing.digitalhippo.common.utils.constants.GatewayConstants;
+import com.leopoldhsing.digitalhippo.common.constants.AuthConstants;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.util.ObjectUtils;
 import org.springframework.util.StringUtils;
@@ -23,7 +23,7 @@ public class RequestUtil {
         long uid = 0L;
         HttpServletRequest request = RequestUtil.getRequestFromContext();
         if (!ObjectUtils.isEmpty(request)) {
-            String header = request.getHeader(GatewayConstants.USERID_HEADER_KEY);
+            String header = request.getHeader(AuthConstants.USERID_HEADER_KEY);
             if (StringUtils.hasLength(header)) {
                 uid = Long.parseLong(header);
             }

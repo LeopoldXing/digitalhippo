@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: gateway
@@ -35,6 +38,16 @@ spring:
           uri: lb://user
           predicates:
             - Path=/api/user/**
+
+url:
+  auth:
+    sign-in-uri-patterns: /api/user/sign-in
+    sign-up-uri-patterns: /api/user/sign-up
+    inner-uri-patterns: /api/**/inner/**
+    trusted-uri-patterns:
+      - /css/**
+      - /img/**
+      - /fonts/**
 
 eureka:
   instance:

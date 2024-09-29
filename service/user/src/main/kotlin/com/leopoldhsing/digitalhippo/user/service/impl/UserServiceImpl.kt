@@ -6,6 +6,7 @@ import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
 import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
+import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
 import com.leopoldhsing.digitalhippo.common.utils.SignInTokenUtil
 import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
 import com.leopoldhsing.digitalhippo.model.entity.User
@@ -38,7 +39,7 @@ class UserServiceImpl @Autowired constructor(
         val user = userOption.get()
 
         // 2. determine if the user already signed in
-        val potentialTokenKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.USERID_KEY + user.id
+        val potentialTokenKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         if (redisTemplate.hasKey(potentialTokenKey)) {
             // user already signed in, extend token valid period
             redisTemplate.expire(potentialTokenKey, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
@@ -54,11 +55,11 @@ class UserServiceImpl @Autowired constructor(
         val accessToken = SignInTokenUtil.generateAccessToken()
 
         // 4. put token into ElastiCache for this session
-        val signInTokenKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.ACCESS_TOKEN_KEY + accessToken
+        val signInTokenKey = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + accessToken
         // set token:userid
         redisTemplate.opsForValue().set(signInTokenKey, user.id.toString(), RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
         // set userid:token
-        val signInTokenReversedKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.USERID_KEY + user.id
+        val signInTokenReversedKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         redisTemplate.opsForValue().set(signInTokenReversedKey, accessToken, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
 
         return accessToken

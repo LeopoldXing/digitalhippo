@@ -28,7 +28,7 @@ class AuthController @Autowired constructor(private val userService: UserService
         return ResponseEntity.status(HttpStatus.OK).body(userService.signIn(email, password))
     }
 
-    @PostMapping
+    @PostMapping("/sign-up")
     fun createUser(@RequestBody userCreationVo: UserCreationVo): ResponseEntity<User> {
         val email = userCreationVo.email
         val password = userCreationVo.password
