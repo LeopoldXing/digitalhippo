@@ -1,7 +1,7 @@
-resource "aws_internet_gateway" "digitalhippo-igw" {
+resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.digitalhippo-vpc.id
 
   tags = {
-    Name = "digitalhippo-igw"
+    Name = "igw"
   }
 }

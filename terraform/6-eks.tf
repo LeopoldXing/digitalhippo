@@ -17,13 +17,16 @@ resource "aws_iam_role" "digitalhippo-eks-service-role" {
 POLICY
 }
 
+# attach required IAM policy to the EKS cluster IAM Role
 resource "aws_iam_role_policy_attachment" "digitalhippo-AmazonEKSClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.digitalhippo-eks-service-role.name
 }
 
+# EKS cluster digitalhippo-backend-cluster
 resource "aws_eks_cluster" "digitalhippo-backend-cluster" {
   name     = "digitalhippo-backend"
+  # IAM role
   role_arn = aws_iam_role.digitalhippo-eks-service-role.arn
 
   vpc_config {

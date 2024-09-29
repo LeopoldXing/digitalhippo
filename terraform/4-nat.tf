@@ -12,5 +12,5 @@ resource "aws_nat_gateway" "nat-gateway" {
     Name = "digitalhippo-nat"
   }
 
-  depends_on = [aws_internet_gateway.digitalhippo-igw]
+  depends_on = [aws_internet_gateway.igw]
 }
