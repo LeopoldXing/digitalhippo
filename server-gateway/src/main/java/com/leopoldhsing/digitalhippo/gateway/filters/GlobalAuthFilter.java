@@ -2,6 +2,7 @@ package com.leopoldhsing.digitalhippo.gateway.filters;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants;
 import com.leopoldhsing.digitalhippo.gateway.config.GatewayUrlAuthConfig;
 import com.leopoldhsing.digitalhippo.model.dto.ErrorResponseDto;
@@ -105,6 +106,7 @@ public class GlobalAuthFilter implements GlobalFilter {
         // prepare response data
         byte[] errorResponseBytes;
         try {
+            objectMapper.registerModule(new JavaTimeModule());
             errorResponseBytes = objectMapper.writeValueAsString(errorResponseDto).getBytes(StandardCharsets.UTF_8);
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

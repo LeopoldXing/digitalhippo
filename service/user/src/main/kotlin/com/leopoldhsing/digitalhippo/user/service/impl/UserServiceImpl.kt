@@ -27,6 +27,13 @@ class UserServiceImpl @Autowired constructor(
     private val redisTemplate: StringRedisTemplate,
     private val awsSnsProperties: AwsSnsProperties
 ) : UserService {
+    override fun getUser(): User {
+        val userId = RequestUtil.getUid()
+
+        val user = userRepository.findById(userId).orElseThrow { ResourceNotFoundException("User", "id", userId.toString()) }
+        return user
+    }
+
     /**
      * user sign in
      */
@@ -38,17 +45,17 @@ class UserServiceImpl @Autowired constructor(
         }
         val user = userOption.get()
 
-        // 2. determine if the user already signed in
+        // 2. verify password
+        if (!PasswordUtil.hashPassword(password, user.salt).equals(user.passwordHash)) {
+            throw AuthenticationFailedException(user.id.toString(), email)
+        }
+
+        // 3. determine if the user already signed in
         val potentialTokenKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         if (redisTemplate.hasKey(potentialTokenKey)) {
             // user already signed in, extend token valid period
             redisTemplate.expire(potentialTokenKey, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
             return redisTemplate.opsForValue().get(potentialTokenKey)
-        }
-
-        // 3. verify password
-        if (!PasswordUtil.hashPassword(password, user.salt).equals(user.passwordHash)) {
-            throw AuthenticationFailedException(user.id.toString(), email)
         }
 
         // 3. generate token for this session
