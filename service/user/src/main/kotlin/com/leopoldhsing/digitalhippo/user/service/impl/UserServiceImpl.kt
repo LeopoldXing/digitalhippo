@@ -1,10 +1,12 @@
 package com.leopoldhsing.digitalhippo.user.service.impl
 
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
+import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
 import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
+import com.leopoldhsing.digitalhippo.common.utils.SignInTokenUtil
 import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
 import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
@@ -24,6 +26,43 @@ class UserServiceImpl @Autowired constructor(
     private val redisTemplate: StringRedisTemplate,
     private val awsSnsProperties: AwsSnsProperties
 ) : UserService {
+    /**
+     * user sign in
+     */
+    override fun signIn(email: String, password: String): String {
+        // 1. get user
+        val userOption = userRepository.findUserByEmail(email)
+        if (userOption == null || !userOption.isPresent) {
+            throw ResourceNotFoundException("User", "email", email)
+        }
+        val user = userOption.get()
+
+        // 2. determine if the user already signed in
+        val potentialTokenKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.USERID_KEY + user.id
+        if (redisTemplate.hasKey(potentialTokenKey)) {
+            // user already signed in, extend token valid period
+            redisTemplate.expire(potentialTokenKey, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
+            return redisTemplate.opsForValue().get(potentialTokenKey)
+        }
+
+        // 3. verify password
+        if (!PasswordUtil.hashPassword(password, user.salt).equals(user.passwordHash)) {
+            throw AuthenticationFailedException(user.id.toString(), email)
+        }
+
+        // 3. generate token for this session
+        val accessToken = SignInTokenUtil.generateAccessToken()
+
+        // 4. put token into ElastiCache for this session
+        val signInTokenKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.ACCESS_TOKEN_KEY + accessToken
+        // set token:userid
+        redisTemplate.opsForValue().set(signInTokenKey, user.id.toString(), RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
+        // set userid:token
+        val signInTokenReversedKey = RedisConstants.USER_SIGN_IN_PREFIX + RedisConstants.USERID_KEY + user.id
+        redisTemplate.opsForValue().set(signInTokenReversedKey, accessToken, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
+
+        return accessToken
+    }
 
     /**
      * create new user
@@ -40,7 +79,7 @@ class UserServiceImpl @Autowired constructor(
         val hashedPassword = PasswordUtil.hashPassword(password, salt)
 
         // 3. Construct user object
-        val newUser = User(email, email, hashedPassword, String(salt), role, false, false)
+        val newUser = User(email, email, hashedPassword, salt, role, false, false)
 
         // 4. Save to database
         val savedUser = userRepository.save(newUser)

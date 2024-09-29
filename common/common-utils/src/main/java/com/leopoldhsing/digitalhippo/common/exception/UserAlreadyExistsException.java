@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class UserAlreadyExistsException extends RuntimeException {
 
     public UserAlreadyExistsException(String email) {
-        super(String.format("Email %s already exists", email));
+        super("This email is already in use. Sign in instead?");
     }
 }

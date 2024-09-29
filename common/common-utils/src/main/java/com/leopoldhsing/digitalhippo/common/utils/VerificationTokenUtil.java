@@ -24,4 +24,6 @@ public class VerificationTokenUtil {
         return token.replaceAll("[+/=]", "");
     }
 
+    private VerificationTokenUtil() {
+    }
 }

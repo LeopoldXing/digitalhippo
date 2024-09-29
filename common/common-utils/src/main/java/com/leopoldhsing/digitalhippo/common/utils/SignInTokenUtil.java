@@ -2,12 +2,12 @@ package com.leopoldhsing.digitalhippo.common.utils;
 
 import java.util.UUID;
 
-public class TokenUtil {
+public class SignInTokenUtil {
 
-    public static String generateToken() {
+    public static String generateAccessToken() {
         return UUID.randomUUID().toString().replace("-", "");
     }
 
-    private TokenUtil() {
+    private SignInTokenUtil() {
     }
 }
