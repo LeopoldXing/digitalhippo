@@ -32,3 +32,43 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Local .terraform directories
+terraform/**/*.terraform/*
+
+# .tfstate files
+terraform/**/*.tfstate
+terraform/**/*.tfstate.*
+
+# Crash log files
+terraform/crash.log
+
+# Exclude all .tfvars files, which might contain sensitive data
+terraform/**/*.tfvars
+
+# Ignore override files as they are usually used to override resources locally.
+terraform/override.tf
+terraform/override.tf.json
+terraform/**/*_override.tf
+terraform/**/*_override.tf.json
+
+# Ignore CLI configuration files
+terraform/.terraformrc
+terraform/terraform.rc
+
+# Ignore any logs generated during Terraform operation
+terraform/terraform.log
+
+# Ignore local executable binaries
+terraform/terraform.d/plugins/*
+
+# Ignore output of terraform graph command
+terraform/**/*.dot
+terraform/**/*.svg
+
+# Ignore certain backup files and directories created by editors
+terraform/*~
+terraform/*.backup
+terraform/*.bak
+terraform/*.tmp
+terraform/*.temp

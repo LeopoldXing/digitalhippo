@@ -1,20 +1,18 @@
 resource "aws_iam_role" "digitalhippo-eks-service-role" {
   name = "digitalhippo-eks-service-role"
 
-  assume_role_policy = <<POLICY
-  {
-    "Version": "2012-10-17",
-    "Statement": [
-    {
-      "Effect": "Allow",
-      "Principal": {
-        "Service": "eks.amazonaws.com"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = "sts:AssumeRole",
+        Principal = {
+          Service = "eks.amazonaws.com"
+        }
       }
-      "Action": "sts:AssumeRole"
-    }
-  ]
-}
-POLICY
+    ]
+  })
 }
 
 # attach required IAM policy to the EKS cluster IAM Role
@@ -25,7 +23,7 @@ resource "aws_iam_role_policy_attachment" "digitalhippo-AmazonEKSClusterPolicy" 
 
 # EKS cluster digitalhippo-backend-cluster
 resource "aws_eks_cluster" "digitalhippo-backend-cluster" {
-  name     = "digitalhippo-backend"
+  name = "digitalhippo-backend"
   # IAM role
   role_arn = aws_iam_role.digitalhippo-eks-service-role.arn
 

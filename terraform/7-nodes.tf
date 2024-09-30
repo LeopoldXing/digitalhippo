@@ -45,8 +45,9 @@ resource "aws_eks_node_group" "private-nodes" {
     aws_subnet.private-subnet-ca-central-1a.id
   ]
 
-  capacity_type = "ON_DEMAND"
-  instance_types = ["t3.small"]
+  # capacity_type = "ON_DEMAND"
+  capacity_type = "SPOT"
+  instance_types = ["t3.micro", "t3.small"]
   scaling_config {
     desired_size = 1
     max_size     = 3
