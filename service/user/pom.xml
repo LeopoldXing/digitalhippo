@@ -83,7 +83,7 @@
                 <version>3.4.1</version>
                 <configuration>
                     <to>
-                        <image>digitalhippo/user:${project.version}</image>
+                        <image>digitalhippo/user:latest</image>
                     </to>
                 </configuration>
             </plugin>

@@ -75,7 +75,7 @@
                 <version>3.4.1</version>
                 <configuration>
                     <to>
-                        <image>digitalhippo/gateway:${project.version}</image>
+                        <image>digitalhippo/gateway:latest</image>
                     </to>
                 </configuration>
             </plugin>
