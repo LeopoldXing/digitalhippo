@@ -6,13 +6,14 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-@Table(name = "users")
 @Entity
+@Table(name = "users")
 public class User extends BaseEntity {
     private String username;
     private String email;
     private String passwordHash;
     private String salt;
+
     @Enumerated(EnumType.STRING)
     private UserRole role;
     private boolean verified;
