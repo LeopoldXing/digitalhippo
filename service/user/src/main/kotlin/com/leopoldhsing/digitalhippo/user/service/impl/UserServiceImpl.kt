@@ -5,6 +5,7 @@ import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedExcept
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
 import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
+import com.leopoldhsing.digitalhippo.common.utils.InputSanitizeString
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
 import com.leopoldhsing.digitalhippo.common.utils.SignInTokenUtil
@@ -96,8 +97,9 @@ class UserServiceImpl @Autowired constructor(
     /**
      * create new user
      */
-    override fun createUser(email: String, password: String, role: UserRole): User {
+    override fun createUser(originalEmail: String, password: String, role: UserRole): User {
         // 1. Determine if the email already exists
+        val email = InputSanitizeString.sanitizeString(originalEmail)
         val userOptional = userRepository.findUserByEmail(email)
         if (userOptional?.isPresent!!) {
             throw UserAlreadyExistsException(email)
@@ -105,7 +107,7 @@ class UserServiceImpl @Autowired constructor(
 
         // 2. Calculate hashed password
         val salt = PasswordUtil.generateSalt()
-        val hashedPassword = PasswordUtil.hashPassword(password, salt)
+        val hashedPassword = PasswordUtil.hashPassword(InputSanitizeString.sanitizeString(password), salt)
 
         // 3. Construct user object
         val newUser = User(email, email, hashedPassword, salt, role, false, false)
