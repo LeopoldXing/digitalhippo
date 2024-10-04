@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthCredentialValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
+import { AuthCredentialsValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRouter, useSearchParams } from "next/navigation";
 import { setCookie } from "cookies-next";
-import { useSignIn } from "@/hooks/useAuth";
+import { useSignIn } from "@/hooks/authHooks";
+import { trpc } from "@/trpc/client";
 
 const Page = () => {
   const router = useRouter();
@@ -23,7 +24,7 @@ const Page = () => {
   const origin = searchParams.get('origin')
 
   const form = useForm<AuthCredentialValidatorType>({
-    resolver: zodResolver(AuthCredentialValidator),
+    resolver: zodResolver(AuthCredentialsValidator),
     defaultValues: {
       email: "",
       password: "",
@@ -37,25 +38,31 @@ const Page = () => {
     router.push('/sign-in', undefined)
   }
 
+  /**
+   * payload sign in
+   */
+  const { mutate: payloadSignIn } = trpc.auth.signIn.useMutation()
+
   /*  sign in  */
   const { signIn, isLoading } = useSignIn()
   const handleSignIn = async ({ email, password }: AuthCredentialValidatorType) => {
-    const signInToken = await signIn({ email, password });
+    const signInToken = await signIn({ email, password, isSeller });
     const expirationTime = new Date();
     expirationTime.setHours(expirationTime.getHours() + 1);
     // save access token into cookie
-    setCookie('digitalhippo-access-token', signInToken, {
-      expires: expirationTime
-    })
+    setCookie('digitalhippo-access-token', signInToken, { expires: expirationTime })
 
-    if (origin) {
-      // redirect user to where they were before signing in
-      router.push(`/${origin}`)
+    // paylod sign in
+    payloadSignIn({ email, password })
+
+    if (isSeller) {
+      router.push('/sell')
       router.refresh();
       return
     }
-    if (isSeller) {
-      router.push('/sell')
+    if (origin) {
+      // redirect user to where they were before signing in
+      router.push(`/${origin}`)
       router.refresh();
       return
     }

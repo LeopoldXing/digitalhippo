@@ -4,7 +4,7 @@ import { Loader2, XCircle } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { buttonVariants } from './ui/button'
-import { useVerifyEmail } from "@/hooks/useAuth";
+import { useVerifyEmail } from "@/hooks/authHooks";
 
 interface VerifyEmailProps {
   token: string

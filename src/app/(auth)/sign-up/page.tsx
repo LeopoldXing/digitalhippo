@@ -8,34 +8,46 @@ import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { AuthCredentialValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
+import { AuthCredentialsValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
 import { useRouter } from 'next/navigation'
-import { useState } from "react";
-import { useSignUp } from "@/hooks/useAuth";
+import { trpc } from "@/trpc/client";
+import { useMutation } from "react-query";
+import { createUserRequest } from "@/api/UserRequest";
 
 const Page = () => {
   const router = useRouter();
   const form = useForm<AuthCredentialValidatorType>({
-    resolver: zodResolver(AuthCredentialValidator),
+    resolver: zodResolver(AuthCredentialsValidator),
     defaultValues: {
       email: "",
       password: "",
     }
   });
 
-  const { createUser, isSuccess } = useSignUp();
-  const [email, setEmail] = useState("");
+  /**
+   * payload signup
+   */
+  const { mutate: payloadSignUp } = trpc.auth.createPayloadUser.useMutation()
+
+  /**
+   * signup
+   */
+  const { mutateAsync: createUser } = useMutation(createUserRequest, {
+    retry: false,
+    onError: (error) => {
+      toast.error(`${error}`);
+    },
+    onSuccess: (data) => {
+      toast.success(`Verification email sent to ${data?.email}`);
+      // redirect user to sign in
+      router.push(`/verify-email?to=${data?.email}`)
+    }
+  });
   const handleSignUp = async ({ email, password }: AuthCredentialValidatorType) => {
     await createUser({ email, password });
-    setEmail(email)
-  }
-
-  if(isSuccess) {
-    toast.success(`Verification email sent to ${email}`);
-    // redirect user to sign in
-    router.push(`/verify-email?to=${email}`)
+    payloadSignUp({ email, password })
   }
 
   return (

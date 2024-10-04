@@ -5,6 +5,7 @@ import './globals.css'
 import React, { ReactNode } from "react";
 import Navbar from "@/components/Navbar";
 import ReactQueryClientProvider from "@/lib/ReactQueryClientProvider";
+import Providers from "@/components/Providers";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,8 +17,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body className={cn('relative h-full font-sans antialiased', inter.className)}>
       <ReactQueryClientProvider>
         <main className='relative flex flex-col min-h-screen'>
-          <Navbar/>
-          <div className="flex-grow flex-1">{children}</div>
+          <Providers>
+            <Navbar/>
+            <div className="flex-grow flex-1">{children}</div>
+          </Providers>
         </main>
       </ReactQueryClientProvider>
       <Toaster position='top-center' richColors/>
