@@ -1,0 +1,16 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: eureka-server
+  namespace: digitalhippo
+---
+apiVersion: v1
+kind: pod
+metadata:
+  name: aws-cli
+  namespace: digitalhippo
+spec:
+  serverAccountName: eureka-server
+  container:
+    - name: aw
