@@ -125,8 +125,8 @@ public class GlobalAuthFilter implements GlobalFilter {
     /**
      * get token from request header
      *
-     * @param exchange
-     * @return
+     * @param exchange request & response
+     * @return token
      */
     private String getTokenFromRequest(ServerWebExchange exchange) {
         // 1. get request

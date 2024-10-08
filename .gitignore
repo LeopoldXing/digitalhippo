@@ -4,6 +4,9 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### k8s ###
+/k8s/**/1-secrets.yml
+
 ### STS ###
 .apt_generated
 .classpath

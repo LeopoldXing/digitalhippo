@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: digitalhippo-config-map
+  namespace: digitalhippo
+data:
+  # testing dependencies
+  # redis (AWS ElastiCache)
+  REDIS_HOST: "localhost"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: "1234"
+  REDIS_SESSION_DATABASE: "0"
+  REDIS_CACHING_DATABASE: "1"
+  # postgres (AWS RDS / AURORA)
+  POSTGRES_URL: "localhost"
+  POSTGRES_USERNAME: "postgres"
+  POSTGRES_PASSWORD: "1234567890"
+  # elasticsearch
+  ES_ENDPOINT: "http://localhost:9200"
+  # cluster info
+  SPRING_PROFILES_ACTIVE: "prod"
+  EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE: "http://eureka-server:9002/eureka"
+  EUREKA_APPLICATION_NAME: "eureka-server"
+  USER_APPLICATION_NAME: "user"
+  PRODUCT_APPLICATION_NAME: "product"
+  GATEWAY_APPLICATION_NAME: "gateway"
+  EMAIL_APPLICATION_NAME: "email"
+  ORDER_APPLICATION_NAME: "order"
