@@ -9,6 +9,7 @@ services:
       - "6379:6379"
     networks:
       - digitalhippo-dev-network
+
   postgres:
     image: postgres:16.4-alpine
     container_name: postgres-digitalhippo-dev
@@ -18,6 +19,7 @@ services:
       POSTGRES_PASSWORD: 1234567890
     networks:
       - digitalhippo-dev-network
+
   mongodb:
     image: mongodb/mongodb-community-server:7.0.5-ubi8
     container_name: digitalhippo-mongodb
@@ -26,6 +28,18 @@ services:
       - MONGO_INITDB_ROOT_PASSWORD=1234
     ports:
       - "27017:27017"
+    networks:
+      - digitalhippo-dev-network
+
+  localstack:
+    image: localstack/localstack
+    container_name: localstack-digitalhippo-dev
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: sns,sqs
+      DEFAULT_REGION: ca-central-1
+      DEBUG: 1
     networks:
       - digitalhippo-dev-network
 

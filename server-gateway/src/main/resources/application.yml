@@ -4,11 +4,6 @@ server:
 spring:
   application:
     name: gateway
-  redis:
-    host: localhost
-    port: 6379
-    password: 1234
-    database: 0
   cloud:
     gateway:
       globalcors:
@@ -38,6 +33,12 @@ spring:
           uri: lb://user
           predicates:
             - Path=/api/user/**
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 1234
+      database: 0
 
 url:
   auth:
