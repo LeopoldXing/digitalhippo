@@ -22,12 +22,54 @@ services:
 
   mongodb:
     image: mongodb/mongodb-community-server:7.0.5-ubi8
-    container_name: digitalhippo-mongodb
+    container_name: mongodb-digitalhippo-dev
     environment:
       - MONGO_INITDB_ROOT_USERNAME=lupin
       - MONGO_INITDB_ROOT_PASSWORD=1234
     ports:
       - "27017:27017"
+    networks:
+      - digitalhippo-dev-network
+
+  # ELK Stack
+  elasticsearch:
+    container_name: elasticsearch-digitalhippo-dev
+    image: elasticsearch:8.14.1
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - es01-log-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - digitalhippo-dev-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -I http://localhost:9200 || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+  kibana:
+    container_name: kibana-elasticsearch-dev
+    image: kibana:8.14.1
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -I http://localhost:5601 || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
     networks:
       - digitalhippo-dev-network
 

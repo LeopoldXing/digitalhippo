@@ -16,6 +16,11 @@ spring:
       port: 6379
       password: 1234
       database: 2
+  elasticsearch:
+    uris:
+      - http://localhost:9200
+    username: elastic
+    password:
 
 eureka:
   instance:
