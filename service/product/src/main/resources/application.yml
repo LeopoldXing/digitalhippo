@@ -4,23 +4,28 @@ server:
 spring:
   application:
     name: product
+  # x86 device use this configuration
+  redis:
+    host: ${REDIS_HOST}
+    port: ${REDIS_PORT}
+    password: ${REDIS_PASSWORD}
+    database: ${REDIS_CACHING_DATABASE}
+  # mac device with ARM chip use this configuration
+#  data:
+#    redis:
+#      host: ${REDIS_HOST}
+#      port: ${REDIS_PORT}
+#      password: ${REDIS_PASSWORD}
+#      database: ${REDIS_CACHING_DATABASE}
   datasource:
-    url: jdbc:postgresql://localhost:5432/digitalhippo
-    username: postgres
-    password: 1234567890
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
   jpa:
     show-sql: true
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 1234
-      database: 2
   elasticsearch:
     uris:
-      - http://localhost:9200
-    username: elastic
-    password:
+      - ${ES_ENDPOINT}
 
 eureka:
   instance:
