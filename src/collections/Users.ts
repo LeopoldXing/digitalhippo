@@ -1,13 +1,12 @@
 import { Access, CollectionConfig } from 'payload/types'
+import { deleteCookie } from "cookies-next";
 
 const adminsAndUser: Access = ({ req: { user } }) => {
+  if (!user) return false
+
   if (user.role === 'admin') return true
 
-  return {
-    id: {
-      equals: user.id,
-    },
-  }
+  return { id: { equals: user?.id } }
 }
 
 export const Users: CollectionConfig = {
@@ -53,5 +52,11 @@ export const Users: CollectionConfig = {
         { label: 'User', value: 'user' }
       ]
     }
-  ]
+  ],
+  hooks: {
+    afterLogout: [() => {
+      // sign out
+      deleteCookie("digitalhippo-access-token")
+    }]
+  }
 }
