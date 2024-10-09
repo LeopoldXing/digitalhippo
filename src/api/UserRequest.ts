@@ -3,6 +3,7 @@ import { AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { ErrorResponseType, User } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL;
 
 /**
  * query user info by access token
@@ -61,4 +62,18 @@ const createUserRequest = async (params: AuthCredentialValidatorType): Promise<U
   return response.json()
 }
 
-export { getUserRequest, signOut, createUserRequest }
+const payloadSignIn = async ({ email, password }: { email: string, password: string }) => {
+  const response = await fetch(`${FRONTEND_ENDPOINT}/api/users/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ email, password })
+  });
+  if (!response.ok) {
+    throw new Error("Failed to login Payload")
+  }
+  return response.json()
+}
+
+export { getUserRequest, signOut, createUserRequest, payloadSignIn }

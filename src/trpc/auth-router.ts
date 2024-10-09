@@ -60,7 +60,7 @@ export const authRouter = router({
         const payload = await getPayloadClient()
 
         await payload.login({
-          collection: 'users',
+          collection: 'Users',
           data: {
             email,
             password

@@ -1,6 +1,7 @@
 import { Access, CollectionConfig } from 'payload/types'
-import { PRODUCT_CATEGORIES } from "../config/index";
 import { User } from "@/payload-types";
+import { PRODUCT_CATEGORIES } from "../config/index";
+import { afterChangeProductHook, afterDeleteProductHook } from "./hooks/ProductsHooks";
 
 const isAdminOrHasAccess = (): Access => ({ req: { user: _user } }) => {
   const user = _user as User | undefined
@@ -26,6 +27,10 @@ export const Products: CollectionConfig = {
   slug: 'products',
   admin: {
     useAsTitle: 'name',
+  },
+  hooks: {
+    afterChange: [afterChangeProductHook],
+    afterDelete: [afterDeleteProductHook]
   },
   access: {
     read: isAdminOrHasAccess(),

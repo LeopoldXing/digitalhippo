@@ -13,7 +13,7 @@ import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/comp
 import { useRouter, useSearchParams } from "next/navigation";
 import { setCookie } from "cookies-next";
 import { useSignIn } from "@/hooks/authHooks";
-import { trpc } from "@/trpc/client";
+import { payloadSignIn } from "@/api/UserRequest";
 
 const Page = () => {
   const router = useRouter();
@@ -38,11 +38,6 @@ const Page = () => {
     router.push('/sign-in', undefined)
   }
 
-  /**
-   * payload sign in
-   */
-  const { mutate: payloadSignIn } = trpc.auth.signIn.useMutation()
-
   /*  sign in  */
   const { signIn, isLoading } = useSignIn()
   const handleSignIn = async ({ email, password }: AuthCredentialValidatorType) => {
@@ -52,8 +47,8 @@ const Page = () => {
     // save access token into cookie
     setCookie('digitalhippo-access-token', signInToken, { expires: expirationTime })
 
-    // paylod sign in
-    payloadSignIn({ email, password })
+    // payload sign in
+    await payloadSignIn({ email, password })
 
     if (isSeller) {
       router.push('/sell')
