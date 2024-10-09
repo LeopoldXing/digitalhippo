@@ -1,16 +1,41 @@
-import { getCookie } from "cookies-next";
 import { PayloadRequest } from "payload/types";
 import { Product } from "@/payload-types";
+import { getCookie } from "cookies-next";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+const beforeChangeProductHook = async ({
+                                         data,
+                                         req,
+                                         operation
+                                       }: {
+  data: Partial<Product>,
+  req: PayloadRequest,
+  operation: string | number
+}) => {
+  if (operation === 'create') {
+    if (req.user) {
+      data.user = req.user.id;
+    } else {
+      throw new Error('Unauthorized, can not create product');
+    }
+  }
+}
+
+/**
+ * create product in backend
+ * @param req
+ * @param operation
+ * @param doc
+ */
 const afterChangeProductHook = async ({ req, operation, doc }: { req: PayloadRequest, operation: string, doc: Product }) => {
   console.log("准备创建product")
   console.log(doc)
-  console.log(req)
+  console.log(`${BASE_URL}/api/product`);
+  console.log(`Bearer ${getCookie("digitalhippo-access-token")}`)
   if (operation === 'create') {
     try {
-      const response = await fetch(`https://${BASE_URL}/api/product`, {
+      const response = await fetch(`${BASE_URL}/api/product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -31,4 +56,4 @@ const afterDeleteProductHook = async ({ req, id, doc }: { req: PayloadRequest, i
 
 }
 
-export { afterChangeProductHook, afterDeleteProductHook }
+export { afterChangeProductHook, afterDeleteProductHook, beforeChangeProductHook }
