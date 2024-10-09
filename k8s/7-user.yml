@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: user
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: user
+  template:
+    metadata:
+      labels:
+        app: user
+    spec:
+      containers:
+        - name: user
+          image: digitalhippo/user:latest
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_REGION
+              value: "ca-central-1"
+            - name: ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: ACCESS_KEY
+            - name: SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: SECRET_KEY
+            - name: SNS_TOPIC_ARN
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: SNS_TOPIC_ARN
+            - name: REDIS_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: REDIS_PORT
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: REDIS_PASSWORD
+            - name: REDIS_SESSION_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: REDIS_SESSION_DATABASE
+            - name: POSTGRES_URL
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: POSTGRES_URL
+            - name: POSTGRES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: POSTGRES_USERNAME
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: POSTGRES_PASSWORD
+          ports:
+            - containerPort: 9004
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: user
+  namespace: digitalhippo
+spec:
+  selector:
+    app: user
+  type: ClusterIP
+  ports:
+    - port: 9004
+      targetPort: 9004
