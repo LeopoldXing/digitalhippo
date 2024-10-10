@@ -1,7 +1,7 @@
 import { Access, CollectionConfig } from 'payload/types'
 import { User } from "@/payload-types";
 import { PRODUCT_CATEGORIES } from "../config/index";
-import { afterChangeProductHook, afterDeleteProductHook, beforeChangeProductHook, syncUser } from "./hooks/ProductsHooks";
+import { afterChangeProductHook, beforeDeleteProductHook, beforeChangeProductHook, syncUser } from "./hooks/ProductsHooks";
 
 const isAdminOrHasAccess = (): Access => ({ req: { user: _user } }) => {
   const user = _user as User | undefined
@@ -32,8 +32,8 @@ export const Products: CollectionConfig = {
   },
   hooks: {
     beforeChange: [beforeChangeProductHook],
-    afterChange: [syncUser, afterChangeProductHook],
-    afterDelete: [afterDeleteProductHook]
+    afterChange: [afterChangeProductHook, syncUser],
+    beforeDelete: [beforeDeleteProductHook]
   },
   access: {
     read: isAdminOrHasAccess(),

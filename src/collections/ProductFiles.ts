@@ -1,6 +1,6 @@
 import { User } from '../payload-types'
 import { Access, CollectionConfig } from "payload/types";
-import { addUser } from "./hooks/ProductFilesHooks";
+import { addUser, renameFile } from "./hooks/ProductFilesHooks";
 
 const yourOwnAndPurchased: Access = async ({ req }) => {
   const user = req.user as User | null
@@ -51,7 +51,7 @@ export const ProductFiles: CollectionConfig = {
     hidden: ({ user }) => user.role !== 'admin'
   },
   hooks: {
-    beforeChange: [addUser]
+    beforeChange: [addUser, renameFile]
   },
   access: {
     read: yourOwnAndPurchased,

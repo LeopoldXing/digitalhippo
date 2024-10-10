@@ -2,7 +2,7 @@ import { PayloadRequest } from "payload/types";
 import { Product } from "@/payload-types";
 import { getCookie } from "cookies-next";
 import { ProductApiType } from "@/types";
-import { AfterChangeHook, BeforeChangeHook } from "payload/dist/collections/config/types";
+import { AfterChangeHook, BeforeChangeHook, BeforeDeleteHook } from "payload/dist/collections/config/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const S3_ENDPOINT_HOST = process.env.S3_ENDPOINT_HOST;
@@ -76,33 +76,38 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
  * @param req
  * @param doc
  */
-const afterDeleteProductHook = async ({ req, doc }: { req: PayloadRequest, id: string | number, doc: Product }) => {
+const beforeDeleteProductHook: BeforeDeleteHook = async ({ req, id }: {
+  req: PayloadRequest,
+  id: string | number,
+}) => {
   // get accessToken
   const accessToken = getCookie("digitalhippo-access-token", { req });
 
-  // initialize product data
-  const productData: ProductApiType = {
-    filename: doc.name,
-    description: doc.description || '',
-    price: doc.price,
-    category: doc.category,
-    productFileUrl: '',
-    productImages: []
-  }
+  // get product
+  const doc: Product = await req.payload.findByID({
+    collection: "products",
+    id: id
+  })
 
-  // construct product data
-  await constructProductData(doc, req, productData);
+  // search product file
+  const productFileDoc = await req.payload.findByID({
+    collection: 'product_files',
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    id: doc.product_files.id
+  });
 
   // send request
   try {
-    const response = await fetch(`${BASE_URL}/api/product/${productData.productFileUrl}`, {
+    await fetch(`${BASE_URL}/api/product`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${accessToken}`
-      }
+      },
+      body: `https://${S3_BUCKET}.${S3_ENDPOINT_HOST}/${productFileDoc.prefix}/${productFileDoc.filename}`
     })
-    return response.json();
+    return doc;
   } catch (error) {
     console.log(`delete product failed: ${error}`)
   }
@@ -165,7 +170,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (thumbnail) {
         productData.productImages.push({
-          filename: thumbnail.filename!,
+          filename: currentImage.filename!,
           filesize: thumbnail.filesize!,
           fileType: "thumbnail",
           mimeType: thumbnail.mimeType!,
@@ -177,7 +182,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (card) {
         productData.productImages.push({
-          filename: card.filename!,
+          filename: currentImage.filename!,
           filesize: card.filesize!,
           fileType: "card",
           mimeType: card.mimeType!,
@@ -189,7 +194,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (tablet) {
         productData.productImages.push({
-          filename: tablet.filename!,
+          filename: currentImage.filename!,
           filesize: tablet.filesize!,
           fileType: "tablet",
           mimeType: tablet.mimeType!,
@@ -202,4 +207,4 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
   }
 }
 
-export { syncUser, afterChangeProductHook, afterDeleteProductHook, beforeChangeProductHook }
+export { syncUser, afterChangeProductHook, beforeDeleteProductHook, beforeChangeProductHook }
