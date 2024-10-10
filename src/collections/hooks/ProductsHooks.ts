@@ -55,7 +55,7 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
       await constructProductData(doc, req, productData);
 
       // send request
-      const response = await fetch(`${BASE_URL}/api/product`, {
+      await fetch(`${BASE_URL}/api/product`, {
         method: operation === 'create' ? 'POST' : 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
         body: JSON.stringify(productData)
       });
 
-      return response.json();
+      return doc;
     } catch (error) {
       console.log(`create / update product failed: ${error}`)
     }
@@ -113,7 +113,7 @@ const afterDeleteProductHook = async ({ req, doc }: { req: PayloadRequest, id: s
  * @param req
  * @param doc
  */
-const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
+const syncUser: AfterChangeHook<Product> = async ({ req, doc }: { req: PayloadRequest, doc: Product }) => {
   const fullUser = await req.payload.findByID({
     collection: 'users',
     id: req.user.id
@@ -123,7 +123,7 @@ const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
     const { products } = fullUser
 
     const allIDs = [
-      ...(products?.map((product) => typeof product === 'object' ? product.id : product) || [])
+      ...(products?.map((product) => typeof product === 'object' ? product?.id : product) || [])
     ]
 
     const createdProductIDs = allIDs.filter(

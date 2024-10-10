@@ -32,7 +32,7 @@ export const Products: CollectionConfig = {
   },
   hooks: {
     beforeChange: [beforeChangeProductHook],
-    afterChange: [afterChangeProductHook, syncUser],
+    afterChange: [syncUser, afterChangeProductHook],
     afterDelete: [afterDeleteProductHook]
   },
   access: {
