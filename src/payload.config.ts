@@ -9,6 +9,8 @@ import { Products } from "./collections/Products";
 import { Users } from "./collections/Users";
 import { ProductFiles } from "./collections/ProductFiles";
 import { Orders } from "./collections/Orders";
+import { cloudStorage } from "@payloadcms/plugin-cloud-storage";
+import { s3Adapter } from "@payloadcms/plugin-cloud-storage/s3";
 
 dotenv.config({
   path: path.resolve(__dirname, '../.env'),
@@ -17,6 +19,42 @@ dotenv.config({
 export default buildConfig({
   serverURL: process.env.NEXT_PUBLIC_FRONTEND_URL || '',
   collections: [Users, Products, Media, ProductFiles, Orders],
+  plugins: [
+    // Pass the plugin to Payload
+    cloudStorage({
+      collections: {
+        // Enable cloud storage for Media collection
+        "media": {
+          // Create the S3 adapter
+          adapter: s3Adapter({
+            config: {
+              endpoint: `https://${process.env.S3_ENDPOINT_HOST}`,
+              credentials: {
+                accessKeyId: process.env.AWS_ACCESS_KEY!,
+                secretAccessKey: process.env.AWS_SECRET_KEY!
+              }
+            },
+            bucket: process.env.S3_BUCKET!
+          }),
+          prefix: "product_images"
+        },
+        "product_files": {
+          // Create the S3 adapter
+          adapter: s3Adapter({
+            config: {
+              endpoint: process.env.S3_ENDPOINT,
+              credentials: {
+                accessKeyId: process.env.AWS_ACCESS_KEY!,
+                secretAccessKey: process.env.AWS_SECRET_KEY!
+              }
+            },
+            bucket: process.env.S3_BUCKET!
+          }),
+          prefix: "product_files"
+        }
+      }
+    })
+  ],
   routes: {
     admin: '/sell'
   },

@@ -1,6 +1,8 @@
 import { User } from '../payload-types'
 import { BeforeChangeHook } from "payload/dist/collections/config/types";
 import { Access, CollectionConfig } from "payload/types";
+import { uploadProductFile } from "./hooks/ProductFilesHooks";
+import { s3Adapter } from "@payloadcms/plugin-cloud-storage/s3";
 
 const addUser: BeforeChangeHook = ({ req, data }) => {
   const user = req.user as User | null
@@ -57,6 +59,7 @@ export const ProductFiles: CollectionConfig = {
   },
   hooks: {
     beforeChange: [addUser],
+    afterChange: [uploadProductFile]
   },
   access: {
     read: yourOwnAndPurchased,
@@ -65,10 +68,9 @@ export const ProductFiles: CollectionConfig = {
   },
   upload: {
     staticURL: '/product_files',
-    staticDir: 'product_files',
     mimeTypes: [
       'image/*',
-      'font/*',
+      'font/!*',
       'application/postscript',
     ]
   },

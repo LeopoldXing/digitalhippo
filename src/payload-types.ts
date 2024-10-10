@@ -59,6 +59,7 @@ export interface Product {
 }
 
 export interface ProductFile {
+  prefix: any;
   id: string;
   user?: (string | null) | User;
   updatedAt: string;
@@ -72,6 +73,7 @@ export interface ProductFile {
 }
 
 export interface Media {
+  prefix: any;
   id: string;
   user?: (string | null) | User;
   updatedAt: string;

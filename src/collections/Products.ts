@@ -178,7 +178,7 @@ export const Products: CollectionConfig = {
           relationTo: 'media',
           required: true
         },
-      ],
-    },
-  ],
+      ]
+    }
+  ]
 }

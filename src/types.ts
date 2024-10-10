@@ -17,3 +17,21 @@ export type ErrorResponseType = {
   timestamp: string,
   trace: string
 }
+
+export type ProductApiType = {
+  id?: string,
+  filename: string,
+  description?: string,
+  price: number,
+  category: 'ui_kits' | 'icons',
+  productFileUrl: string,
+  productImages: Array<{
+    filename: string,
+    filesize: number,
+    height: number,
+    width: number,
+    mimeType: string,
+    fileType: 'thumbnail' | 'card' | 'tablet',
+    url: string
+  }>
+}
