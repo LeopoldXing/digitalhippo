@@ -69,5 +69,5 @@ export const authRouter = router({
         })
 
         return { success: true }
-      }),
+      })
 })

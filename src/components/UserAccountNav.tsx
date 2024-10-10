@@ -1,7 +1,7 @@
 'use client'
 
 import { Button } from './ui/button'
-import Link from 'next/link'
+import Link from "next/link";
 import { User } from "@/types";
 import {
   DropdownMenu,

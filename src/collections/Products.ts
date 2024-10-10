@@ -33,7 +33,7 @@ const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
   }
 }
 
-const isAdminOrHasAccess = (): Access => ({ req: { user: _user }, id }) => {
+const isAdminOrHasAccess = (): Access => ({ req: { user: _user } }) => {
   const user = _user as User | undefined
 
   if (!user) return false
@@ -119,9 +119,9 @@ export const Products: CollectionConfig = {
       type: 'select',
       defaultValue: 'pending',
       access: {
-        create: ({ req }) => req.user.role === 'admin',
-        read: ({ req }) => req.user.role === 'admin',
-        update: ({ req }) => req.user.role === 'admin',
+        create: ({ req }) => req.user?.role === 'admin',
+        read: ({ req }) => req.user?.role === 'admin',
+        update: ({ req }) => req.user?.role === 'admin',
       },
       options: [
         {

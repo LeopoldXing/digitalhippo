@@ -4,11 +4,7 @@ import { getCookie } from "cookies-next";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-const beforeChangeProductHook = async ({
-                                         data,
-                                         req,
-                                         operation
-                                       }: {
+const beforeChangeProductHook = async ({ data, req, operation }: {
   data: Partial<Product>,
   req: PayloadRequest,
   operation: string | number
@@ -28,18 +24,22 @@ const beforeChangeProductHook = async ({
  * @param operation
  * @param doc
  */
-const afterChangeProductHook = async ({ req, operation, doc }: { req: PayloadRequest, operation: string, doc: Product }) => {
+const afterChangeProductHook = async ({ req, operation, doc }: {
+  req: PayloadRequest,
+  operation: string,
+  doc: Product
+}) => {
   console.log("准备创建product")
   console.log(doc)
   console.log(`${BASE_URL}/api/product`);
-  console.log(`Bearer ${getCookie("digitalhippo-access-token")}`)
+  console.log(`Bearer ${getCookie("digitalhippo-access-token", { req })}`)
   if (operation === 'create') {
     try {
       const response = await fetch(`${BASE_URL}/api/product`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          "Authorization": `Bearer ${getCookie("digitalhippo-access-token")}`
+          "Authorization": `Bearer ${getCookie("digitalhippo-access-token", { req })}`
         },
         body: JSON.stringify(doc)
       });

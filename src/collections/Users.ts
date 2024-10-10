@@ -1,4 +1,6 @@
-import { Access, CollectionConfig } from 'payload/types'
+import { Access, CollectionConfig, PayloadRequest } from 'payload/types'
+import { RequestContext } from "payload";
+import e from "express";
 import { deleteCookie } from "cookies-next";
 
 const adminsAndUser: Access = ({ req: { user } }) => {
@@ -54,9 +56,9 @@ export const Users: CollectionConfig = {
     }
   ],
   hooks: {
-    afterLogout: [() => {
+    afterLogout: [({ req, res }: { req: PayloadRequest, res: e.Response, context: RequestContext }) => {
       // sign out
-      deleteCookie("digitalhippo-access-token")
+      deleteCookie("digitalhippo-access-token", { req, res })
     }]
   }
 }

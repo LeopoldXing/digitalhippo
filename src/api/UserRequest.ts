@@ -62,6 +62,11 @@ const createUserRequest = async (params: AuthCredentialValidatorType): Promise<U
   return response.json()
 }
 
+/**
+ * sign in payload
+ * @param email
+ * @param password
+ */
 const payloadSignIn = async ({ email, password }: { email: string, password: string }) => {
   const response = await fetch(`${FRONTEND_ENDPOINT}/api/users/login`, {
     method: 'POST',
