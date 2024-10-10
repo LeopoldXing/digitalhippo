@@ -1,13 +1,6 @@
 import { User } from '../payload-types'
-import { BeforeChangeHook } from "payload/dist/collections/config/types";
 import { Access, CollectionConfig } from "payload/types";
-import { uploadProductFile } from "./hooks/ProductFilesHooks";
-import { s3Adapter } from "@payloadcms/plugin-cloud-storage/s3";
-
-const addUser: BeforeChangeHook = ({ req, data }) => {
-  const user = req.user as User | null
-  return { ...data, user: user?.id }
-}
+import { addUser } from "./hooks/ProductFilesHooks";
 
 const yourOwnAndPurchased: Access = async ({ req }) => {
   const user = req.user as User | null
@@ -58,8 +51,7 @@ export const ProductFiles: CollectionConfig = {
     hidden: ({ user }) => user.role !== 'admin'
   },
   hooks: {
-    beforeChange: [addUser],
-    afterChange: [uploadProductFile]
+    beforeChange: [addUser]
   },
   access: {
     read: yourOwnAndPurchased,

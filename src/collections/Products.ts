@@ -1,37 +1,7 @@
 import { Access, CollectionConfig } from 'payload/types'
-import { Product, User } from "@/payload-types";
+import { User } from "@/payload-types";
 import { PRODUCT_CATEGORIES } from "../config/index";
-import { afterChangeProductHook, afterDeleteProductHook, beforeChangeProductHook } from "./hooks/ProductsHooks";
-import { AfterChangeHook } from "payload/dist/collections/config/types";
-
-const syncUser: AfterChangeHook<Product> = async ({ req, doc }) => {
-  const fullUser = await req.payload.findByID({
-    collection: 'users',
-    id: req.user.id
-  })
-
-  if (fullUser && typeof fullUser === 'object') {
-    const { products } = fullUser
-
-    const allIDs = [
-      ...(products?.map((product) => typeof product === 'object' ? product.id : product) || [])
-    ]
-
-    const createdProductIDs = allIDs.filter(
-        (id, index) => allIDs.indexOf(id) === index
-    )
-
-    const dataToUpdate = [...createdProductIDs, doc.id]
-
-    await req.payload.update({
-      collection: 'users',
-      id: fullUser.id,
-      data: {
-        products: dataToUpdate,
-      },
-    })
-  }
-}
+import { afterChangeProductHook, afterDeleteProductHook, beforeChangeProductHook, syncUser } from "./hooks/ProductsHooks";
 
 const isAdminOrHasAccess = (): Access => ({ req: { user: _user } }) => {
   const user = _user as User | undefined
