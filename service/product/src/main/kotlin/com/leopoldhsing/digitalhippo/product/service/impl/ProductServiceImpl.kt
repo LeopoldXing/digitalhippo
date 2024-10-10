@@ -1,6 +1,7 @@
 package com.leopoldhsing.digitalhippo.product.service.impl
 
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
+import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
@@ -27,14 +28,16 @@ class ProductServiceImpl @Autowired constructor(
     }
 
     override fun createProduct(product: Product): Product {
-        TODO("Not yet implemented")
+        return Product()
     }
 
     override fun updateProduct(product: Product): Product {
-        TODO("Not yet implemented")
+        // 1. get user
+        val userId = RequestUtil.getUid()
+        return Product()
     }
 
-    override fun deleteProduct(productId: Long) {
-        TODO("Not yet implemented")
+    override fun deleteProduct(productUrl: String) {
+
     }
 }

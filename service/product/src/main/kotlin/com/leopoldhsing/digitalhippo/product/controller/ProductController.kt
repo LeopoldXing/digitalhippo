@@ -2,6 +2,7 @@ package com.leopoldhsing.digitalhippo.product.controller
 
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
+import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -32,7 +33,9 @@ class ProductController @Autowired constructor(private val productService: Produ
      * endpoint for creating new product
      */
     @PostMapping
-    fun createProduct(@RequestBody product: Product): ResponseEntity<Product> {
+    fun createProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
+        val product = Product()
+
         val newProduct = productService.createProduct(product)
         return ResponseEntity.ok(newProduct)
     }
@@ -40,9 +43,9 @@ class ProductController @Autowired constructor(private val productService: Produ
     /**
      * endpoint for deleting product by id
      */
-    @DeleteMapping("/{productId}")
-    fun deleteProduct(@PathVariable("productId") productId: Long): ResponseEntity<Void> {
-        productService.deleteProduct(productId)
+    @DeleteMapping("/{productFileUrl}")
+    fun deleteProduct(@PathVariable productFileUrl: String): ResponseEntity<Void> {
+        productService.deleteProduct(productFileUrl)
         return ResponseEntity.ok().build()
     }
 
