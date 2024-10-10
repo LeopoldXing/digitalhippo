@@ -4,6 +4,7 @@ import com.leopoldhsing.digitalhippo.model.enumeration.UserRole;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -19,6 +20,9 @@ public class User extends BaseEntity {
     private boolean verified;
     private boolean locked;
     private LocalDateTime lockUntil;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Product> products;
 
     public User() {
     }

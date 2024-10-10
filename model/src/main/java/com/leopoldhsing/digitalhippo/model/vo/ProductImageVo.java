@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class ProductImageVo {
     private String filename;
-    private Integer filesize;
+    private Double filesize;
     private Integer height;
     private Integer width;
     private String mimeType;
@@ -14,7 +14,7 @@ public class ProductImageVo {
     public ProductImageVo() {
     }
 
-    public ProductImageVo(String filename, Integer filesize, Integer height, Integer width, String mimeType, String fileType, String url) {
+    public ProductImageVo(String filename, Double filesize, Integer height, Integer width, String mimeType, String fileType, String url) {
         this.filename = filename;
         this.filesize = filesize;
         this.height = height;
@@ -45,11 +45,11 @@ public class ProductImageVo {
         this.filename = filename;
     }
 
-    public Integer getFilesize() {
+    public Double getFilesize() {
         return filesize;
     }
 
-    public void setFilesize(Integer filesize) {
+    public void setFilesize(Double filesize) {
         this.filesize = filesize;
     }
 

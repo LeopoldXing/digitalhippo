@@ -18,12 +18,6 @@
     </properties>
 
     <dependencies>
-        <!--  models  -->
-        <dependency>
-            <groupId>com.leopoldhsing.digitalhippo</groupId>
-            <artifactId>model</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
         <!--  jackson  -->
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>

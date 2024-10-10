@@ -1,5 +1,6 @@
 package com.leopoldhsing.digitalhippo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.leopoldhsing.digitalhippo.model.enumeration.ProductFileType;
 import jakarta.persistence.*;
 
@@ -9,6 +10,7 @@ import java.util.Objects;
 @Table(name = "product_images")
 public class ProductImage extends BaseEntity {
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
     private Product product;

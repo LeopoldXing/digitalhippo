@@ -52,16 +52,16 @@
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
         <!--  feign client  -->
-<!--        <dependency>
-            <groupId>com.leopoldhsing.horizon</groupId>
+        <dependency>
+            <groupId>com.leopoldhsing.digitalhippo</groupId>
             <artifactId>feign-client</artifactId>
-            <version>0.0.1</version>
-        </dependency>-->
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- openfeign -->
-<!--        <dependency>
+        <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
-        </dependency>-->
+        </dependency>
     </dependencies>
 
 </project>

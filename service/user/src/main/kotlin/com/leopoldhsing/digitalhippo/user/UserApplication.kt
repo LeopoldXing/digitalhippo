@@ -6,13 +6,15 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
+import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.context.annotation.Bean
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 
 @SpringBootApplication
-@EntityScan(basePackages = ["com.leopoldhsing.digitalhippo"])
 @EnableJpaAuditing
+@EntityScan(basePackages = ["com.leopoldhsing.digitalhippo"])
+@EnableFeignClients(basePackages = ["com.leopoldhsing.digitalhippo.feign"])
 @EnableConfigurationProperties(AwsSnsProperties::class)
 open class UserApplication {
 

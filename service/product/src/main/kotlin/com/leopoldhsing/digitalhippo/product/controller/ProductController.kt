@@ -3,6 +3,7 @@ package com.leopoldhsing.digitalhippo.product.controller
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
+import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -11,7 +12,10 @@ import org.springframework.web.bind.annotation.*
 
 @Controller
 @RequestMapping("/api/product")
-class ProductController @Autowired constructor(private val productService: ProductService) {
+class ProductController @Autowired constructor(
+    private val productService: ProductService,
+    private val productMapper: ProductMapper
+) {
 
     @GetMapping
     fun searchProduct(@RequestParam condition: ProductSearchingConditionDto): ResponseEntity<List<Product>> {
@@ -34,9 +38,7 @@ class ProductController @Autowired constructor(private val productService: Produ
      */
     @PostMapping
     fun createProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
-        val product = Product()
-
-        val newProduct = productService.createProduct(product)
+        val newProduct = productService.createProduct(productMapper.mapToProduct(productVo))
         return ResponseEntity.ok(newProduct)
     }
 

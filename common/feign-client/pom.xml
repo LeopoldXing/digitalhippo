@@ -5,16 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.leopoldhsing.digitalhippo</groupId>
-        <artifactId>digitalhippo-backend</artifactId>
+        <artifactId>common</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>common</artifactId>
-    <packaging>pom</packaging>
-    <modules>
-        <module>common-utils</module>
-        <module>feign-client</module>
-    </modules>
+    <artifactId>feign-client</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -23,17 +18,11 @@
     </properties>
 
     <dependencies>
-        <!--  web  -->
+        <!--  openfeign  -->
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <!--  model  -->
-        <dependency>
-            <groupId>com.leopoldhsing.digitalhippo</groupId>
-            <artifactId>model</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
