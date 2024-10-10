@@ -6,4 +6,7 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface ProductRepository : JpaRepository<Product, Long> {
+
+    fun findProductByProductFileUrlEndsWith(urlBody: String): Product?
+
 }

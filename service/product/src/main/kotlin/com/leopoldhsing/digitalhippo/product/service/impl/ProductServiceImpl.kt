@@ -1,9 +1,11 @@
 package com.leopoldhsing.digitalhippo.product.service.impl
 
+import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
+import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,6 +49,22 @@ class ProductServiceImpl @Autowired constructor(
     }
 
     override fun deleteProduct(productUrl: String) {
+        // 1. get user
+        val currentUser = userFeignClient.getCurrentUser()
 
+        // 2. find the product
+        val urlBody = productUrl.substringAfter("://")
+        val product = productRepository.findProductByProductFileUrlEndsWith(urlBody)
+
+        if (product != null) {
+            // 3. determine if the user has the authority to delete this product
+            if (currentUser.role === UserRole.ADMIN || product.user?.id == currentUser.id) {
+                // current user has authority
+                productRepository.delete(product)
+            } else {
+                // current user does not have authority
+                throw AuthenticationFailedException(currentUser.id.toString(), currentUser.email)
+            }
+        }
     }
 }
