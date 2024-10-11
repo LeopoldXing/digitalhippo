@@ -53,13 +53,8 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
 
   // determine if this action is create or update
   if (['create', 'update'].includes(operation)) {
-    console.log("准备修改/创建product")
     try {
       await constructProductData(doc, req, productData);
-
-      console.log(`operation: ${operation}`)
-      console.log(`productData:`)
-      console.log(productData)
 
       // send request
       await fetch(`${BASE_URL}/api/product`, {
@@ -70,8 +65,6 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
         },
         body: JSON.stringify(productData)
       });
-
-      console.log("请求发送完成")
 
       return doc;
     } catch (error) {
