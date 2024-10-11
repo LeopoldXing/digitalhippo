@@ -10,6 +10,7 @@ open class ProductMapper @Autowired constructor(private val productImageMapper: 
 
     open fun mapToProduct(productVo: ProductVo, approvedForSale: String = "pending"): Product {
         val product = Product()
+        product.payloadId = productVo.payloadId
         product.name = productVo.filename
         product.description = productVo.description
         product.price = productVo.price

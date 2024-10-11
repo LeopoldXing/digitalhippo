@@ -11,6 +11,7 @@ open class ProductImageMapper {
     open fun mapTopProductImage(productImageVo: ProductImageVo, product: Product): ProductImage {
         val productImage = ProductImage()
         productImage.url = productImageVo.url
+        productImage.payloadId = productImageVo.payloadId
         productImage.filename = productImageVo.filename
         productImage.filesize = productImageVo.filesize
         productImage.height = productImageVo.height

@@ -27,11 +27,11 @@ class ProductController @Autowired constructor(
     /**
      * endpoint for getting product by id
      */
-/*    @GetMapping("/{productId}")
+    @GetMapping("/{productId}")
     fun getProduct(@PathVariable productId: Long): ResponseEntity<Product> {
         val product = productService.getProduct(productId)
         return ResponseEntity.ok(product)
-    }*/
+    }
 
     /**
      * endpoint for creating new product
@@ -45,9 +45,9 @@ class ProductController @Autowired constructor(
     /**
      * endpoint for deleting product by id
      */
-    @DeleteMapping
-    fun deleteProduct(@RequestBody productFileUrl: String): ResponseEntity<Void> {
-        productService.deleteProduct(productFileUrl)
+    @DeleteMapping("/{payloadId}")
+    fun deleteProduct(@PathVariable payloadId: String): ResponseEntity<Void> {
+        productService.deleteProduct(payloadId)
         return ResponseEntity.ok().build()
     }
 
@@ -55,8 +55,8 @@ class ProductController @Autowired constructor(
      * endpoint for updating product
      */
     @PutMapping
-    fun updateProduct(@RequestBody product: Product): ResponseEntity<Product> {
-        val updatedProduct = productService.updateProduct(product)
+    fun updateProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
+        val updatedProduct = productService.updateProduct(productMapper.mapToProduct(productVo))
         return ResponseEntity.ok(updatedProduct)
     }
 }

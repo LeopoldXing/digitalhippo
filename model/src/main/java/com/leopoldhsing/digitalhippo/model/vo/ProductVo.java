@@ -6,6 +6,7 @@ import java.util.Objects;
 
 public class ProductVo {
     private Long id;
+    private String payloadId;
     private String filename;
     private String description;
     private BigDecimal price;
@@ -16,8 +17,9 @@ public class ProductVo {
     public ProductVo() {
     }
 
-    public ProductVo(Long id, String filename, String description, BigDecimal price, String category, String productFileUrl, List<ProductImageVo> productImages) {
+    public ProductVo(Long id, String payloadId, String filename, String description, BigDecimal price, String category, String productFileUrl, List<ProductImageVo> productImages) {
         this.id = id;
+        this.payloadId = payloadId;
         this.filename = filename;
         this.description = description;
         this.price = price;
@@ -30,12 +32,12 @@ public class ProductVo {
     public String toString() {
         return "ProductVo{" +
                 "id=" + id +
+                ", payloadId='" + payloadId + '\'' +
                 ", filename='" + filename + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", category='" + category + '\'' +
                 ", productFileUrl='" + productFileUrl + '\'' +
-                ", productImages=" + productImages +
                 '}';
     }
 
@@ -45,6 +47,14 @@ public class ProductVo {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getPayloadId() {
+        return payloadId;
+    }
+
+    public void setPayloadId(String payloadId) {
+        this.payloadId = payloadId;
     }
 
     public String getFilename() {
@@ -101,12 +111,13 @@ public class ProductVo {
         if (o == null || getClass() != o.getClass()) return false;
 
         ProductVo productVo = (ProductVo) o;
-        return Objects.equals(id, productVo.id) && Objects.equals(filename, productVo.filename) && Objects.equals(description, productVo.description) && Objects.equals(price, productVo.price) && Objects.equals(category, productVo.category) && Objects.equals(productFileUrl, productVo.productFileUrl) && Objects.equals(productImages, productVo.productImages);
+        return Objects.equals(id, productVo.id) && Objects.equals(payloadId, productVo.payloadId) && Objects.equals(filename, productVo.filename) && Objects.equals(description, productVo.description) && Objects.equals(price, productVo.price) && Objects.equals(category, productVo.category) && Objects.equals(productFileUrl, productVo.productFileUrl) && Objects.equals(productImages, productVo.productImages);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hashCode(id);
+        result = 31 * result + Objects.hashCode(payloadId);
         result = 31 * result + Objects.hashCode(filename);
         result = 31 * result + Objects.hashCode(description);
         result = 31 * result + Objects.hashCode(price);

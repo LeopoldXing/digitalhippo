@@ -26,12 +26,13 @@ CREATE TABLE public.products
 (
     id                bigserial                   NOT NULL,
     user_id           bigserial                   NOT NULL,
+    payload_id        varchar                     NOT NULL,
     "name"            varchar                     NOT NULL,
     description       text NULL,
     price             numeric(10, 2) DEFAULT 0.00 NOT NULL,
-    category          varchar NULL,
+    category          varchar NULL,                                                 -- ui_kits | icons
     product_file_url  varchar                     NOT NULL,
-    approved_for_sale varchar        DEFAULT 'pending'::character varying NOT NULL,
+    approved_for_sale varchar        DEFAULT 'pending'::character varying NOT NULL, -- pending | approved | denied
     created_at        timestamp                   NOT NULL,
     created_by        varchar                     NOT NULL,
     updated_at        timestamp                   NOT NULL,
@@ -56,6 +57,7 @@ CREATE TABLE public.product_images
 (
     id         bigserial NOT NULL,
     product_id bigserial NOT NULL,
+    payload_id varchar   NOT NULL,
     url        varchar   NOT NULL,
     filename   varchar NULL,
     filesize   numeric(10, 1) NULL, -- calculated in KB
@@ -69,6 +71,20 @@ CREATE TABLE public.product_images
     updated_by varchar   NOT NULL,
     CONSTRAINT product_images_pk PRIMARY KEY (id)
 );
+
+-- Column comments
+
+COMMENT
+ON COLUMN public.product_images.filesize IS 'calculated in KB';
+COMMENT
+ON COLUMN public.product_images.height IS 'pixels';
+COMMENT
+ON COLUMN public.product_images.width IS '-1 means no limit';
+COMMENT
+ON COLUMN public.product_images.mime_type IS 'image/*';
+COMMENT
+ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
+
 
 -- public.product_images foreign keys
 

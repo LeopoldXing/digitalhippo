@@ -6,6 +6,7 @@ import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
+import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service
 @Service
 class ProductServiceImpl @Autowired constructor(
     private val productRepository: ProductRepository,
+    private val productImageRepository: ProductImageRepository,
     private val userFeignClient: UserFeignClient
 ) : ProductService {
 
@@ -45,16 +47,37 @@ class ProductServiceImpl @Autowired constructor(
         // 1. get user
         val currentUser = userFeignClient.currentUser
 
+        // 2. find the product
+        val originalProduct = productRepository.findProductByPayloadId(product.payloadId)
+        if (originalProduct == null) {
+            return createProduct(product)
+        }
+
+        // 3. determine if the user has the authority to update this product
+        if (currentUser != null && (currentUser.role === UserRole.ADMIN || currentUser.id == originalProduct.user.id)) {
+            // user has the authority
+            // 4. update product
+            product.id = originalProduct.id
+            product.user = originalProduct.user
+
+            // 4.1 update images
+            productImageRepository.deleteProductImageByIdIn(product.productImages.map { image -> image.id })
+
+            productRepository.save(product)
+        } else {
+            // user does not have the authority
+            throw AuthenticationFailedException(currentUser.id.toString(), currentUser.email)
+        }
+
         return Product()
     }
 
-    override fun deleteProduct(productUrl: String) {
+    override fun deleteProduct(payloadId: String) {
         // 1. get user
         val currentUser = userFeignClient.getCurrentUser()
 
         // 2. find the product
-        val urlBody = productUrl.substringAfter("://")
-        val product = productRepository.findProductByProductFileUrlEndsWith(urlBody)
+        val product = productRepository.findProductByPayloadId(payloadId)
 
         if (product != null) {
             // 3. determine if the user has the authority to delete this product

@@ -3,6 +3,7 @@ package com.leopoldhsing.digitalhippo.model.vo;
 import java.util.Objects;
 
 public class ProductImageVo {
+    private String payloadId;
     private String filename;
     private Double filesize;
     private Integer height;
@@ -14,7 +15,8 @@ public class ProductImageVo {
     public ProductImageVo() {
     }
 
-    public ProductImageVo(String filename, Double filesize, Integer height, Integer width, String mimeType, String fileType, String url) {
+    public ProductImageVo(String payloadId, String filename, Double filesize, Integer height, Integer width, String mimeType, String fileType, String url) {
+        this.payloadId = payloadId;
         this.filename = filename;
         this.filesize = filesize;
         this.height = height;
@@ -27,7 +29,8 @@ public class ProductImageVo {
     @Override
     public String toString() {
         return "ProductImageVo{" +
-                "filename='" + filename + '\'' +
+                "payloadId='" + payloadId + '\'' +
+                ", filename='" + filename + '\'' +
                 ", filesize=" + filesize +
                 ", height=" + height +
                 ", width=" + width +
@@ -35,6 +38,14 @@ public class ProductImageVo {
                 ", fileType='" + fileType + '\'' +
                 ", url='" + url + '\'' +
                 '}';
+    }
+
+    public String getPayloadId() {
+        return payloadId;
+    }
+
+    public void setPayloadId(String payloadId) {
+        this.payloadId = payloadId;
     }
 
     public String getFilename() {
@@ -99,12 +110,13 @@ public class ProductImageVo {
         if (o == null || getClass() != o.getClass()) return false;
 
         ProductImageVo that = (ProductImageVo) o;
-        return Objects.equals(filename, that.filename) && Objects.equals(filesize, that.filesize) && Objects.equals(height, that.height) && Objects.equals(width, that.width) && Objects.equals(mimeType, that.mimeType) && Objects.equals(fileType, that.fileType) && Objects.equals(url, that.url);
+        return Objects.equals(payloadId, that.payloadId) && Objects.equals(filename, that.filename) && Objects.equals(filesize, that.filesize) && Objects.equals(height, that.height) && Objects.equals(width, that.width) && Objects.equals(mimeType, that.mimeType) && Objects.equals(fileType, that.fileType) && Objects.equals(url, that.url);
     }
 
     @Override
     public int hashCode() {
-        int result = Objects.hashCode(filename);
+        int result = Objects.hashCode(payloadId);
+        result = 31 * result + Objects.hashCode(filename);
         result = 31 * result + Objects.hashCode(filesize);
         result = 31 * result + Objects.hashCode(height);
         result = 31 * result + Objects.hashCode(width);

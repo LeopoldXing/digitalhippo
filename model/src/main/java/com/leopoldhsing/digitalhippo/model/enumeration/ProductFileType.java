@@ -21,7 +21,7 @@ public enum ProductFileType {
     @JsonCreator
     public static ProductFileType fromValue(String value) {
         for (ProductFileType b : ProductFileType.values()) {
-            if (b.value.equals(value)) {
+            if (b.value.equalsIgnoreCase(value)) {
                 return b;
             }
         }

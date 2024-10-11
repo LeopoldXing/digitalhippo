@@ -10,6 +10,8 @@ import java.util.Objects;
 @Table(name = "product_images")
 public class ProductImage extends BaseEntity {
 
+    private String payloadId;
+
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id")
@@ -28,7 +30,8 @@ public class ProductImage extends BaseEntity {
     public ProductImage() {
     }
 
-    public ProductImage(Product product, String url, String filename, Double filesize, Integer width, Integer height, String mimeType, ProductFileType fileType) {
+    public ProductImage(String payloadId, Product product, String url, String filename, Double filesize, Integer width, Integer height, String mimeType, ProductFileType fileType) {
+        this.payloadId = payloadId;
         this.product = product;
         this.url = url;
         this.filename = filename;
@@ -42,7 +45,7 @@ public class ProductImage extends BaseEntity {
     @Override
     public String toString() {
         return "ProductImage{" +
-                "product=" + product +
+                "payloadId='" + payloadId + '\'' +
                 ", url='" + url + '\'' +
                 ", filename='" + filename + '\'' +
                 ", filesize=" + filesize +
@@ -51,6 +54,14 @@ public class ProductImage extends BaseEntity {
                 ", mimeType='" + mimeType + '\'' +
                 ", fileType=" + fileType +
                 '}';
+    }
+
+    public String getPayloadId() {
+        return payloadId;
+    }
+
+    public void setPayloadId(String payloadId) {
+        this.payloadId = payloadId;
     }
 
     public Product getProduct() {
@@ -124,12 +135,13 @@ public class ProductImage extends BaseEntity {
         if (!super.equals(o)) return false;
 
         ProductImage that = (ProductImage) o;
-        return Objects.equals(product, that.product) && Objects.equals(url, that.url) && Objects.equals(filename, that.filename) && Objects.equals(filesize, that.filesize) && Objects.equals(width, that.width) && Objects.equals(height, that.height) && Objects.equals(mimeType, that.mimeType) && fileType == that.fileType;
+        return Objects.equals(payloadId, that.payloadId) && Objects.equals(product, that.product) && Objects.equals(url, that.url) && Objects.equals(filename, that.filename) && Objects.equals(filesize, that.filesize) && Objects.equals(width, that.width) && Objects.equals(height, that.height) && Objects.equals(mimeType, that.mimeType) && fileType == that.fileType;
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + Objects.hashCode(payloadId);
         result = 31 * result + Objects.hashCode(product);
         result = 31 * result + Objects.hashCode(url);
         result = 31 * result + Objects.hashCode(filename);

@@ -9,5 +9,5 @@ interface ProductService {
     fun getProduct(productId: Long): Product
     fun createProduct(product: Product): Product
     fun updateProduct(product: Product): Product
-    fun deleteProduct(productUrl: String)
+    fun deleteProduct(payloadId: String)
 }

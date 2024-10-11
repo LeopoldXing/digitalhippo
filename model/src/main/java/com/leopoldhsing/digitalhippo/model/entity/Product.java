@@ -11,6 +11,7 @@ import java.util.Objects;
 @Table(name = "products")
 public class Product extends BaseEntity {
 
+    private String payloadId;
     private String name;
     private String description;
     private BigDecimal price;
@@ -29,7 +30,8 @@ public class Product extends BaseEntity {
     public Product() {
     }
 
-    public Product(String name, String description, BigDecimal price, String category, String productFileUrl, String approvedForSale, List<ProductImage> productImages, User user) {
+    public Product(String payloadId, String name, String description, BigDecimal price, String category, String productFileUrl, String approvedForSale, List<ProductImage> productImages, User user) {
+        this.payloadId = payloadId;
         this.name = name;
         this.description = description;
         this.price = price;
@@ -43,15 +45,23 @@ public class Product extends BaseEntity {
     @Override
     public String toString() {
         return "Product{" +
-                "name='" + name + '\'' +
+                "payloadId='" + payloadId + '\'' +
+                ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", price=" + price +
                 ", category='" + category + '\'' +
                 ", productFileUrl='" + productFileUrl + '\'' +
                 ", approvedForSale='" + approvedForSale + '\'' +
-                ", productImages=" + productImages +
                 ", user=" + user +
                 '}';
+    }
+
+    public String getPayloadId() {
+        return payloadId;
+    }
+
+    public void setPayloadId(String payloadId) {
+        this.payloadId = payloadId;
     }
 
     public String getName() {
@@ -125,12 +135,13 @@ public class Product extends BaseEntity {
         if (!super.equals(o)) return false;
 
         Product product = (Product) o;
-        return Objects.equals(name, product.name) && Objects.equals(description, product.description) && Objects.equals(price, product.price) && Objects.equals(category, product.category) && Objects.equals(productFileUrl, product.productFileUrl) && Objects.equals(approvedForSale, product.approvedForSale) && Objects.equals(productImages, product.productImages) && Objects.equals(user, product.user);
+        return Objects.equals(payloadId, product.payloadId) && Objects.equals(name, product.name) && Objects.equals(description, product.description) && Objects.equals(price, product.price) && Objects.equals(category, product.category) && Objects.equals(productFileUrl, product.productFileUrl) && Objects.equals(approvedForSale, product.approvedForSale) && Objects.equals(productImages, product.productImages) && Objects.equals(user, product.user);
     }
 
     @Override
     public int hashCode() {
         int result = super.hashCode();
+        result = 31 * result + Objects.hashCode(payloadId);
         result = 31 * result + Objects.hashCode(name);
         result = 31 * result + Objects.hashCode(description);
         result = 31 * result + Objects.hashCode(price);
