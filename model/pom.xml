@@ -18,6 +18,11 @@
     </properties>
 
     <dependencies>
+        <!--  lombok  -->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
         <!--  web  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

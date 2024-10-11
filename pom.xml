@@ -30,6 +30,7 @@
         <redis.version>3.2.6</redis.version>
         <redis.reactive.version>3.2.3</redis.reactive.version>
         <openfeign.version>4.1.1</openfeign.version>
+        <lombok.version>1.18.30</lombok.version>
     </properties>
 
     <dependencies>
@@ -116,6 +117,12 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-redis-reactive</artifactId>
                 <version>${redis.reactive.version}</version>
+            </dependency>
+            <!--  lombok  -->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
