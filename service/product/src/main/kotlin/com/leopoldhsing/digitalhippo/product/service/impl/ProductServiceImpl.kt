@@ -4,19 +4,24 @@ import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedExcept
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
+import com.leopoldhsing.digitalhippo.model.elasticsearch.ProductIndex
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
+import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
+import com.leopoldhsing.digitalhippo.product.repository.ProductElasticsearchRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-class ProductServiceImpl @Autowired constructor(
+open class ProductServiceImpl @Autowired constructor(
     private val productRepository: ProductRepository,
     private val productImageRepository: ProductImageRepository,
+    private val productElasticsearchRepository: ProductElasticsearchRepository,
     private val userFeignClient: UserFeignClient
 ) : ProductService {
 
@@ -37,12 +42,17 @@ class ProductServiceImpl @Autowired constructor(
         val currentUser = userFeignClient.getCurrentUser()
         product.user = currentUser
 
-        // 2. save product
+        // 2. save product to postgres
         productRepository.save(product)
+
+        // 3. save product info to elasticsearch
+        val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
+        productElasticsearchRepository.save(productIndex)
 
         return product
     }
 
+    @Transactional
     override fun updateProduct(product: Product): Product {
         // 1. get user
         val currentUser = userFeignClient.currentUser

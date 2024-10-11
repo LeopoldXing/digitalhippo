@@ -13,8 +13,7 @@ import org.springframework.web.bind.annotation.*
 @Controller
 @RequestMapping("/api/product")
 class ProductController @Autowired constructor(
-    private val productService: ProductService,
-    private val productMapper: ProductMapper
+    private val productService: ProductService
 ) {
 
     @GetMapping
@@ -38,7 +37,7 @@ class ProductController @Autowired constructor(
      */
     @PostMapping
     fun createProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
-        val newProduct = productService.createProduct(productMapper.mapToProduct(productVo))
+        val newProduct = productService.createProduct(ProductMapper.mapToProduct(productVo))
         return ResponseEntity.ok(newProduct)
     }
 
@@ -56,7 +55,7 @@ class ProductController @Autowired constructor(
      */
     @PutMapping
     fun updateProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
-        val updatedProduct = productService.updateProduct(productMapper.mapToProduct(productVo))
+        val updatedProduct = productService.updateProduct(ProductMapper.mapToProduct(productVo))
         return ResponseEntity.ok(updatedProduct)
     }
 }

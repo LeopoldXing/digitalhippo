@@ -1,0 +1,18 @@
+server:
+  port: 9003
+
+spring:
+  application:
+    name: search
+  elasticsearch:
+    uris:
+      - ${ES_ENDPOINT}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://localhost:9002/eureka/
