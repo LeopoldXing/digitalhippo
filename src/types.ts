@@ -20,18 +20,23 @@ export type ErrorResponseType = {
 
 export type ProductApiType = {
   id?: string,
+  payloadId: string,
   filename: string,
   description?: string,
   price: number,
   category: 'ui_kits' | 'icons',
+  approvedForSale?: ('pending' | 'approved' | 'denied')
   productFileUrl: string,
-  productImages: Array<{
-    filename: string,
-    filesize: number,
-    height: number,
-    width: number,
-    mimeType: string,
-    fileType: 'thumbnail' | 'card' | 'tablet',
-    url: string
-  }>
+  productImages: ProductImageType[]
+}
+
+export type ProductImageType = {
+  payloadId: string,
+  filename: string,
+  filesize: number,
+  height: number,
+  width: number,
+  mimeType: string,
+  fileType: 'thumbnail' | 'card' | 'tablet',
+  url: string
 }

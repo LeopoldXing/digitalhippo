@@ -41,18 +41,25 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
 }) => {
   // initialize product data
   const productData: ProductApiType = {
+    payloadId: doc.id,
     filename: doc.name,
     description: doc.description || '',
     price: doc.price,
     category: doc.category,
+    approvedForSale: doc.approvedForSale || 'pending',
     productFileUrl: '',
     productImages: []
   }
 
   // determine if this action is create or update
   if (['create', 'update'].includes(operation)) {
+    console.log("准备修改/创建product")
     try {
       await constructProductData(doc, req, productData);
+
+      console.log(`operation: ${operation}`)
+      console.log(`productData:`)
+      console.log(productData)
 
       // send request
       await fetch(`${BASE_URL}/api/product`, {
@@ -63,6 +70,8 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
         },
         body: JSON.stringify(productData)
       });
+
+      console.log("请求发送完成")
 
       return doc;
     } catch (error) {
@@ -89,23 +98,14 @@ const beforeDeleteProductHook: BeforeDeleteHook = async ({ req, id }: {
     id: id
   })
 
-  // search product file
-  const productFileDoc = await req.payload.findByID({
-    collection: 'product_files',
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    id: doc.product_files.id
-  });
-
   // send request
   try {
-    await fetch(`${BASE_URL}/api/product`, {
+    await fetch(`${BASE_URL}/api/product/${doc.id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
         "Authorization": `Bearer ${accessToken}`
-      },
-      body: `https://${S3_BUCKET}.${S3_ENDPOINT_HOST}/${productFileDoc.prefix}/${productFileDoc.filename}`
+      }
     })
     return doc;
   } catch (error) {
@@ -152,7 +152,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
     // try to find the corresponding product file
     const productFileDoc = await req.payload.findByID({
       collection: 'product_files',
-      id: doc.product_files as string
+      id: typeof doc.product_files === 'object' ? doc.product_files.id : doc.product_files
     });
     // construct product file s3 url
     productData.productFileUrl = `https://${S3_BUCKET}.${S3_ENDPOINT_HOST}/${productFileDoc.prefix}/${productFileDoc.filename}`;
@@ -162,7 +162,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
     for (const image of doc.images) {
       const currentImage = await req.payload.findByID({
         collection: 'media',
-        id: image.image as string
+        id: typeof image.image === 'object' ? image.image.id : image.image
       })
       const thumbnail = currentImage?.sizes?.thumbnail
       const card = currentImage?.sizes?.card
@@ -170,6 +170,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (thumbnail) {
         productData.productImages.push({
+          payloadId: currentImage.id,
           filename: currentImage.filename!,
           filesize: thumbnail.filesize!,
           fileType: "thumbnail",
@@ -182,6 +183,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (card) {
         productData.productImages.push({
+          payloadId: currentImage.id,
           filename: currentImage.filename!,
           filesize: card.filesize!,
           fileType: "card",
@@ -194,6 +196,7 @@ async function constructProductData(doc: Product, req: PayloadRequest, productDa
 
       if (tablet) {
         productData.productImages.push({
+          payloadId: currentImage.id,
           filename: currentImage.filename!,
           filesize: tablet.filesize!,
           fileType: "tablet",
