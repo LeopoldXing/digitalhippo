@@ -30,7 +30,7 @@ class ProductMapper private constructor() {
             val productIndex = ProductIndex()
             BeanUtils.copyProperties(product, productIndex)
             productIndex.sellerEmail = product.user.email
-
+            productIndex.price = product.price.toDouble()
             return productIndex
         }
     }

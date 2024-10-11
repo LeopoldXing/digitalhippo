@@ -73,7 +73,12 @@ open class ProductServiceImpl @Autowired constructor(
             // 4.1 update images
             productImageRepository.deleteProductImageByIdIn(product.productImages.map { image -> image.id })
 
+            // 4.2 update postgres
             productRepository.save(product)
+
+            // 4.3 update elasticsearch
+            val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
+            productElasticsearchRepository.save(productIndex)
         } else {
             // user does not have the authority
             throw AuthenticationFailedException(currentUser.id.toString(), currentUser.email)
@@ -94,6 +99,7 @@ open class ProductServiceImpl @Autowired constructor(
             if (currentUser.role === UserRole.ADMIN || product.user?.id == currentUser.id) {
                 // current user has authority
                 productRepository.delete(product)
+                productElasticsearchRepository.deleteById(product.id)
             } else {
                 // current user does not have authority
                 throw AuthenticationFailedException(currentUser.id.toString(), currentUser.email)

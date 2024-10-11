@@ -49,5 +49,5 @@ public class ProductIndex {
     private Long popularityScore = 0L;
 
     @Field(type = FieldType.Date, format = DateFormat.date_hour_minute_second_millis)
-    private Date createdAt;
+    private Date createdAt = new Date();
 }

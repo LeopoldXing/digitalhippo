@@ -1,5 +1,6 @@
 package com.leopoldhsing.digitalhippo.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -28,6 +29,7 @@ public class User extends BaseEntity {
     private boolean locked;
     private LocalDateTime lockUntil;
 
+    @JsonManagedReference
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
