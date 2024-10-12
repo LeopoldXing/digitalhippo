@@ -42,5 +42,5 @@ export type ProductImageType = {
 }
 
 export type CartItem = {
-  product: Product
+  product: ProductApiType
 }

@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { ProductApiType } from "@/types";
-import { useCart } from "@/hooks/useCart";
+import { cartHooks } from "@/hooks/cartHooks";
 
 const AddToCartButton = ({ product }: { product: ProductApiType }) => {
-  // const { addItem } = useCart()
+  const { addItem } = cartHooks()
   const [isSuccess, setIsSuccess] = useState<boolean>(false)
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const AddToCartButton = ({ product }: { product: ProductApiType }) => {
 
   return (
       <Button size='lg' className='w-full' onClick={() => {
-        // addItem(product)
+        addItem(product)
         setIsSuccess(true)
       }}>
         {isSuccess ? 'Added!' : 'Add to cart'}

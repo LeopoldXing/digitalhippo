@@ -8,24 +8,42 @@ import { transactionFee } from "@/config";
 import Link from "next/link";
 import { buttonVariants } from "@/components/ui/button";
 import Image from "next/image";
+import { cartHooks } from "@/hooks/cartHooks";
+import { useEffect, useState } from "react";
+import CartItem from "@/components/CardItem";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Cart = () => {
-  const cartTotal = 1;
+  const { items } = cartHooks()
+  const itemCount = items.length
+
+  const [isMounted, setIsMounted] = useState(false)
+
+  useEffect(() => {
+    setIsMounted(true)
+  }, [])
+
+  const cartTotal = items.reduce(
+      (total, { product }) => total + product.price,
+      0
+  )
 
   return (
       <Sheet>
         <SheetTrigger className='group -m-2 flex items-center p-2'>
           <ShoppingCart aria-hidden='true' className='h-6 w-6 flex-shrink-0 text-gray-400 group-hover:text-gray-500'/>
-          <span className='ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800'>0</span>
+          <span className='ml-2 text-sm font-medium text-gray-700 group-hover:text-gray-800'>{isMounted ? itemCount : 0}</span>
         </SheetTrigger>
         <SheetContent className='w-full pr-0 sm:max-w-lg flex flex-col'>
           <SheetHeader className='space-y-2.5 pr-6'>
-            <SheetTitle>Cart (0)</SheetTitle>
+            <SheetTitle>Cart ({itemCount})</SheetTitle>
           </SheetHeader>
-          {false ? (
+          {itemCount ? (
               <>
-                <div className='w-full flex flex-col pr-6'>
-                  cart items
+                <div className='flex w-full flex-col pr-6'>
+                  <ScrollArea>
+                    {items.map(({ product }) => (<CartItem product={product} key={product.id}/>))}
+                  </ScrollArea>
                 </div>
                 <div className='space-y-4 pr-6'>
                   <Separator/>
