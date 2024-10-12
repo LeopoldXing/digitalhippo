@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
-import { ErrorResponseType } from "@/types";
+import { ErrorResponseType, ProductApiType } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -8,7 +8,12 @@ const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
  * user sign in api
  */
 const useSignIn = () => {
-  const signInRequest = async (params: { email: string, password: string, isSeller: boolean }): Promise<string> => {
+  const signInRequest = async (params: {
+    email: string,
+    password: string,
+    isSeller: boolean,
+    productIdList: string[] | undefined | null
+  }): Promise<{ accessToken: string, productList: ProductApiType[] }> => {
     const response = await fetch(`${BASE_URL}/api/user/sign-in`, {
       method: "POST",
       headers: {
@@ -20,7 +25,7 @@ const useSignIn = () => {
       const res: ErrorResponseType = await response.json();
       throw new Error(`${res.message || 'Failed to sign in, please try again.'}`)
     }
-    return response.text();
+    return response.json();
   }
 
   const { mutateAsync: signIn, isLoading, isError, error, isSuccess } = useMutation(signInRequest, {

@@ -1,5 +1,4 @@
 import { toast } from "sonner";
-import { AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { ErrorResponseType, User } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
@@ -8,7 +7,7 @@ const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL;
 /**
  * query user info by access token
  */
-const getUserRequest = async (accessToken: string | undefined) => {
+const getUserRequest = async (accessToken: string | undefined): Promise<User | undefined> => {
   const response = await fetch(`${BASE_URL}/api/user`, {
     method: "GET",
     headers: {
@@ -17,7 +16,7 @@ const getUserRequest = async (accessToken: string | undefined) => {
     }
   });
   if (!response.ok) {
-    return undefined
+    return
   }
   return response.json();
 }
@@ -47,13 +46,17 @@ const signOut = async (accessToken: string | undefined) => {
 /**
  * create new user api
  */
-const createUserRequest = async (params: AuthCredentialValidatorType): Promise<User | null> => {
+const createUserRequest = async ({ email, password, productIdList }: {
+  email: string,
+  password: string,
+  productIdList: string[] | undefined | null
+}): Promise<User | null> => {
   const response = await fetch(`${BASE_URL}/api/user/sign-up`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(params)
+    body: JSON.stringify({ email, password, productIdList })
   })
   if (!response.ok) {
     const res: ErrorResponseType = await response.json();

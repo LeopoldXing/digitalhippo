@@ -2,31 +2,43 @@ import { CartItem, ProductApiType } from "@/types";
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { toast } from "sonner";
+import { addToCart, removeFromCart } from "@/api/CartRequest";
 
 type CartState = {
   items: CartItem[]
-  addItem: (product: ProductApiType) => void
-  removeItem: (productId: string) => void
+  addItem: ({ product, accessToken }: { product: ProductApiType, accessToken: string | undefined }) => void
+  removeItem: ({ productId, accessToken }: { productId: string, accessToken: string | undefined }) => void
   clearCart: () => void
+  getItems: () => CartItem[]
+  hasItem: (productId: string) => boolean
 }
 
 const cartHooks = create<CartState>()(
     persist(
-        (set) => ({
+        (set, get) => ({
           items: [],
-          addItem: (product) => set((state) => {
+          addItem: ({ product, accessToken }) => set((state) => {
+            const productId = product.id!
             // determine if this item already in the cart
-            if (state.items.find(cartItem => cartItem.product.id === product.id)) {
+            if (state.items.find(cartItem => cartItem.product.id === productId)) {
               toast.warning("Item already in the cart!")
               return state
+            }
+            if (accessToken) {
+              addToCart({ productId, accessToken })
             }
             toast.success("Items added!")
             return { items: [...state.items, { product }] }
           }),
-          removeItem: (id) => set((state) => ({
-            items: state.items.filter((item) => item.product.id !== id)
-          })),
+          removeItem: ({ productId, accessToken }) => set((state) => {
+            if (accessToken) {
+              removeFromCart({ productId, accessToken })
+            }
+            return { items: state.items.filter((item) => item.product.id !== productId) }
+          }),
           clearCart: () => set({ items: [] }),
+          getItems: () => get().items,
+          hasItem: (productId: string) => get().items.filter(product => product.product.id === productId).length > 0,
         }),
         {
           name: 'digitalhippo-cart-storage',

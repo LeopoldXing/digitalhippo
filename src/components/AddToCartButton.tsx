@@ -4,10 +4,12 @@ import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { ProductApiType } from "@/types";
 import { cartHooks } from "@/hooks/cartHooks";
+import { CookieValueTypes, getCookie } from "cookies-next";
 
 const AddToCartButton = ({ product }: { product: ProductApiType }) => {
   const { addItem } = cartHooks()
-  const [isSuccess, setIsSuccess] = useState<boolean>(false)
+  const [isSuccess, setIsSuccess] = useState(false)
+  const accessToken: CookieValueTypes = getCookie("digitalhippo-access-token")
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -19,7 +21,7 @@ const AddToCartButton = ({ product }: { product: ProductApiType }) => {
 
   return (
       <Button size='lg' className='w-full' onClick={() => {
-        addItem(product)
+        addItem({product, accessToken})
         setIsSuccess(true)
       }}>
         {isSuccess ? 'Added!' : 'Add to cart'}

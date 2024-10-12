@@ -4,9 +4,11 @@ import { ProductApiType } from "@/types";
 import { cartHooks } from "@/hooks/cartHooks";
 import { PRODUCT_CATEGORIES } from "@/config";
 import { formatPrice } from "@/lib/utils";
+import { getCookie } from "cookies-next";
 
 const CartItem = ({ product }: { product: ProductApiType }) => {
   const image = product.productImages[0]
+  const accessToken = getCookie("digitalhippo-access-token")
 
   const { removeItem } = cartHooks()
 
@@ -32,7 +34,7 @@ const CartItem = ({ product }: { product: ProductApiType }) => {
               <span className='line-clamp-1 text-sm font-medium mb-1'>{product.name}</span>
               <span className='line-clamp-1 text-xs capitalize text-muted-foreground'>{label}</span>
               <div className='mt-4 text-xs text-muted-foreground'>
-                <button onClick={() => removeItem(product.id!)} className='flex items-center gap-0.5'>
+                <button onClick={() => removeItem({ productId: product.id!, accessToken })} className='flex items-center gap-0.5'>
                   <X className='w-3 h-4'/>
                   Remove
                 </button>

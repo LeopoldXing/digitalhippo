@@ -14,6 +14,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { setCookie } from "cookies-next";
 import { useSignIn } from "@/hooks/authHooks";
 import { payloadSignIn } from "@/api/UserRequest";
+import { cartHooks } from "@/hooks/cartHooks";
 
 const Page = () => {
   const router = useRouter();
@@ -40,12 +41,22 @@ const Page = () => {
 
   /*  sign in  */
   const { signIn, isLoading } = useSignIn()
+  const { getItems, clearCart, addItem } = cartHooks();
   const handleSignIn = async ({ email, password }: AuthCredentialValidatorType) => {
-    const signInToken = await signIn({ email, password, isSeller });
+    const { accessToken, productList } = await signIn({
+      email,
+      password,
+      isSeller,
+      productIdList: getItems()?.map(cartItem => cartItem.product.id!)
+    });
     const expirationTime = new Date();
     expirationTime.setHours(expirationTime.getHours() + 1);
     // save access token into cookie
-    setCookie('digitalhippo-access-token', signInToken, { expires: expirationTime })
+    setCookie('digitalhippo-access-token', accessToken, { expires: expirationTime })
+
+    // reset cart
+    clearCart()
+    productList?.forEach(product => addItem({ product, accessToken: undefined }))
 
     // payload sign in
     await payloadSignIn({ email, password })
@@ -57,7 +68,7 @@ const Page = () => {
     }
     if (origin) {
       // redirect user to where they were before signing in
-      router.push(`/${origin}`)
+      router.push(`${origin}`)
       router.refresh();
       return
     }

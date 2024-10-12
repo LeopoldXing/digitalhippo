@@ -11,13 +11,16 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AuthCredentialsValidator, AuthCredentialValidatorType } from "@/lib/validators/SignupValidator";
 import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { toast } from "sonner";
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { trpc } from "@/trpc/client";
 import { useMutation } from "react-query";
 import { createUserRequest } from "@/api/UserRequest";
+import { cartHooks } from "@/hooks/cartHooks";
 
 const Page = () => {
   const router = useRouter();
+  const searchParam = useSearchParams();
+  const origin = searchParam.get("origin")
   const form = useForm<AuthCredentialValidatorType>({
     resolver: zodResolver(AuthCredentialsValidator),
     defaultValues: {
@@ -30,6 +33,7 @@ const Page = () => {
    * payload signup
    */
   const { mutate: payloadSignUp } = trpc.auth.createPayloadUser.useMutation()
+  const { getItems } = cartHooks();
 
   /**
    * signup
@@ -46,7 +50,7 @@ const Page = () => {
     }
   });
   const handleSignUp = async ({ email, password }: AuthCredentialValidatorType) => {
-    await createUser({ email, password });
+    await createUser({ email, password, productIdList: getItems()?.map(cartItem => cartItem.product.id!) });
     payloadSignUp({ email, password })
   }
 
@@ -59,7 +63,7 @@ const Page = () => {
               <h1 className='text-2xl font-semibold tracking-tight'>
                 Create an account
               </h1>
-              <Link href='/sign-in' className={buttonVariants({ variant: 'link', className: 'gap-1.5' })}>
+              <Link href={origin ? `/sign-in?${origin}` : '/sign-in'} className={buttonVariants({ variant: 'link', className: 'gap-1.5' })}>
                 Already have an account? Sign-in<ArrowRight className='h-4 w-4'/>
               </Link>
             </div>

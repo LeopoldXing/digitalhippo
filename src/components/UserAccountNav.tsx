@@ -13,9 +13,11 @@ import {
 import { useRouter } from "next/navigation";
 import { signOut } from "@/api/UserRequest";
 import { deleteCookie, getCookie } from 'cookies-next';
+import { cartHooks } from "@/hooks/cartHooks";
 
 const UserAccountNav = ({ user }: { user: User }) => {
   const router = useRouter()
+  const { clearCart } = cartHooks();
 
   return (
       <DropdownMenu>
@@ -34,6 +36,7 @@ const UserAccountNav = ({ user }: { user: User }) => {
           <DropdownMenuItem onClick={async () => {
             await signOut(getCookie('digitalhippo-access-token'));
             deleteCookie('digitalhippo-access-token')
+            clearCart()
             router.push('/sign-in');
             router.refresh()
           }} className='cursor-pointer'>Log out</DropdownMenuItem>

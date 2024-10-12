@@ -6,7 +6,7 @@ import { cn, formatPrice } from '@/lib/utils'
 import { Check, Loader2, X } from 'lucide-react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { cartHooks } from "@/hooks/cartHooks";
 import { useMutation } from "react-query";
@@ -18,11 +18,16 @@ const Page = () => {
   const { items, removeItem } = cartHooks()
   const accessToken = getCookie("digitalhippo-access-token") || "";
   const router = useRouter()
+  const searchParam = useSearchParams()
+  const isLoggedIn: boolean = searchParam.get("loggedIn") === 'true' || false
+  if (!isLoggedIn) {
+    router.push(`/sign-in?origin=${'/checkout?loggedIn=true'}`);
+  }
 
   const { mutateAsync: createPaymentSession, isLoading } = useMutation(createPaymentSessionRequest, {
     onError: error => {
       console.error(error);
-      toast.error(`Failed to proceed payment`)
+      toast.error(`Failed to proceed payment: \n\n${error}`)
     },
     onSuccess: url => url && router.push(url)
   });
@@ -66,60 +71,56 @@ const Page = () => {
                     'divide-y divide-gray-200 border-b border-t border-gray-200':
                         isMounted && items.length > 0,
                   })}>
-                {isMounted &&
-                    items.map(({ product }) => {
-                      const label = PRODUCT_CATEGORIES.find(
-                          (c) => c.value === product.category
-                      )?.label
+                {isMounted && items.map(({ product }) => {
+                  const label = PRODUCT_CATEGORIES.find(c => c.value === product.category)?.label
+                  const image = product.productImages[0]
 
-                      const image = product.productImages[0]
+                  return (
+                      <li key={product.id} className='flex py-6 sm:py-10'>
+                        <div className='flex-shrink-0'>
+                          <div className='relative h-24 w-24'>
+                            {image.url ? (
+                                <Image fill src={image.url} alt='product image'
+                                       className='h-full w-full rounded-md object-cover object-center sm:h-48 sm:w-48'/>
+                            ) : null}
+                          </div>
+                        </div>
 
-                      return (
-                          <li key={product.id} className='flex py-6 sm:py-10'>
-                            <div className='flex-shrink-0'>
-                              <div className='relative h-24 w-24'>
-                                {image.url ? (
-                                    <Image fill src={image.url} alt='product image'
-                                           className='h-full w-full rounded-md object-cover object-center sm:h-48 sm:w-48'/>
-                                ) : null}
-                              </div>
-                            </div>
-
-                            <div className='ml-4 flex flex-1 flex-col justify-between sm:ml-6'>
-                              <div className='relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0'>
-                                <div>
-                                  <div className='flex justify-between'>
-                                    <h3 className='text-sm'>
-                                      <Link href={`/product/${product.id}`} className='font-medium text-gray-700 hover:text-gray-800'>
-                                        {product.name}
-                                      </Link>
-                                    </h3>
-                                  </div>
-
-                                  <div className='mt-1 flex text-sm'>
-                                    <p className='text-muted-foreground'>Category: {label}</p>
-                                  </div>
-
-                                  <p className='mt-1 text-sm font-medium text-gray-900'>{formatPrice(product.price)}</p>
-                                </div>
-
-                                <div className='mt-4 sm:mt-0 sm:pr-9 w-20'>
-                                  <div className='absolute right-0 top-0'>
-                                    <Button aria-label='remove product' onClick={() => removeItem(product.id!)} variant='ghost'>
-                                      <X className='h-5 w-5' aria-hidden='true'/>
-                                    </Button>
-                                  </div>
-                                </div>
+                        <div className='ml-4 flex flex-1 flex-col justify-between sm:ml-6'>
+                          <div className='relative pr-9 sm:grid sm:grid-cols-2 sm:gap-x-6 sm:pr-0'>
+                            <div>
+                              <div className='flex justify-between'>
+                                <h3 className='text-sm'>
+                                  <Link href={`/product/${product.id}`} className='font-medium text-gray-700 hover:text-gray-800'>
+                                    {product.name}
+                                  </Link>
+                                </h3>
                               </div>
 
-                              <p className='mt-4 flex space-x-2 text-sm text-gray-700'>
-                                <Check className='h-5 w-5 flex-shrink-0 text-green-500'/>
-                                <span>Eligible for instant delivery</span>
-                              </p>
+                              <div className='mt-1 flex text-sm'>
+                                <p className='text-muted-foreground'>Category: {label}</p>
+                              </div>
+
+                              <p className='mt-1 text-sm font-medium text-gray-900'>{formatPrice(product.price)}</p>
                             </div>
-                          </li>
-                      )
-                    })}
+
+                            <div className='mt-4 sm:mt-0 sm:pr-9 w-20'>
+                              <div className='absolute right-0 top-0'>
+                                <Button aria-label='remove product' onClick={() => removeItem(product.id!)} variant='ghost'>
+                                  <X className='h-5 w-5' aria-hidden='true'/>
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+
+                          <p className='mt-4 flex space-x-2 text-sm text-gray-700'>
+                            <Check className='h-5 w-5 flex-shrink-0 text-green-500'/>
+                            <span>Eligible for instant delivery</span>
+                          </p>
+                        </div>
+                      </li>
+                  )
+                })}
               </ul>
             </div>
 
