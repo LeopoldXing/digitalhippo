@@ -135,10 +135,31 @@ CREATE TABLE public.link_orders_products
     CONSTRAINT link_orders_products_pk PRIMARY KEY (id)
 );
 
-
 -- public.link_orders_products foreign keys
 
 ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_orders_fk FOREIGN KEY (order_id) REFERENCES public.orders (id);
 ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
+
+
+
+-- public.carts definition
+CREATE TABLE public.carts
+(
+    id         bigserial NOT NULL,
+    product_id bigserial NOT NULL,
+    user_id    bigserial NOT NULL,
+    created_at timestamp NOT NULL,
+    created_by varchar   NOT NULL,
+    updated_at timestamp NOT NULL,
+    updated_by varchar   NOT NULL,
+    CONSTRAINT carts_pk PRIMARY KEY (id)
+);
+
+-- public.carts foreign keys
+
+ALTER TABLE public.carts
+    ADD CONSTRAINT carts_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
+ALTER TABLE public.carts
+    ADD CONSTRAINT carts_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);
