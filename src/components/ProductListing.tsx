@@ -1,15 +1,15 @@
 'use client'
 
-import { Product } from '@/payload-types'
 import { useEffect, useState } from 'react'
 import { Skeleton } from './ui/skeleton'
 import Link from 'next/link'
 import { cn, formatPrice } from '@/lib/utils'
 import { PRODUCT_CATEGORIES } from '@/config'
 import ImageSlider from './ImageSlider'
+import { ProductApiType } from "@/types";
 
 interface ProductListingProps {
-  product: Product | null
+  product: ProductApiType | null
   index: number
 }
 
@@ -27,7 +27,7 @@ const ProductListing = ({ product, index }: ProductListingProps) => {
 
   const label = PRODUCT_CATEGORIES.find(({ value }) => value === product.category)?.label
 
-  const validUrls = product.images.map(({ image }) => typeof image === 'string' ? image : image.url).filter(Boolean) as string[]
+  const validUrls = product.productImages.map(image => image.url)
 
   if (isVisible && product) {
     return (

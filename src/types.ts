@@ -1,4 +1,5 @@
 import { PRODUCT_CATEGORIES } from "@/config";
+import { Product } from "@/payload-types";
 
 export type Category = typeof PRODUCT_CATEGORIES[number]
 
@@ -20,7 +21,7 @@ export type ErrorResponseType = {
 export type ProductApiType = {
   id?: string,
   payloadId: string,
-  filename: string,
+  name: string,
   description?: string,
   price: number,
   category: 'ui_kits' | 'icons',
@@ -38,4 +39,8 @@ export type ProductImageType = {
   mimeType: string,
   fileType: 'thumbnail' | 'card' | 'tablet',
   url: string
+}
+
+export type CartItem = {
+  product: Product
 }

@@ -42,7 +42,7 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
   // initialize product data
   const productData: ProductApiType = {
     payloadId: doc.id,
-    filename: doc.name,
+    name: doc.name,
     description: doc.description || '',
     price: doc.price,
     category: doc.category,

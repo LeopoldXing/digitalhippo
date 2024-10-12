@@ -1,7 +1,7 @@
 import { Access, CollectionConfig } from 'payload/types'
 import { User } from "@/payload-types";
 import { PRODUCT_CATEGORIES } from "../config/index";
-import { afterChangeProductHook, beforeDeleteProductHook, beforeChangeProductHook, syncUser } from "./hooks/ProductsHooks";
+import { afterChangeProductHook, beforeDeleteProductHook, beforeChangeProductHook, syncUser } from "./hooks/ProductsSync";
 
 const isAdminOrHasAccess = (): Access => ({ req: { user: _user } }) => {
   const user = _user as User | undefined
