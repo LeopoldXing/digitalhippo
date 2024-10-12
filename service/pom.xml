@@ -16,6 +16,7 @@
         <module>email</module>
         <module>product</module>
         <module>search</module>
+        <module>cart</module>
     </modules>
 
     <properties>
