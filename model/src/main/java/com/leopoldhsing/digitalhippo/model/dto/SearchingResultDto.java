@@ -10,11 +10,11 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductSearchingResultDto {
+public class SearchingResultDto {
 
     private List<Product> results;
-    private Long resultCount;
-    private Long totalPage;
-    private Long current;
-    private Long size;
+    private Integer resultCount;
+    private Integer totalPage;
+    private Integer current;
+    private Integer size;
 }

@@ -12,12 +12,7 @@ class ProductMapper private constructor() {
     companion object {
         fun mapToProduct(productVo: ProductVo, approvedForSale: String = "pending"): Product {
             val product = Product()
-            product.payloadId = productVo.payloadId
-            product.name = productVo.filename
-            product.description = productVo.description
-            product.price = productVo.price
-            product.productFileUrl = productVo.productFileUrl
-            product.category = productVo.category
+            BeanUtils.copyProperties(productVo, product)
             product.approvedForSale = approvedForSale
             val productImageList =
                 productVo.productImages?.map { productImageVo -> ProductImageMapper.mapTopProductImage(productImageVo, product) }

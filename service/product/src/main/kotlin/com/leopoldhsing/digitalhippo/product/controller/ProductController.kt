@@ -1,5 +1,7 @@
 package com.leopoldhsing.digitalhippo.product.controller
 
+import com.leopoldhsing.digitalhippo.common.constants.PaginationConstants
+import com.leopoldhsing.digitalhippo.model.dto.SearchingResultDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
@@ -17,10 +19,22 @@ class ProductController @Autowired constructor(
 ) {
 
     @GetMapping("/search")
-    fun searchProduct(@ModelAttribute condition: ProductSearchingConditionVo): ResponseEntity<List<Product>> {
+    fun searchProduct(@ModelAttribute condition: ProductSearchingConditionVo): ResponseEntity<SearchingResultDto> {
         val productList = productService.conditionalSearchProducts(condition)
 
-        return ResponseEntity.ok(productList)
+        val searchingResultDto = SearchingResultDto()
+        searchingResultDto.results = productList
+        searchingResultDto.resultCount = productList.size
+        if (condition.current == null || condition.current < 1) searchingResultDto.current = 1
+        if (condition.size == null || condition.size < 1) searchingResultDto.size = PaginationConstants.DEFAULT_PAGE_SIZE
+        val pageSize = searchingResultDto.size
+        if (pageSize != null && pageSize > 0) {
+            searchingResultDto.totalPage = (searchingResultDto.resultCount + pageSize - 1) / pageSize
+        } else {
+            searchingResultDto.totalPage = 1
+        }
+
+        return ResponseEntity.ok(searchingResultDto)
     }
 
     /**

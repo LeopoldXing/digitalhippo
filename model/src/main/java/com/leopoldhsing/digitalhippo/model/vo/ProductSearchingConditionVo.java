@@ -15,23 +15,12 @@ import java.util.List;
 public class ProductSearchingConditionVo {
 
     private String keyword;
-
-    @JsonProperty("category-list")
     private List<String> categoryList;
-
-    @JsonProperty("top-price")
     private Double topPrice;
-
-    @JsonProperty("bottom-price")
     private Double bottomPrice;
-
     private Integer size;
-
     private Integer current;
-
-    @JsonProperty("sorting-strategy")
     private SortingStrategy sortingStrategy;
-
-    @JsonProperty("sorting-direction")
     private SortingDirection sortingDirection;
+
 }

@@ -62,6 +62,7 @@ url:
       - /img/**
       - /fonts/**
       - /api/product/search/**
+      - /api/product/*
 
 eureka:
   instance:

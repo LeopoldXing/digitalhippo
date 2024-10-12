@@ -13,7 +13,7 @@ import java.util.List;
 public class ProductVo {
     private Long id;
     private String payloadId;
-    private String filename;
+    private String name;
     private String description;
     private BigDecimal price;
     private String category;
