@@ -1,7 +1,7 @@
 package com.leopoldhsing.digitalhippo.product.controller
 
-import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
+import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
 import com.leopoldhsing.digitalhippo.product.service.ProductService
@@ -16,8 +16,8 @@ class ProductController @Autowired constructor(
     private val productService: ProductService
 ) {
 
-    @GetMapping
-    fun searchProduct(@RequestParam condition: ProductSearchingConditionDto): ResponseEntity<List<Product>> {
+    @GetMapping("/search")
+    fun searchProduct(@ModelAttribute condition: ProductSearchingConditionVo): ResponseEntity<List<Product>> {
         val productList = productService.conditionalSearchProducts(condition)
 
         return ResponseEntity.ok(productList)

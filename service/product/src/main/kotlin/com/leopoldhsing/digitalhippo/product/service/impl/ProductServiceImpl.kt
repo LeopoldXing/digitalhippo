@@ -2,11 +2,12 @@ package com.leopoldhsing.digitalhippo.product.service.impl
 
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
+import com.leopoldhsing.digitalhippo.feign.search.ProductSearchingFeignClient
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
-import com.leopoldhsing.digitalhippo.model.dto.ProductSearchingConditionDto
 import com.leopoldhsing.digitalhippo.model.elasticsearch.ProductIndex
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
+import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
 import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
 import com.leopoldhsing.digitalhippo.product.repository.ProductElasticsearchRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
@@ -22,11 +23,22 @@ open class ProductServiceImpl @Autowired constructor(
     private val productRepository: ProductRepository,
     private val productImageRepository: ProductImageRepository,
     private val productElasticsearchRepository: ProductElasticsearchRepository,
-    private val userFeignClient: UserFeignClient
+    private val userFeignClient: UserFeignClient,
+    private val productSearchingFeignClient: ProductSearchingFeignClient
 ) : ProductService {
 
-    override fun conditionalSearchProducts(condition: ProductSearchingConditionDto): List<Product> {
-        TODO("Not yet implemented")
+    override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): List<Product> {
+        // 1. use searching service to get product id list
+        val searchResultIdList: List<ProductIndex> = productSearchingFeignClient.searchProduct(condition)
+
+        // 2. get product info
+        val productList: List<Product> = searchResultIdList.map { productIndex ->
+            productRepository.findById(productIndex.id)
+                .orElseThrow { throw ResourceNotFoundException("product", "id", productIndex.id.toString()) }
+        }
+
+        // 3. return result
+        return productList
     }
 
     override fun getProduct(productId: Long): Product {

@@ -10,6 +10,7 @@ import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -20,7 +21,7 @@ public class ProductIndex {
     @Id
     private Long id;
 
-    @Field(type = FieldType.Keyword)
+    @Field(type = FieldType.Keyword, index = false)
     private String payloadId;
 
     @Field(type = FieldType.Text)
@@ -38,11 +39,14 @@ public class ProductIndex {
     @Field(type = FieldType.Keyword)
     private String category;
 
-    @Field(type = FieldType.Keyword, index = false)
+    @Field(type = FieldType.Keyword)
     private String productFileUrl;
 
     @Field(type = FieldType.Keyword)
     private String approvedForSale;
+
+    @Field(type = FieldType.Nested)
+    private List<ProductImageIndex> productImages;
 
     // higher the score, higher the popularity
     @Field(type = FieldType.Long)

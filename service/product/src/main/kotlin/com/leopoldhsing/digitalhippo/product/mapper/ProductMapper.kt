@@ -26,11 +26,19 @@ class ProductMapper private constructor() {
             return product
         }
 
+        fun mapToProduct(productIndex: ProductIndex): Product {
+            val product = Product()
+            BeanUtils.copyProperties(productIndex, product)
+
+            return product
+        }
+
         fun mapToIndex(product: Product): ProductIndex {
             val productIndex = ProductIndex()
             BeanUtils.copyProperties(product, productIndex)
             productIndex.sellerEmail = product.user.email
             productIndex.price = product.price.toDouble()
+            productIndex.category = product.category.lowercase()
             return productIndex
         }
     }
