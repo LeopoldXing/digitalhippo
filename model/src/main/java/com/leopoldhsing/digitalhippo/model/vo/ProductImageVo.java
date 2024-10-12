@@ -9,12 +9,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductImageVo {
     private String payloadId;
+    private String url;
     private String filename;
     private Double filesize;
-    private Integer height;
     private Integer width;
+    private Integer height;
     private String mimeType;
     private String fileType;
-    private String url;
 
 }

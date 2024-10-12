@@ -35,4 +35,8 @@ public class Product extends BaseEntity {
     @JsonManagedReference
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductImage> productImages;
+
+    public Product(Long id) {
+        this.setId(id);
+    }
 }

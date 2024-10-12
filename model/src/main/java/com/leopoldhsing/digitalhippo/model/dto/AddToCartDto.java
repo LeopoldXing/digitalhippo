@@ -1,5 +1,6 @@
-package com.leopoldhsing.digitalhippo.model.vo;
+package com.leopoldhsing.digitalhippo.model.dto;
 
+import com.leopoldhsing.digitalhippo.model.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,12 +8,9 @@ import lombok.NoArgsConstructor;
 import java.util.List;
 
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class UserCreationVo {
-
-    private String email;
-    private String password;
-    private String role;
+@NoArgsConstructor
+public class AddToCartDto {
+    private User user;
     private List<Long> productIdList;
 }

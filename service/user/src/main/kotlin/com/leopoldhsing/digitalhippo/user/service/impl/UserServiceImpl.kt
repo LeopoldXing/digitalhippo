@@ -10,15 +10,22 @@ import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
 import com.leopoldhsing.digitalhippo.common.utils.SignInTokenUtil
 import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
+import com.leopoldhsing.digitalhippo.feign.cart.CartFeignClient
+import com.leopoldhsing.digitalhippo.model.dto.AddToCartDto
 import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
+import com.leopoldhsing.digitalhippo.model.vo.ProductImageVo
+import com.leopoldhsing.digitalhippo.model.vo.ProductVo
+import com.leopoldhsing.digitalhippo.model.vo.UserLoginResponseVo
 import com.leopoldhsing.digitalhippo.user.config.AwsSnsProperties
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
 import io.awspring.cloud.sns.core.SnsTemplate
+import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
+import org.springframework.util.CollectionUtils
 import java.util.concurrent.TimeUnit
 
 @Service
@@ -26,7 +33,8 @@ class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
     private val snsTemplate: SnsTemplate,
     private val redisTemplate: StringRedisTemplate,
-    private val awsSnsProperties: AwsSnsProperties
+    private val awsSnsProperties: AwsSnsProperties,
+    private val cartFeignClient: CartFeignClient
 ) : UserService {
     override fun getUser(): User {
         val userId = RequestUtil.getUid()
@@ -38,7 +46,7 @@ class UserServiceImpl @Autowired constructor(
     /**
      * user sign in
      */
-    override fun signIn(email: String, password: String): String {
+    override fun signIn(email: String, password: String, cartIdList: List<Long>): UserLoginResponseVo {
         // 1. get user
         val userOption = userRepository.findUserByEmail(email)
         if (userOption == null || !userOption.isPresent) {
@@ -51,18 +59,36 @@ class UserServiceImpl @Autowired constructor(
             throw AuthenticationFailedException(user.id.toString(), email)
         }
 
-        // 3. determine if the user already signed in
+        // 3. combine cart item
+        cartFeignClient.addItem(AddToCartDto(user, cartIdList))
+        val cartItems: List<ProductVo> = cartFeignClient.getItems(user.id)?.map { cartItem ->
+            val product = cartItem.product
+            val imageVoList: List<ProductImageVo> = product.productImages?.map { image ->
+                val imageVo = ProductImageVo()
+                BeanUtils.copyProperties(image, imageVo)
+                imageVo.fileType = image.fileType.value
+                imageVo
+            } ?: emptyList()
+            val productVo = ProductVo()
+            BeanUtils.copyProperties(product, productVo)
+            productVo.productImages = imageVoList
+            productVo
+        } ?: emptyList()
+
+        // 4. determine if the user already signed in
         val potentialTokenKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         if (redisTemplate.hasKey(potentialTokenKey)) {
             // user already signed in, extend token valid period
             redisTemplate.expire(potentialTokenKey, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
-            return redisTemplate.opsForValue().get(potentialTokenKey)
+            val accessToken = redisTemplate.opsForValue().get(potentialTokenKey)
+
+            return UserLoginResponseVo(accessToken, cartItems)
         }
 
-        // 3. generate token for this session
+        // 5. generate token for this session
         val accessToken = SignInTokenUtil.generateAccessToken()
 
-        // 4. put token into ElastiCache for this session
+        // 6. put token into ElastiCache for this session
         val signInTokenKey = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + accessToken
         // set token:userid
         redisTemplate.opsForValue().set(signInTokenKey, user.id.toString(), RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
@@ -70,7 +96,7 @@ class UserServiceImpl @Autowired constructor(
         val signInTokenReversedKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         redisTemplate.opsForValue().set(signInTokenReversedKey, accessToken, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
 
-        return accessToken
+        return UserLoginResponseVo(accessToken, cartItems)
     }
 
     /**
@@ -97,7 +123,7 @@ class UserServiceImpl @Autowired constructor(
     /**
      * create new user
      */
-    override fun createUser(originalEmail: String, password: String, role: UserRole): User {
+    override fun createUser(originalEmail: String, password: String, role: UserRole, cartItemIdList: List<Long>): User {
         // 1. Determine if the email already exists
         val email = InputSanitizeString.sanitizeString(originalEmail)
         val userOptional = userRepository.findUserByEmail(email)
@@ -115,7 +141,12 @@ class UserServiceImpl @Autowired constructor(
         // 4. Save to database
         val savedUser = userRepository.save(newUser)
 
-        // 5. send verification email
+        // 5. persist the items in user's cart
+        if (!CollectionUtils.isEmpty(cartItemIdList)) {
+            cartFeignClient.addItem(AddToCartDto(savedUser, cartItemIdList))
+        }
+
+        // 6. send verification email
         // generate verification token
         val verificationToken = VerificationTokenUtil.generateVerificationToken()
         // put verification token into AWS ElastiCache
@@ -133,7 +164,7 @@ class UserServiceImpl @Autowired constructor(
         // send message to AWS SNS
         snsTemplate.sendNotification(awsSnsProperties.arn, emailVerificationParams, "verification email")
 
-        // 6. Return result
+        // 7. Return result
         return savedUser
     }
 
