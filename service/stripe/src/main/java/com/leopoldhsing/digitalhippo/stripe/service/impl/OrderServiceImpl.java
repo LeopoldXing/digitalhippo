@@ -17,7 +17,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderRepository orderRepository;
 
     @Override
-    public Order createOrder(List<Long> productIdList, Long userId) {
+    public Order createOrder(String payloadId, List<Long> productIdList, Long userId) {
         User user = new User();
         user.setId(userId);
 
@@ -26,6 +26,11 @@ public class OrderServiceImpl implements OrderService {
             product.setId(productId);
             return product;
         }).toList();
-        return orderRepository.save(new Order(user, productList, false));
+        return orderRepository.save(new Order(payloadId, user, productList, false));
+    }
+
+    @Override
+    public Order getOrderById(Long orderId) {
+        return orderRepository.getOrderById(orderId);
     }
 }

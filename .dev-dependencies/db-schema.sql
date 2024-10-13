@@ -110,6 +110,7 @@ ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
 CREATE TABLE public.orders
 (
     id         bigserial NOT NULL,
+    payload_id varchar NULL,
     user_id    bigserial NOT NULL,
     is_paid    bool DEFAULT false NULL,
     created_at timestamp NULL,

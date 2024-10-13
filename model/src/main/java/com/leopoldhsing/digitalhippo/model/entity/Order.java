@@ -16,6 +16,8 @@ import java.util.List;
 @Table(name = "orders")
 public class Order extends BaseEntity {
 
+    private String payloadId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id")
     private User user;

@@ -38,10 +38,10 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
-    public String createCheckoutSession(List<Long> productIdList) {
+    public String createCheckoutSession(String payloadOrderId, List<Long> productIdList) {
         // 1. create order
         Long uid = RequestUtil.getUid();
-        Order order = orderService.createOrder(productIdList, uid);
+        Order order = orderService.createOrder(payloadOrderId, productIdList, uid);
 
         // 2. get stripe id list
         List<String> stripeIdList = productFeignClient.getStripeIdList(productIdList);
