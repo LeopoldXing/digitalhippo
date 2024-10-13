@@ -21,7 +21,6 @@ const cartHooks = create<CartState>()(
             const productId = product.id!
             // determine if this item already in the cart
             if (state.items.find(cartItem => cartItem.product.id === productId)) {
-              toast.warning("Item already in the cart!")
               return state
             }
             if (accessToken) {

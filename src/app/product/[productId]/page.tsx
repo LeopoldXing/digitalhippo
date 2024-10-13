@@ -103,7 +103,7 @@ const Page = async ({ params }: PageProps) => {
         </div>
 
         <ProductReel href='/products' query={{ category: product.category, size: 4 }} title={`Similar ${label}`}
-                     subtitle={`Browse similar high-quality ${label} just like '${product.name}'`}/>
+                     subtitle={`Browse similar high-quality ${label} just like '${product.name}'`} exclude={product.payloadId}/>
       </MaxWidthWrapper>
   )
 }

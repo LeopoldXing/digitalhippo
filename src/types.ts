@@ -43,6 +43,14 @@ export type ProductImageType = {
   url: string
 }
 
+export type OrderApiType = {
+  id: string,
+  payloadId: string,
+  user: User,
+  products: ProductApiType[],
+  isPaid: boolean
+}
+
 export type CartItem = {
   product: ProductApiType
 }

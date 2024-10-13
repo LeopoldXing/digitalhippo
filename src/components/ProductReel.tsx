@@ -11,10 +11,11 @@ interface ProductReelProps {
   subtitle?: string
   href?: string
   query: ProductSearchingConditionType
+  exclude?: string
 }
 
 const ProductReel = (props: ProductReelProps) => {
-  const { title, subtitle, href, query } = props
+  const { title, subtitle, href, query, exclude } = props
 
   const { productSearchingResult, isLoading } = useSearchProduct({ condition: query })
 
@@ -23,6 +24,12 @@ const ProductReel = (props: ProductReelProps) => {
     productList = productSearchingResult?.results || []
   } else if (isLoading) {
     productList = new Array<null>(4).fill(null)
+  }
+
+  if (exclude) {
+    productList = productList.filter(product => {
+      return product?.payloadId !== exclude
+    })
   }
 
   return (

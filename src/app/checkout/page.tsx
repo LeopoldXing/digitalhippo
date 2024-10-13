@@ -13,6 +13,7 @@ import { useMutation } from "react-query";
 import { toast } from "sonner";
 import { createPaymentSessionRequest } from "@/api/PaymentRequest";
 import { getCookie } from "cookies-next";
+import { createPayloadOrder } from "@/api/OrderRequest";
 
 const Page = () => {
   const { items, removeItem } = cartHooks()
@@ -26,10 +27,8 @@ const Page = () => {
 
   const { mutateAsync: createPaymentSession, isLoading } = useMutation(createPaymentSessionRequest, {
     onError: error => {
-      console.error(error);
       toast.error(`Failed to proceed payment: \n\n${error}`)
-    },
-    onSuccess: url => url && router.push(url)
+    }
   });
 
   const productIdList = items.map(({ product }) => product.id!)
@@ -161,11 +160,14 @@ const Page = () => {
               </div>
 
               <div className='mt-6'>
-                <Button
-                    disabled={items.length === 0 || isLoading}
-                    onClick={() => createPaymentSession({ productIdList, accessToken })}
-                    className='w-full'
-                    size='lg'>
+                <Button disabled={items.length === 0 || isLoading} className='w-full' size='lg'
+                        onClick={async () => {
+                          const payloadOrderId = await createPayloadOrder({ userId: "", productIdList, isPaid: false })
+                          const url = await createPaymentSession({ productIdList, payloadOrderId, accessToken })
+                          if (url) {
+                            router.push(url)
+                          }
+                        }}>
                   {isLoading ? <Loader2 className='w-4 h-4 animate-spin mr-1.5'/> : null}
                   Checkout
                 </Button>
