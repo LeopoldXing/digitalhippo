@@ -24,6 +24,8 @@ export type ProductApiType = {
   name: string,
   description?: string,
   price: number,
+  priceId: string,
+  stripeId: string,
   category: 'ui_kits' | 'icons',
   approvedForSale?: ('pending' | 'approved' | 'denied')
   productFileUrl: string,

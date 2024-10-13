@@ -26,6 +26,7 @@ const start = async () => {
       payload.logger.info(
           'Next.js is building for production'
       )
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-expect-error
       await nextBuild(path.join(__dirname, '../'))
       process.exit()

@@ -45,6 +45,8 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
     name: doc.name,
     description: doc.description || '',
     price: doc.price,
+    priceId: doc.priceId || "",
+    stripeId: doc.stripeId || "",
     category: doc.category,
     approvedForSale: doc.approvedForSale || 'pending',
     productFileUrl: '',
@@ -57,7 +59,7 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
       await constructProductData(doc, req, productData);
 
       // send request
-      await fetch(`${BASE_URL}/api/product`, {
+      const response = await fetch(`${BASE_URL}/api/product`, {
         method: operation === 'create' ? 'POST' : 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -65,7 +67,9 @@ const afterChangeProductHook: AfterChangeHook<Product> = async ({ req, operation
         },
         body: JSON.stringify(productData)
       });
-
+      const product = await response.json();
+      doc.priceId = product.priceId || "";
+      doc.stripeId = doc.stripeId || "";
       return doc;
     } catch (error) {
       console.log(`create / update product failed: ${error}`)

@@ -62,7 +62,7 @@ export const Products: CollectionConfig = {
     },
     {
       name: 'price',
-      label: 'Price in USD',
+      label: 'Price in CAD',
       min: 0,
       max: 1000,
       type: 'number',
@@ -113,19 +113,17 @@ export const Products: CollectionConfig = {
       access: {
         create: () => false,
         read: () => false,
-        update: () => false,
+        update: () => false
       },
       type: 'text',
-      admin: {
-        hidden: true,
-      },
+      admin: { hidden: true }
     },
     {
       name: 'stripeId',
       access: {
         create: () => false,
         read: () => false,
-        update: () => false,
+        update: () => false
       },
       type: 'text',
       admin: { hidden: true }
