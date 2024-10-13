@@ -17,6 +17,7 @@
         <module>product</module>
         <module>search</module>
         <module>cart</module>
+        <module>order</module>
     </modules>
 
     <properties>
@@ -63,6 +64,12 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!--  testing  -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 

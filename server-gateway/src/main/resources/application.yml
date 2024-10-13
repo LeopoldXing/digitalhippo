@@ -54,6 +54,10 @@ spring:
           uri: lb://cart
           predicates:
             - Path=/api/cart/**
+        - id: order
+          uri: lb://order
+          predicates:
+            - Path=/api/order/**
 
 url:
   auth:

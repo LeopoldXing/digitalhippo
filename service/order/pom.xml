@@ -9,19 +9,31 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>search</artifactId>
+    <artifactId>order</artifactId>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <stripe.version>27.0.0</stripe.version>
     </properties>
 
     <dependencies>
-        <!--  elasticsearch  -->
+        <!--  stripe payment  -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>${stripe.version}</version>
+        </dependency>
+        <!--  postgres  -->
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+        </dependency>
+        <!--  jpa  -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
     </dependencies>
 
@@ -33,11 +45,10 @@
                 <version>3.4.1</version>
                 <configuration>
                     <to>
-                        <image>digitalhippo/search:latest</image>
+                        <image>digitalhippo/order:latest</image>
                     </to>
                 </configuration>
             </plugin>
         </plugins>
     </build>
-
 </project>
