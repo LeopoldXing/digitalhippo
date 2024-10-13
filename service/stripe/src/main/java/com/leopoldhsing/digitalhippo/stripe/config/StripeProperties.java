@@ -1,4 +1,4 @@
-package com.leopoldhsing.digitalhippo.order.config;
+package com.leopoldhsing.digitalhippo.stripe.config;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,5 +14,5 @@ import org.springframework.context.annotation.Configuration;
 public class StripeProperties {
     private String secretKey;
     private String publishableKey;
-    private String customDomain;
+    private String frontendEndpoint;
 }

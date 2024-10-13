@@ -3,6 +3,7 @@ package com.leopoldhsing.digitalhippo.product.service.impl
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.feign.search.ProductSearchingFeignClient
+import com.leopoldhsing.digitalhippo.feign.stripe.StripeProductFeignClient
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
 import com.leopoldhsing.digitalhippo.model.elasticsearch.ProductIndex
 import com.leopoldhsing.digitalhippo.model.entity.Product
@@ -24,7 +25,8 @@ open class ProductServiceImpl @Autowired constructor(
     private val productImageRepository: ProductImageRepository,
     private val productElasticsearchRepository: ProductElasticsearchRepository,
     private val userFeignClient: UserFeignClient,
-    private val productSearchingFeignClient: ProductSearchingFeignClient
+    private val productSearchingFeignClient: ProductSearchingFeignClient,
+    private val stripeProductFeignClient: StripeProductFeignClient
 ) : ProductService {
 
     override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): List<Product> {
@@ -49,15 +51,21 @@ open class ProductServiceImpl @Autowired constructor(
         return product
     }
 
+    @Transactional
     override fun createProduct(product: Product): Product {
         // 1. get user
         val currentUser = userFeignClient.getCurrentUser()
         product.user = currentUser
 
-        // 2. save product to postgres
+        // 2. create stripe product
+        val stripeProduct = stripeProductFeignClient.createStripeProduct(product)
+        product.priceId = stripeProduct.priceId
+        product.stripeId = stripeProduct.stripeId
+
+        // 3. save product to postgres
         productRepository.save(product)
 
-        // 3. save product info to elasticsearch
+        // 4. save product info to elasticsearch
         val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
         productElasticsearchRepository.save(productIndex)
 
@@ -81,14 +89,20 @@ open class ProductServiceImpl @Autowired constructor(
             // 4. update product
             product.id = originalProduct.id
             product.user = originalProduct.user
+            product.stripeId = originalProduct.stripeId
+            product.priceId = originalProduct.priceId
 
             // 4.1 update images
             productImageRepository.deleteProductImageByIdIn(product.productImages.map { image -> image.id })
 
-            // 4.2 update postgres
+            // 4.2 update stripe product
+            val updatedProduct: Product = stripeProductFeignClient.updateStripeProduct(originalProduct)
+            product.priceId = updatedProduct.priceId
+
+            // 4.3 update postgres
             productRepository.save(product)
 
-            // 4.3 update elasticsearch
+            // 4.4 update elasticsearch
             val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
             productElasticsearchRepository.save(productIndex)
         } else {
@@ -99,6 +113,7 @@ open class ProductServiceImpl @Autowired constructor(
         return Product()
     }
 
+    @Transactional
     override fun deleteProduct(payloadId: String) {
         // 1. get user
         val currentUser = userFeignClient.getCurrentUser()
@@ -110,7 +125,9 @@ open class ProductServiceImpl @Autowired constructor(
             // 3. determine if the user has the authority to delete this product
             if (currentUser.role === UserRole.ADMIN || product.user?.id == currentUser.id) {
                 // current user has authority
+                // delete from postgres
                 productRepository.delete(product)
+                // delete from elasticsearch
                 productElasticsearchRepository.deleteById(product.id)
             } else {
                 // current user does not have authority

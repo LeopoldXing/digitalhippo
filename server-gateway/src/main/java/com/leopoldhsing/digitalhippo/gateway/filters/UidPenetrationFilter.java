@@ -13,6 +13,7 @@ import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
@@ -70,22 +71,24 @@ public class UidPenetrationFilter implements GlobalFilter {
      * @return
      */
     private Mono<Void> userIdPenetration(ServerWebExchange exchange, GatewayFilterChain chain, String token) {
-        // 1. get request and response
-        ServerHttpRequest request = exchange.getRequest();
-        ServerHttpResponse response = exchange.getResponse();
+        if (StringUtils.hasText(token)) {
+            // 1. get request and response
+            ServerHttpRequest request = exchange.getRequest();
+            ServerHttpResponse response = exchange.getResponse();
 
-        // 2. get userId
-        String key = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + token;
-        String userId = redisTemplate.opsForValue().get(key);
+            // 2. get userId
+            String key = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + token;
+            String userId = redisTemplate.opsForValue().get(key);
 
-        // 3. add userId to the request
-        ServerHttpRequest newRequest = request.mutate().header(AuthConstants.USERID_HEADER_KEY, userId).build();
-        ServerWebExchange newExchange = exchange.mutate().request(newRequest).response(response).build();
+            // 3. add userId to the request
+            ServerHttpRequest newRequest = request.mutate().header(AuthConstants.USERID_HEADER_KEY, userId).build();
+            ServerWebExchange newExchange = exchange.mutate().request(newRequest).response(response).build();
 
-        // 4. add token into the request
-        ServerHttpRequest finalRequest = newRequest.mutate().header(AuthConstants.ACCESS_TOKEN_HEADER_KEY, token).build();
-        ServerWebExchange finalExchange = newExchange.mutate().request(finalRequest).response(response).build();
+            // 4. add token into the request
+            ServerHttpRequest finalRequest = newRequest.mutate().header(AuthConstants.ACCESS_TOKEN_HEADER_KEY, token).build();
+            exchange = newExchange.mutate().request(finalRequest).response(response).build();
+        }
 
-        return chain.filter(finalExchange);
+        return chain.filter(exchange);
     }
 }

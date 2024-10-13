@@ -1,4 +1,4 @@
-package com.leopoldhsing.digitalhippo.order.repository;
+package com.leopoldhsing.digitalhippo.stripe.repository;
 
 import org.springframework.stereotype.Repository;
 

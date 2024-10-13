@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: order
+    name: stripe
   datasource:
     url: ${POSTGRES_URL}
     username: ${POSTGRES_USERNAME}
@@ -14,7 +14,7 @@ spring:
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}
   publishable-key: ${STRIPE_PUBLISHABLE_KEY}
-  custom-domain: ${CUSTOM_DOMAIN}
+  frontend-endpoint: ${FRONTEND_ENDPOINT}
 
 eureka:
   instance:

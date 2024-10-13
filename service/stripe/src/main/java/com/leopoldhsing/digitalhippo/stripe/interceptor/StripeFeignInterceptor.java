@@ -1,4 +1,4 @@
-package com.leopoldhsing.digitalhippo.order.interceptor;
+package com.leopoldhsing.digitalhippo.stripe.interceptor;
 
 import com.leopoldhsing.digitalhippo.common.constants.AuthConstants;
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil;
@@ -7,7 +7,7 @@ import feign.RequestTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
-public class OrderFeignInterceptor implements RequestInterceptor {
+public class StripeFeignInterceptor implements RequestInterceptor {
     @Override
     public void apply(RequestTemplate requestTemplate) {
         Long userId = RequestUtil.getUid();

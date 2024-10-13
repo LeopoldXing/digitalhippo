@@ -28,6 +28,8 @@ public class Product extends BaseEntity {
     private String name;
     private String description;
     private BigDecimal price;
+    private String priceId;
+    private String stripeId;
     private String category;
     private String productFileUrl;
     private String approvedForSale;

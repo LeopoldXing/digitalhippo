@@ -1,6 +1,6 @@
-package com.leopoldhsing.digitalhippo.order.controller;
+package com.leopoldhsing.digitalhippo.stripe.controller;
 
-import com.leopoldhsing.digitalhippo.order.service.PaymentService;
+import com.leopoldhsing.digitalhippo.stripe.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

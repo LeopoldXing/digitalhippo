@@ -30,6 +30,8 @@ CREATE TABLE public.products
     "name"            varchar                     NOT NULL,
     description       text NULL,
     price             numeric(10, 2) DEFAULT 0.00 NOT NULL,
+    price_id          varchar NULL,
+    stripe_id         varchar NULL,
     category          varchar NULL,                                                 -- ui_kits | icons
     product_file_url  varchar                     NOT NULL,
     approved_for_sale varchar        DEFAULT 'pending'::character varying NOT NULL, -- pending | approved | denied
@@ -40,17 +42,17 @@ CREATE TABLE public.products
     CONSTRAINT products_pk PRIMARY KEY (id)
 );
 
--- public.products foreign keys
-
-ALTER TABLE public.products
-    ADD CONSTRAINT products_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);
-
 -- Column comments
 
 COMMENT
 ON COLUMN public.products.category IS 'ui_kits | icons';
 COMMENT
 ON COLUMN public.products.approved_for_sale IS 'pending | approved | denied';
+
+-- public.products foreign keys
+ALTER TABLE public.products
+    ADD CONSTRAINT products_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);
+
 
 -- product microservice - product_images -------------------------------------------------------------------
 CREATE TABLE public.product_images
@@ -141,7 +143,6 @@ ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_orders_fk FOREIGN KEY (order_id) REFERENCES public.orders (id);
 ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
-
 
 
 -- public.carts definition

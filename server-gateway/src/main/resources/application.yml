@@ -54,10 +54,10 @@ spring:
           uri: lb://cart
           predicates:
             - Path=/api/cart/**
-        - id: order
-          uri: lb://order
+        - id: stripe
+          uri: lb://stripe
           predicates:
-            - Path=/api/order/**
+            - Path=/api/stripe/**
 
 url:
   auth:
@@ -65,12 +65,13 @@ url:
     sign-up-uri-patterns: /api/user/sign-up
     sign-out-uri-patterns: /api/user/sign-out
     inner-uri-patterns: /api/**/inner/**
+    public-uri-patterns:
+      - /api/product/search/**
+      - /api/product/*
     trusted-uri-patterns:
       - /css/**
       - /img/**
       - /fonts/**
-      - /api/product/search/**
-      - /api/product/*
 
 eureka:
   instance:

@@ -59,7 +59,18 @@ public class GlobalAuthFilter implements GlobalFilter {
             return chain.filter(exchange);
         }
 
-        // 2.3 inner call request
+        // 2.3 public uri pattern
+        List<String> publicUriList = gatewayUrlAuthConfig.getPublicUriPatterns();
+        long publicUriPatternCount = publicUriList
+                .stream()
+                .filter(pattern -> antPathMatcher.match(pattern, path))
+                .count();
+        if(publicUriPatternCount > 0) {
+            // public url will skip authentication
+            return chain.filter(exchange);
+        }
+
+        // 2.4 inner call request
         List<String> innerUriList = gatewayUrlAuthConfig.getInnerUriPatterns();
         long innerRequestCount = innerUriList
                 .parallelStream()
@@ -70,7 +81,7 @@ public class GlobalAuthFilter implements GlobalFilter {
             return prepareErrorResponse(exchange, request, "Request Denied, you are trying to access restricted resources!");
         }
 
-        // 2.4 handle sign-up | sign-in | sign out requests
+        // 2.5 handle sign-up | sign-in | sign out requests
         String signInUriPattern = gatewayUrlAuthConfig.getSignInUriPatterns();
         String signUpUriPattern = gatewayUrlAuthConfig.getSignUpUriPatterns();
         String signOutUriPattern = gatewayUrlAuthConfig.getSignOutUriPatterns();
@@ -79,7 +90,7 @@ public class GlobalAuthFilter implements GlobalFilter {
             return chain.filter(exchange);
         }
 
-        // 2.5 requests that needed to be accessed after signing in
+        // 2.6 requests that needed to be accessed after signing in
         // justify if currently in login state
         String token = this.getTokenFromRequest(exchange);
         if (!isTokenValid(token)) {

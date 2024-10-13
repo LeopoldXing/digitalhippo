@@ -17,7 +17,7 @@
         <module>product</module>
         <module>search</module>
         <module>cart</module>
-        <module>order</module>
+        <module>stripe</module>
     </modules>
 
     <properties>
