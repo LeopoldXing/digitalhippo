@@ -11,6 +11,10 @@ import com.stripe.param.ProductCreateParams;
 import com.stripe.param.ProductUpdateParams;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class ProductStripeServiceImpl implements ProductStripeService {
@@ -27,6 +31,22 @@ public class ProductStripeServiceImpl implements ProductStripeService {
     }
 
     @Override
+    public List<com.stripe.model.Product> getStripeProducts(List<String> stripeIdList) throws StripeException {
+        List<com.stripe.model.Product> res = new ArrayList<>();
+
+        if (CollectionUtils.isEmpty(stripeIdList)) {
+            return res;
+        }
+
+        for (String stripeId : stripeIdList) {
+            com.stripe.model.Product stripeProduct = com.stripe.model.Product.retrieve(stripeId);
+            res.add(stripeProduct);
+        }
+
+        return res;
+    }
+
+    @Override
     public Product createStripeProduct(Product product) throws StripeException {
         // 1. create stripe product
         ProductCreateParams params = ProductCreateParams
@@ -36,7 +56,7 @@ public class ProductStripeServiceImpl implements ProductStripeService {
                         .DefaultPriceData
                         .builder()
                         .setCurrency("CAD")
-                        .setUnitAmount(product.getPrice().longValue())
+                        .setUnitAmount(product.getPrice().longValue() * 100L)
                         .build())
                 .build();
         com.stripe.model.Product stripeProduct = com.stripe.model.Product.create(params);

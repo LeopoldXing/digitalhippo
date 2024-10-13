@@ -135,4 +135,9 @@ open class ProductServiceImpl @Autowired constructor(
             }
         }
     }
+
+    override fun getProducts(productIdList: List<Long>): List<Product> {
+        val products = productRepository.findProductsByIdIn(productIdList)
+        return products
+    }
 }

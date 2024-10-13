@@ -10,4 +10,5 @@ interface ProductService {
     fun createProduct(product: Product): Product
     fun updateProduct(product: Product): Product
     fun deleteProduct(payloadId: String)
+    fun getProducts(productIdList: List<Long>): List<Product>
 }

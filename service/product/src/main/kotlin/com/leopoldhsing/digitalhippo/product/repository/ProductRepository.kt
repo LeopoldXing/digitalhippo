@@ -11,4 +11,6 @@ interface ProductRepository : JpaRepository<Product, Long> {
 
     fun findProductByPayloadId(id: String): Product?
 
+    fun findProductsByIdIn(ids: List<Long>): List<Product>
+
 }
