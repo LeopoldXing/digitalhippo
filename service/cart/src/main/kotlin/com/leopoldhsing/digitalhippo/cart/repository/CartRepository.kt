@@ -9,4 +9,5 @@ interface CartRepository : JpaRepository<Cart, Long> {
     fun findCartsByUserId(userId: Long): Collection<Cart>
     fun findCartsByUserIdAndProductIdIn(userId: Long, productId: Collection<Long>): List<Cart>
     fun deleteCartByProductIdAndUserId(userId: Long, productId: Long)
+    fun deleteCartsByUserId(userId: Long)
 }

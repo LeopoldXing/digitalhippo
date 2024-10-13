@@ -11,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class UserCreationVo {
 
+    private String payloadId;
     private String email;
     private String password;
     private String role;

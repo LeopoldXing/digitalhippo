@@ -5,6 +5,7 @@ DATABASE digitalhippo;
 CREATE TABLE public.users
 (
     id            bigserial             NOT NULL,
+    payload_id    varchar NULL,
     username      varchar NULL,
     email         varchar NULL,
     password_hash varchar NULL,

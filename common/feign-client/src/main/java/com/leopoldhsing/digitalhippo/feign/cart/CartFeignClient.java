@@ -3,10 +3,7 @@ package com.leopoldhsing.digitalhippo.feign.cart;
 import com.leopoldhsing.digitalhippo.model.dto.AddToCartDto;
 import com.leopoldhsing.digitalhippo.model.entity.Cart;
 import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
 
@@ -18,4 +15,7 @@ public interface CartFeignClient {
 
     @GetMapping("/api/cart/inner/{userId}")
     Collection<Cart> getItems(@PathVariable Long userId);
+
+    @DeleteMapping("/api/cart/inner")
+    void clearUserCartItems();
 }

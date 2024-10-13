@@ -72,4 +72,16 @@ open class CartServiceImpl @Autowired constructor(
         cartRepository.deleteCartByProductIdAndUserId(productId, user.id)
     }
 
+    @Transactional
+    override fun clearCart() {
+        // 1. get user
+        val user = userFeignClient.currentUser
+        if (user == null) {
+            throw ResourceNotFoundException("user", "id", RequestUtil.getUid().toString())
+        }
+
+        // 2. delete all cart items
+        cartRepository.deleteCartsByUserId(user.id)
+    }
+
 }

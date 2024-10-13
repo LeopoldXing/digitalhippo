@@ -19,4 +19,9 @@ public class CartFeignClientFallback implements CartFeignClient {
     public Collection<Cart> getItems(Long userId) {
         return List.of();
     }
+
+    @Override
+    public void clearUserCartItems() {
+
+    }
 }

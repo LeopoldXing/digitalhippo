@@ -44,6 +44,7 @@ class AuthController @Autowired constructor(private val userService: UserService
     fun createUser(@RequestBody userCreationVo: UserCreationVo): ResponseEntity<User> {
         val email = userCreationVo.email
         val password = userCreationVo.password
+        val payloadId = userCreationVo.payloadId
         var productIdList = userCreationVo.productIdList
         if (CollectionUtils.isEmpty(productIdList)) {
             productIdList = ArrayList()
@@ -55,7 +56,7 @@ class AuthController @Autowired constructor(private val userService: UserService
             }
         }
 
-        val user = userService.createUser(email, password, role, productIdList);
+        val user = userService.createUser(payloadId, email, password, role, productIdList);
 
         return ResponseEntity.status(HttpStatus.OK).body<User>(user);
     }

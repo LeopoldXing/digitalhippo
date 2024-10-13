@@ -1,5 +1,6 @@
 package com.leopoldhsing.digitalhippo.stripe.service.impl;
 
+import com.leopoldhsing.digitalhippo.feign.cart.CartFeignClient;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
 import com.leopoldhsing.digitalhippo.model.entity.Product;
 import com.leopoldhsing.digitalhippo.model.entity.User;
@@ -16,16 +17,23 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrderRepository orderRepository;
 
+    @Autowired
+    private CartFeignClient cartFeignClient;
+
     @Override
     public Order createOrder(String payloadId, List<Long> productIdList, Long userId) {
+        // 1. create order
         User user = new User();
         user.setId(userId);
-
         List<Product> productList = productIdList.stream().map(productId -> {
             Product product = new Product();
             product.setId(productId);
             return product;
         }).toList();
+
+        // 2. clear user's cart
+        cartFeignClient.clearUserCartItems();
+
         return orderRepository.save(new Order(payloadId, user, productList, false));
     }
 

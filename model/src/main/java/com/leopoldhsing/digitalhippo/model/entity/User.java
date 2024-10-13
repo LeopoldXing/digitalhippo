@@ -18,6 +18,7 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 public class User extends BaseEntity {
+    private String payloadId;
     private String username;
     private String email;
     private String passwordHash;
@@ -33,7 +34,8 @@ public class User extends BaseEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Product> products;
 
-    public User(String username, String email, String passwordHash, String salt, UserRole role, boolean verified, boolean locked) {
+    public User(String payloadId, String username, String email, String passwordHash, String salt, UserRole role, boolean verified, boolean locked) {
+        this.payloadId = payloadId;
         this.username = username;
         this.email = email;
         this.passwordHash = passwordHash;

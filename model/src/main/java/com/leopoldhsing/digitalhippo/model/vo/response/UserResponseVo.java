@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserResponseVo {
     private String id;
+    private String payloadId;
     private String role;
     private String email;
     private Boolean _verified;

@@ -87,7 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
                 .build();
 
         // 6. create checkout session
-        Session session = null;
+        Session session;
         try {
             session = Session.create(params);
         } catch (StripeException e) {

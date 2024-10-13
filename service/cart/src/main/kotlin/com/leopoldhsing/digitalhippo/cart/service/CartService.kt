@@ -10,4 +10,5 @@ interface CartService {
     fun getAllCartItemByUser(): Collection<Cart>
     fun getAllCartItemByUser(userId: Long): Collection<Cart>
     fun deleteFromCart(productId: Long)
+    fun clearCart()
 }

@@ -123,7 +123,7 @@ class UserServiceImpl @Autowired constructor(
     /**
      * create new user
      */
-    override fun createUser(originalEmail: String, password: String, role: UserRole, cartItemIdList: List<Long>): User {
+    override fun createUser(payloadId: String, originalEmail: String, password: String, role: UserRole, cartItemIdList: List<Long>): User {
         // 1. Determine if the email already exists
         val email = InputSanitizeString.sanitizeString(originalEmail)
         val userOptional = userRepository.findUserByEmail(email)
@@ -136,7 +136,7 @@ class UserServiceImpl @Autowired constructor(
         val hashedPassword = PasswordUtil.hashPassword(InputSanitizeString.sanitizeString(password), salt)
 
         // 3. Construct user object
-        val newUser = User(email, email, hashedPassword, salt, role, false, false)
+        val newUser = User(payloadId, email, email, hashedPassword, salt, role, false, false)
 
         // 4. Save to database
         val savedUser = userRepository.save(newUser)
