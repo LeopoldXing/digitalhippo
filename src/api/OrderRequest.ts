@@ -15,15 +15,21 @@ const getOrderRequest = async ({ orderId, accessToken }: { orderId: string, acce
   return response.json();
 }
 
-const createPayloadOrder = async ({ userId, productIdList, isPaid }: { userId: string, productIdList: string[], isPaid: boolean }) => {
+const createPayloadOrder = async ({ userId, productPayloadIds, isPaid, payloadToken }: {
+  userId: string,
+  productPayloadIds: string[],
+  isPaid: boolean,
+  payloadToken: string
+}) => {
   const response = await fetch(`${FRONTEND_ENDPOINT}/api/orders`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${payloadToken}`
     },
     body: JSON.stringify({
       user: userId,
-      products: productIdList,
+      products: productPayloadIds,
       _isPaid: isPaid
     })
   })

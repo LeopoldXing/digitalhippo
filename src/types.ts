@@ -1,10 +1,10 @@
 import { PRODUCT_CATEGORIES } from "@/config";
-import { Product } from "@/payload-types";
 
 export type Category = typeof PRODUCT_CATEGORIES[number]
 
 export type User = {
   id: string;
+  payloadId: string;
   username?: string;
   email: string;
 }

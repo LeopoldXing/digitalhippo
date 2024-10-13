@@ -32,7 +32,7 @@ const Page = () => {
   /**
    * payload signup
    */
-  const { mutate: payloadSignUp } = trpc.auth.createPayloadUser.useMutation()
+  const { mutateAsync: payloadSignUp } = trpc.auth.createPayloadUser.useMutation()
   const { getItems } = cartHooks();
 
   /**
@@ -50,8 +50,18 @@ const Page = () => {
     }
   });
   const handleSignUp = async ({ email, password }: AuthCredentialValidatorType) => {
-    await createUser({ email, password, productIdList: getItems()?.map(cartItem => cartItem.product.id!) });
-    payloadSignUp({ email, password })
+    // payload signup
+    const payloadSignUpInfo: { success: boolean, sentToEmail: string, payloadUserId: string | number } = await payloadSignUp({
+      email,
+      password
+    })
+    // signup
+    await createUser({
+      email,
+      password,
+      productIdList: getItems()?.map(cartItem => cartItem.product.id!),
+      payloadId: payloadSignUpInfo.payloadUserId as string
+    });
   }
 
   return (

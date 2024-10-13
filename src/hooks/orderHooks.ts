@@ -18,8 +18,8 @@ const usePollOrder = ({ orderId, accessToken }: { orderId: string, accessToken: 
     }
     return response.json();
   }
-  const { data: order, isLoading } = useQuery<OrderApiType, Error>("pollOrder", pollOrderRequest, {
-    enabled: order ? order.isPaid : false,
+  const { data: order, isLoading } = useQuery<OrderApiType, Error>(['pollOrder', orderId], pollOrderRequest, {
+    enabled: true,
     refetchInterval: (data) => data?.isPaid ? false : 1000
   });
 

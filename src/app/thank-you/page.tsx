@@ -6,8 +6,8 @@ import Link from 'next/link'
 import PaymentStatus from '@/components/PaymentStatus'
 import { OrderApiType, ProductApiType, User } from "@/types";
 import { getUserRequest } from "@/api/UserRequest";
-import { getCookie } from "cookies-next";
 import { getOrderRequest } from "@/api/OrderRequest";
+import { cookies } from "next/headers";
 
 interface PageProps {
   searchParams: {
@@ -17,10 +17,18 @@ interface PageProps {
 
 const ThankYouPage = async ({ searchParams }: PageProps) => {
   const orderId = searchParams.orderId || ""
-  const accessToken = getCookie('accessToken') || "";
+  const cookieStore = cookies()
+  const accessToken = cookieStore.get('digitalhippo-access-token')?.value
   const user: User | undefined = await getUserRequest(accessToken);
 
-  const order: OrderApiType = await getOrderRequest({ orderId, accessToken })
+  let order: OrderApiType | null = null
+
+  try {
+    order = await getOrderRequest({ orderId, accessToken: accessToken || "" });
+  } catch (error) {
+    console.error(error)
+    return redirect(`/sign-in?origin=thank-you?orderId=${orderId}`)
+  }
 
   if (!order) return notFound()
 

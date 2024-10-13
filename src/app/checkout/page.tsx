@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { createPaymentSessionRequest } from "@/api/PaymentRequest";
 import { getCookie } from "cookies-next";
 import { createPayloadOrder } from "@/api/OrderRequest";
+import { User } from "@/types";
+import { getUserRequest } from "@/api/UserRequest";
 
 const Page = () => {
   const { items, removeItem } = cartHooks()
@@ -32,6 +34,7 @@ const Page = () => {
   });
 
   const productIdList = items.map(({ product }) => product.id!)
+  const productPayloadIds = items.map(({ product }) => product.payloadId)
 
   const [isMounted, setIsMounted] = useState(false)
   useEffect(() => {
@@ -162,7 +165,15 @@ const Page = () => {
               <div className='mt-6'>
                 <Button disabled={items.length === 0 || isLoading} className='w-full' size='lg'
                         onClick={async () => {
-                          const payloadOrderId = await createPayloadOrder({ userId: "", productIdList, isPaid: false })
+                          const user: User | undefined = await getUserRequest(accessToken);
+                          const payloadToken = getCookie('payload-token') || ""
+                          const payloadOrderInfo = await createPayloadOrder({
+                            userId: user?.payloadId || "",
+                            productPayloadIds: productPayloadIds,
+                            isPaid: false,
+                            payloadToken
+                          })
+                          const payloadOrderId = payloadOrderInfo.doc.id;
                           const url = await createPaymentSession({ productIdList, payloadOrderId, accessToken })
                           if (url) {
                             router.push(url)

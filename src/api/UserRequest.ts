@@ -46,17 +46,18 @@ const signOut = async (accessToken: string | undefined) => {
 /**
  * create new user api
  */
-const createUserRequest = async ({ email, password, productIdList }: {
+const createUserRequest = async ({ email, password, productIdList, payloadId }: {
   email: string,
   password: string,
-  productIdList: string[] | undefined | null
+  productIdList: string[] | undefined | null,
+  payloadId: string
 }): Promise<User | null> => {
   const response = await fetch(`${BASE_URL}/api/user/sign-up`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify({ email, password, productIdList })
+    body: JSON.stringify({ email, password, productIdList, payloadId })
   })
   if (!response.ok) {
     const res: ErrorResponseType = await response.json();

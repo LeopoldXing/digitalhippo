@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { usePollOrder } from "@/hooks/orderHooks";
 import { getCookie } from "cookies-next";
+import { cartHooks } from "@/hooks/cartHooks";
 
 interface PaymentStatusProps {
   orderEmail: string
@@ -15,9 +16,16 @@ const PaymentStatus = ({ orderEmail, orderId, isPaid }: PaymentStatusProps) => {
   const router = useRouter()
   const accessToken = getCookie("digitalhippo-access-token") || "";
   const { order } = usePollOrder({ orderId, accessToken })
+  const { clearCart } = cartHooks()
 
   useEffect(() => {
-    if (order?.isPaid) router.refresh()
+    clearCart()
+  }, []);
+
+  useEffect(() => {
+    if (order?.isPaid) {
+      router.refresh()
+    }
   }, [order?.isPaid, router])
 
   return (

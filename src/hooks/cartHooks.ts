@@ -6,7 +6,11 @@ import { addToCart, removeFromCart } from "@/api/CartRequest";
 
 type CartState = {
   items: CartItem[]
-  addItem: ({ product, accessToken }: { product: ProductApiType, accessToken: string | undefined }) => void
+  addItem: ({ product, accessToken, sendNotification }: {
+    product: ProductApiType,
+    accessToken: string | undefined,
+    sendNotification?: boolean
+  }) => void
   removeItem: ({ productId, accessToken }: { productId: string, accessToken: string | undefined }) => void
   clearCart: () => void
   getItems: () => CartItem[]
@@ -17,7 +21,7 @@ const cartHooks = create<CartState>()(
     persist(
         (set, get) => ({
           items: [],
-          addItem: ({ product, accessToken }) => set((state) => {
+          addItem: ({ product, accessToken, sendNotification = true }) => set((state) => {
             const productId = product.id!
             // determine if this item already in the cart
             if (state.items.find(cartItem => cartItem.product.id === productId)) {
@@ -26,7 +30,9 @@ const cartHooks = create<CartState>()(
             if (accessToken) {
               addToCart({ productId, accessToken })
             }
-            toast.success("Items added!")
+            if(sendNotification) {
+              toast.success("Items added!")
+            }
             return { items: [...state.items, { product }] }
           }),
           removeItem: ({ productId, accessToken }) => set((state) => {

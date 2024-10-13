@@ -21,7 +21,7 @@ export const authRouter = router({
 
         if (users.length !== 0) throw new TRPCError({ code: 'CONFLICT' })
 
-        await payload.create({
+        const newUser = await payload.create({
           collection: 'users',
           data: {
             email,
@@ -30,7 +30,7 @@ export const authRouter = router({
           }
         })
 
-        return { success: true, sentToEmail: email }
+        return { success: true, sentToEmail: email, payloadUserId: newUser.id }
       }),
 
   verifyEmail: publicProcedure

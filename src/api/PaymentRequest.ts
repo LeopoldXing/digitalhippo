@@ -12,7 +12,7 @@ export const createPaymentSessionRequest = async ({ productIdList, payloadOrderI
       "Content-Type": "application/json",
       "Authorization": `Bearer ${accessToken}`
     },
-    body: JSON.stringify({ productIdList, payloadOrderId })
+    body: JSON.stringify({ payloadOrderId, productIdList })
   })
   if (!response.ok) {
     throw new Error("Failed to create payment session");

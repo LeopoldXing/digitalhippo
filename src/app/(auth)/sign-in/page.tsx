@@ -56,7 +56,7 @@ const Page = () => {
 
     // reset cart
     clearCart()
-    productList?.forEach(product => addItem({ product, accessToken: undefined }))
+    productList?.forEach(product => addItem({ product, accessToken: undefined, sendNotification: false }))
 
     // payload sign in
     await payloadSignIn({ email, password })
