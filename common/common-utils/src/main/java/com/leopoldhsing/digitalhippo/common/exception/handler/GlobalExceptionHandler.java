@@ -1,9 +1,6 @@
 package com.leopoldhsing.digitalhippo.common.exception.handler;
 
-import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException;
-import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException;
-import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException;
-import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException;
+import com.leopoldhsing.digitalhippo.common.exception.*;
 import com.leopoldhsing.digitalhippo.model.dto.ErrorResponseDto;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -106,5 +103,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
                 LocalDateTime.now()
         );
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponseDTO);
+    }
+
+    @ExceptionHandler(StripeSignatureInvalidException.class)
+    public ResponseEntity<ErrorResponseDto> handleStripeSignatureInvalidException(StripeSignatureInvalidException exception, WebRequest webRequest) {
+        ErrorResponseDto errorResponseDTO = new ErrorResponseDto(
+                webRequest.getDescription(false),
+                HttpStatus.BAD_REQUEST,
+                exception.getMessage(),
+                LocalDateTime.now()
+        );
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponseDTO);
     }
 }

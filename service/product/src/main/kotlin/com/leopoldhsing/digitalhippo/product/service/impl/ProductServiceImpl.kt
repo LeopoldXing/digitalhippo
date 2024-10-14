@@ -2,6 +2,7 @@ package com.leopoldhsing.digitalhippo.product.service.impl
 
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
+import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.feign.search.ProductSearchingFeignClient
 import com.leopoldhsing.digitalhippo.feign.stripe.StripeProductFeignClient
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
@@ -9,7 +10,6 @@ import com.leopoldhsing.digitalhippo.model.elasticsearch.ProductIndex
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
 import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
-import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
 import com.leopoldhsing.digitalhippo.product.repository.ProductElasticsearchRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
@@ -66,7 +66,7 @@ open class ProductServiceImpl @Autowired constructor(
         productRepository.save(product)
 
         // 4. save product info to elasticsearch
-        val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
+        val productIndex: ProductIndex = ProductMapper.mapToProductIndex(product)
         productElasticsearchRepository.save(productIndex)
 
         return product
@@ -103,7 +103,7 @@ open class ProductServiceImpl @Autowired constructor(
             productRepository.save(product)
 
             // 4.4 update elasticsearch
-            val productIndex: ProductIndex = ProductMapper.mapToIndex(product)
+            val productIndex: ProductIndex = ProductMapper.mapToProductIndex(product)
             productElasticsearchRepository.save(productIndex)
         } else {
             // user does not have the authority

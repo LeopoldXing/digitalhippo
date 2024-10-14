@@ -7,5 +7,7 @@ import org.springframework.context.annotation.Configuration
 @ConfigurationProperties(prefix = "aws.sqs")
 open class AwsSqsProperties(
     var verificationQueueName: String = "",
-    var verificationQueueUrl: String = ""
+    var verificationQueueUrl: String = "",
+    var receiptQueueName: String = "",
+    var receiptQueueUrl: String = "",
 )

@@ -1,5 +1,4 @@
-CREATE
-DATABASE digitalhippo;
+-- CREATE DATABASE digitalhippo;
 
 -- user microservice -------------------------------------------------------------------
 CREATE TABLE public.users

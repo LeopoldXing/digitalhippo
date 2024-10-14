@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
 
 @Configuration
-@ConfigurationProperties(prefix = "digitalhippo.email")
+@ConfigurationProperties(prefix = "email")
 open class EmailProperties {
-    var frontendAddress: String = ""
+    var frontendEndpoint: String = ""
 }

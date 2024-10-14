@@ -68,6 +68,7 @@ url:
     public-uri-patterns:
       - /api/product/search/**
       - /api/product/*
+      - /api/stripe/payment/confirm
     trusted-uri-patterns:
       - /css/**
       - /img/**

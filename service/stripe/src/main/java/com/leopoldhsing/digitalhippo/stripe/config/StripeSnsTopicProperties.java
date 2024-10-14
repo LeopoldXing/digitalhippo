@@ -10,10 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @NoArgsConstructor
 @AllArgsConstructor
 @Configuration
-@ConfigurationProperties(prefix = "stripe")
-public class StripeProperties {
-    private String secretKey;
-    private String publishableKey;
-    private String frontendEndpoint;
-    private String webhookSecret;
+@ConfigurationProperties(prefix = "aws.sns")
+public class StripeSnsTopicProperties {
+    private String arn = "";
 }

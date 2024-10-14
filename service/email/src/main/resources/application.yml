@@ -4,8 +4,6 @@ server:
 spring:
   application:
     name: email
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration
   cloud:
     aws:
       region:
@@ -29,10 +27,11 @@ aws:
   sqs:
     verificationQueueName: ${VERIFICATION_SQS_QUEUE_NAME}
     verificationQueueUrl: ${VERIFICATION_SQS_QUEUE_URL}
+    receiptQueueName: ${RECEIPT_SQS_QUEUE_NAME}
+    receiptQueueUrl: ${RECEIPT_SQS_QUEUE_URL}
 
-digitalhippo:
-  email:
-    frontendAddress: ${FRONTEND_ADDRESS}
+email:
+  frontend-endpoint: ${FRONTEND_ENDPOINT}
 
 eureka:
   instance:

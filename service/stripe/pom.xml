@@ -25,6 +25,11 @@
             <artifactId>stripe-java</artifactId>
             <version>${stripe.version}</version>
         </dependency>
+        <!--  aws sns  -->
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-starter-sns</artifactId>
+        </dependency>
         <!--  postgres  -->
         <dependency>
             <groupId>org.postgresql</groupId>

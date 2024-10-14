@@ -5,6 +5,6 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "aws.sns")
-open class AwsSnsProperties(
+open class userSnsTopicProperties(
     var arn: String = ""
 )

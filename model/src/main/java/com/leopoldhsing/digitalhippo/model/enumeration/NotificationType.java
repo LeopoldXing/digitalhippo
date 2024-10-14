@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum NotificationType {
     VERIFICATION("VERIFICATION"),
-    THANK_YOU("THANK_YOU");
+    RECEIPT("RECEIPT");
 
     private final String value;
     NotificationType(String value) {

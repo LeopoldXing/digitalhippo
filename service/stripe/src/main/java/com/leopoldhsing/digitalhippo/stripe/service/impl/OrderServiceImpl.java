@@ -41,4 +41,11 @@ public class OrderServiceImpl implements OrderService {
     public Order getOrderById(Long orderId) {
         return orderRepository.getOrderById(orderId);
     }
+
+    @Override
+    public Order updateOrderStatus(Long orderId, Boolean isPaid) {
+        Order order = orderRepository.getOrderById(orderId);
+        order.setIsPaid(isPaid);
+        return orderRepository.save(order);
+    }
 }

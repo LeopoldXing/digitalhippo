@@ -10,15 +10,15 @@ import io.awspring.cloud.sqs.annotation.SqsListener
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
-@Component("verificationEmailListener")
-class VerificationEmailListener @Autowired constructor(
+@Component("receiptEmailListener")
+class ReceiptEmailListener @Autowired constructor(
     private val awsSqsProperties: AwsSqsProperties,
     private val emailService: EmailService
 ) {
 
-    @SqsListener("#{awsSqsProperties.verificationQueueUrl}")
+    @SqsListener("#{awsSqsProperties.receiptQueueUrl}")
     fun listenToQueueOne(message: String) {
-        println("Received message from verification queue: $message")
+        println("Received message from receipt email queue: $message")
         // 1. construct notification object
         val mapper = ObjectMapper()
         val snsNotificationDto: SnsNotificationDto = mapper.readValue(message, SnsNotificationDto::class.java)
@@ -26,9 +26,9 @@ class VerificationEmailListener @Autowired constructor(
         val snsMessageDto: SnsMessageDto = mapper.readValue(snsMessageString, SnsMessageDto::class.java)
 
         // 2. determine if this message is for verification email
-        if (snsMessageDto.type === NotificationType.VERIFICATION) {
+        if (snsMessageDto.type === NotificationType.RECEIPT) {
             // 3. send email
-            emailService.sendVerificationEmail(snsMessageDto.email, snsMessageDto.verificationToken)
+            emailService.sendReceiptEmail(snsMessageDto.email, snsMessageDto.orderPayloadId, snsMessageDto.products)
         }
     }
 }

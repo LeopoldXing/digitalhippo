@@ -5,6 +5,7 @@ import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedExcept
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
 import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
+import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.common.utils.InputSanitizeString
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
@@ -14,14 +15,12 @@ import com.leopoldhsing.digitalhippo.feign.cart.CartFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.AddToCartDto
 import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
-import com.leopoldhsing.digitalhippo.model.vo.ProductImageVo
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.model.vo.UserLoginResponseVo
-import com.leopoldhsing.digitalhippo.user.config.AwsSnsProperties
+import com.leopoldhsing.digitalhippo.user.config.userSnsTopicProperties
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
 import io.awspring.cloud.sns.core.SnsTemplate
-import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
@@ -33,7 +32,7 @@ class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
     private val snsTemplate: SnsTemplate,
     private val redisTemplate: StringRedisTemplate,
-    private val awsSnsProperties: AwsSnsProperties,
+    private val userSnsTopicProperties: userSnsTopicProperties,
     private val cartFeignClient: CartFeignClient
 ) : UserService {
     override fun getUser(): User {
@@ -61,19 +60,8 @@ class UserServiceImpl @Autowired constructor(
 
         // 3. combine cart item
         cartFeignClient.addItem(AddToCartDto(user, cartIdList))
-        val cartItems: List<ProductVo> = cartFeignClient.getItems(user.id)?.map { cartItem ->
-            val product = cartItem.product
-            val imageVoList: List<ProductImageVo> = product.productImages?.map { image ->
-                val imageVo = ProductImageVo()
-                BeanUtils.copyProperties(image, imageVo)
-                imageVo.fileType = image.fileType.value
-                imageVo
-            } ?: emptyList()
-            val productVo = ProductVo()
-            BeanUtils.copyProperties(product, productVo)
-            productVo.productImages = imageVoList
-            productVo
-        } ?: emptyList()
+        val cartItems: List<ProductVo> =
+            cartFeignClient.getItems(user.id)?.map { cartItem -> ProductMapper.mapToProductVo(cartItem.product) } ?: emptyList()
 
         // 4. determine if the user already signed in
         val potentialTokenKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
@@ -162,7 +150,7 @@ class UserServiceImpl @Autowired constructor(
             mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
 
         // send message to AWS SNS
-        snsTemplate.sendNotification(awsSnsProperties.arn, emailVerificationParams, "verification email")
+        snsTemplate.sendNotification(userSnsTopicProperties.arn, emailVerificationParams, "verification email")
 
         // 7. Return result
         return savedUser

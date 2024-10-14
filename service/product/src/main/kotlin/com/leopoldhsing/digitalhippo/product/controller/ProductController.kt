@@ -1,11 +1,11 @@
 package com.leopoldhsing.digitalhippo.product.controller
 
 import com.leopoldhsing.digitalhippo.common.constants.PaginationConstants
+import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.model.dto.SearchingResultDto
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
-import com.leopoldhsing.digitalhippo.product.mapper.ProductMapper
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -41,9 +41,11 @@ class ProductController @Autowired constructor(
      * endpoint for getting product by id
      */
     @GetMapping("/{productId}")
-    fun getProduct(@PathVariable productId: Long): ResponseEntity<Product> {
+    fun getProduct(@PathVariable productId: Long): ResponseEntity<ProductVo> {
         val product = productService.getProduct(productId)
-        return ResponseEntity.ok(product)
+        val productVo: ProductVo = ProductMapper.mapToProductVo(product)
+
+        return ResponseEntity.ok(productVo)
     }
 
     /**
@@ -51,7 +53,7 @@ class ProductController @Autowired constructor(
      */
     @PostMapping
     fun createProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
-        val newProduct = productService.createProduct(ProductMapper.mapToProduct(productVo))
+        val newProduct = productService.createProduct(ProductMapper.mapToProduct(productVo, "pending"))
         return ResponseEntity.ok(newProduct)
     }
 
@@ -69,7 +71,7 @@ class ProductController @Autowired constructor(
      */
     @PutMapping
     fun updateProduct(@RequestBody productVo: ProductVo): ResponseEntity<Product> {
-        val updatedProduct = productService.updateProduct(ProductMapper.mapToProduct(productVo))
+        val updatedProduct = productService.updateProduct(ProductMapper.mapToProduct(productVo, "pending"))
         return ResponseEntity.ok(updatedProduct)
     }
 }
