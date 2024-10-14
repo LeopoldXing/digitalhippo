@@ -9,13 +9,17 @@ export function cn(...inputs: ClassValue[]) {
 export function formatPrice(
     price: number | string,
     options: {
-      currency?: 'USD' | 'EUR' | 'GBP' | 'BDT'
+      currency?: 'CAD' | 'EUR' | 'GBP' | 'USD'
       notation?: Intl.NumberFormatOptions['notation']
+      locale?: string
     } = {}
 ) {
-  const { currency = 'USD', notation = 'compact' } = options
+  const { currency = 'CAD', notation = 'compact', locale = 'en-US' } = options
 
   const numericPrice = typeof price === 'string' ? parseFloat(price) : price
+  if (isNaN(numericPrice)) {
+    throw new Error('Invalid price input');
+  }
 
   return new Intl.NumberFormat('en-US', {
     style: 'currency',

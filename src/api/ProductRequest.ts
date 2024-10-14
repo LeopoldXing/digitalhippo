@@ -7,7 +7,8 @@ const getProductRequest = async (productId: string | number): Promise<ProductApi
     method: 'GET',
     headers: {
       "Content-Type": "application/json"
-    }
+    },
+    cache: 'no-cache'
   })
   if (!response.ok) {
     throw new Error("Error getting product");

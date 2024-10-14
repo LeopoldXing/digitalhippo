@@ -16,6 +16,7 @@ import { getCookie } from "cookies-next";
 import { createPayloadOrder } from "@/api/OrderRequest";
 import { User } from "@/types";
 import { getUserRequest } from "@/api/UserRequest";
+import { trpc } from "@/trpc/client";
 
 const Page = () => {
   const { items, removeItem } = cartHooks()
@@ -34,7 +35,7 @@ const Page = () => {
   });
 
   const productIdList = items.map(({ product }) => product.id!)
-  const productPayloadIds = items.map(({ product }) => product.payloadId)
+  const payloadProductIds = items.map(({ product }) => product.payloadId)
 
   const [isMounted, setIsMounted] = useState(false)
   useEffect(() => {
@@ -45,6 +46,26 @@ const Page = () => {
       (total, { product }) => total + product.price,
       0
   )
+
+  const { mutateAsync: createOrder } = trpc.order.createOrder.useMutation()
+  const handleCheckout = async () => {
+    const user: User | undefined = await getUserRequest(accessToken);
+    const payloadOrder = await createOrder({ payloadProductIds })
+    console.log("创建了payload order")
+    console.log(payloadOrder)
+    /*const payloadToken = getCookie('payload-token') || ""
+    const payloadOrderInfo = await createPayloadOrder({
+      userId: user?.payloadId || "",
+      payloadProductIds: payloadProductIds,
+      isPaid: false,
+      payloadToken
+    })*/
+    /*const payloadOrderId = payloadOrderInfo.doc.id;*/
+    const url = await createPaymentSession({ productIdList, payloadOrderId: "43d34252", accessToken })
+    if (url) {
+      router.push(url)
+    }
+  }
 
   return (
       <div className='bg-white'>
@@ -164,21 +185,7 @@ const Page = () => {
 
               <div className='mt-6'>
                 <Button disabled={items.length === 0 || isLoading} className='w-full' size='lg'
-                        onClick={async () => {
-                          const user: User | undefined = await getUserRequest(accessToken);
-                          const payloadToken = getCookie('payload-token') || ""
-                          const payloadOrderInfo = await createPayloadOrder({
-                            userId: user?.payloadId || "",
-                            productPayloadIds: productPayloadIds,
-                            isPaid: false,
-                            payloadToken
-                          })
-                          const payloadOrderId = payloadOrderInfo.doc.id;
-                          const url = await createPaymentSession({ productIdList, payloadOrderId, accessToken })
-                          if (url) {
-                            router.push(url)
-                          }
-                        }}>
+                        onClick={handleCheckout}>
                   {isLoading ? <Loader2 className='w-4 h-4 animate-spin mr-1.5'/> : null}
                   Checkout
                 </Button>

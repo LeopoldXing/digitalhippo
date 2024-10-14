@@ -3,9 +3,11 @@ import { authRouter } from './auth-router'
 import { publicProcedure, router } from './trpc'
 import { getPayloadClient } from '../get-payload'
 import { QueryValidator } from "../lib/validators/QueryValidator";
+import { orderRouter } from "../trpc/order-router";
 
 export const appRouter = router({
   auth: authRouter,
+  order: orderRouter,
 
   getInfiniteProducts: publicProcedure.input(z.object({
     limit: z.number().min(1).max(100),

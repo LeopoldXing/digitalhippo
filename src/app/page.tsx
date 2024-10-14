@@ -29,6 +29,17 @@ const Home = async () => {
     },
   ]
 
+/*  const emailHtmlString = await render(
+      <EmailTemplate
+          actionLabel="verify your email"
+          buttonText="Verify"
+          href="http://localhost:8080/api/user/verify-email"
+      />,
+      { pretty: true }
+  );
+
+  console.log(emailHtmlString);*/
+
   return (
       <>
         <MaxWidthWrapper>
