@@ -9,7 +9,8 @@ type CartState = {
   addItem: ({ product, accessToken, sendNotification }: {
     product: ProductApiType,
     accessToken: string | undefined,
-    sendNotification?: boolean
+    sendNotification?: boolean,
+    updateBackendCart?: boolean
   }) => void
   removeItem: ({ productId, accessToken }: { productId: string, accessToken: string | undefined }) => void
   clearCart: () => void
@@ -21,16 +22,16 @@ const cartHooks = create<CartState>()(
     persist(
         (set, get) => ({
           items: [],
-          addItem: ({ product, accessToken, sendNotification = true }) => set((state) => {
+          addItem: ({ product, accessToken, sendNotification = true, updateBackendCart = true }) => set((state) => {
             const productId = product.id!
             // determine if this item already in the cart
             if (state.items.find(cartItem => cartItem.product.id === productId)) {
               return state
             }
-            if (accessToken) {
+            if (accessToken && updateBackendCart) {
               addToCart({ productId, accessToken })
             }
-            if(sendNotification) {
+            if (sendNotification) {
               toast.success("Items added!")
             }
             return { items: [...state.items, { product }] }

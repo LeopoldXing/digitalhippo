@@ -4,8 +4,10 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowDownToLine, CheckCircle, Leaf } from "lucide-react";
 import ProductReel from "@/components/ProductReel";
+import { render } from "@react-email/components";
+import { EmailTemplate } from "@/components/email/VerificationEmail";
 
-export default function Home() {
+const Home = async () => {
   const perks = [
     {
       name: 'Instant Delivery',
@@ -66,3 +68,5 @@ export default function Home() {
       </>
   );
 }
+
+export default Home;

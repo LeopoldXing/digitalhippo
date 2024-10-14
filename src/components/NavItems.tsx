@@ -39,7 +39,7 @@ const NavItems = () => {
 
           return (
               <NavItem key={item.value} handleOpen={handleOpen} isOpen={activeItemIndex === index} isAnyOpen={!!activeItemIndex}
-                       category={item}/>
+                       category={item} close={() => setActiveItemIndex(null)} />
           )
         })}
       </div>

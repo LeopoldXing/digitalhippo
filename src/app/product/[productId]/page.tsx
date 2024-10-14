@@ -8,6 +8,8 @@ import { Check, Shield } from 'lucide-react'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { getProductRequest } from "@/api/ProductRequest";
+import { VerificationEmail } from "@/components/email/VerificationEmail";
+import { ReceiptEmailHtml } from "@/components/email/ReceiptEmail";
 
 interface PageProps {
   params: {

@@ -8,6 +8,8 @@ import { OrderApiType, ProductApiType, User } from "@/types";
 import { getUserRequest } from "@/api/UserRequest";
 import { getOrderRequest } from "@/api/OrderRequest";
 import { cookies } from "next/headers";
+import { VerificationEmail } from "@/components/email/VerificationEmail";
+import { ReceiptEmailHtml } from "@/components/email/ReceiptEmail";
 
 interface PageProps {
   searchParams: {
