@@ -83,8 +83,13 @@
                 <version>3.4.1</version>
                 <configuration>
                     <to>
-                        <image>digitalhippo/product:latest</image>
+                        <image>leopoldhsing2/digitalhippo.product:latest</image>
                     </to>
+                    <container>
+                        <ports>
+                            <port>9006</port>
+                        </ports>
+                    </container>
                 </configuration>
             </plugin>
             <plugin>
