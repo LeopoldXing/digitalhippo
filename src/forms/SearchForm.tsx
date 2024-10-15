@@ -49,10 +49,9 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
 
   useEffect(() => {
     form.reset({ ...defaultConditions })
-  }, [defaultConditions]);
+  }, [form, defaultConditions]);
 
   const onSubmit = (formDataJson: SearchFormType) => {
-    console.log("提交表单")
     onSearch({
       keyword: formDataJson.keyword,
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -82,7 +81,6 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
   const [categoryLabel, setCategoryLabel] = useState(defaultCategoryLabel)
   const handleCategorySelect = (value: string, label: string) => {
     setCategoryLabel(label);
-
     form.setValue('category', value)
     setSelectedCategory(value);
   }
@@ -119,11 +117,9 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
     setSelectedPriceRange(value)
   }
 
-/*  useEffect(() => {
-    if (form.formState.isDirty) {
-      form.handleSubmit(onSubmit)();
-    }
-  }, [form, onSubmit]);*/
+  useEffect(() => {
+    form.handleSubmit(onSubmit)();
+  }, [selectedPriceRange, selectedCategory, selectedSortingOption]);
 
   return (
       <Form {...form}>
@@ -155,11 +151,7 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
                 <DropdownMenuContent>
                   {PRICE_RANGE.map((priceRange) => (
                       <DropdownMenuItem key={priceRange.value}
-                                        onSelect={() => {
-                                          console.log("修改了价格区间")
-                                          console.log(priceRange.value)
-                                          handleSelectPriceRange(priceRange.value)
-                                        }}
+                                        onSelect={() => handleSelectPriceRange(priceRange.value)}
                                         className={cn({ 'font-bold': selectedPriceRange === priceRange.value })}>
                         {priceRange.label}
                       </DropdownMenuItem>
@@ -177,19 +169,15 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent>
-                  <DropdownMenuItem onSelect={() => {
+                  <DropdownMenuItem className={cn({ 'font-bold': selectedCategory === 'all' })} onSelect={() => {
                     handleCategorySelect("all", "All Category")
                     form.handleSubmit(onSubmit)
-                  }}
-                                    className={cn({ 'font-bold': selectedCategory === 'all' })}>
+                  }}>
                     All Category
                   </DropdownMenuItem>
                   {PRODUCT_CATEGORIES.map((category) => (
-                      <DropdownMenuItem key={category.value} onClick={() => {
-                        handleCategorySelect(category.value, category.label)
-                        form.handleSubmit(onSubmit)
-                      }}
-                                        className={cn({ 'font-bold': selectedCategory === category.value })}>
+                      <DropdownMenuItem key={category.value} className={cn({ 'font-bold': selectedCategory === category.value })}
+                                        onSelect={() => handleCategorySelect(category.value, category.label)}>
                         {category.label}
                       </DropdownMenuItem>
                   ))}
@@ -207,10 +195,7 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
                 <DropdownMenuContent>
                   {SORTING_OPTIONS.map((sortingOption) => (
                       <DropdownMenuItem key={sortingOption.value}
-                                        onSelect={() => {
-                                          handleSortingOptionSelect(sortingOption.value)
-                                          form.handleSubmit(onSubmit)
-                                        }}
+                                        onSelect={() => handleSortingOptionSelect(sortingOption.value)}
                                         className={cn({ 'font-bold': selectedSortingOption === sortingOption.value })}>
                         {sortingOption.label}
                       </DropdownMenuItem>

@@ -4,8 +4,6 @@ import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ArrowDownToLine, CheckCircle, Leaf } from "lucide-react";
 import ProductReel from "@/components/ProductReel";
-import { render } from "@react-email/components";
-import { EmailTemplate } from "@/components/email/VerificationEmail";
 
 const Home = async () => {
   const perks = [
@@ -29,17 +27,6 @@ const Home = async () => {
     },
   ]
 
-  /*  const emailHtmlString = await render(
-        <EmailTemplate
-            actionLabel="verify your email"
-            buttonText="Verify"
-            href="http://localhost:8080/api/user/verify-email"
-        />,
-        { pretty: true }
-    );
-
-    console.log(emailHtmlString);*/
-
   return (
       <>
         <MaxWidthWrapper>
@@ -56,7 +43,7 @@ const Home = async () => {
             </div>
           </div>
           <ProductReel query={{
-            sortingStrategy: 'POPULARITY',
+            sortingStrategy: 'CREATED_TIMESTAMP',
             sortingDirection: 'DESC',
             size: 4,
             keyword: '',
@@ -64,7 +51,27 @@ const Home = async () => {
             bottomPrice: -1,
             current: 1,
             category: 'all'
-          }} href='/products?sortStrategy=CREATED_TIMESTAMP&sortDirection=DESC' title='Brand new'/>
+          }} href='/products?sortingStrategy=CREATED_TIMESTAMP&sortingDirection=DESC' title='Brand new'/>
+          <ProductReel query={{
+            sortingStrategy: 'POPULARITY',
+            sortingDirection: 'DESC',
+            category: 'ui_kits',
+            size: 4,
+            keyword: '',
+            topPrice: -1,
+            bottomPrice: -1,
+            current: 1,
+          }} href='/products?sortingStrategy=POPULARITY&sortingDirection=DESC&category=ui_kits' title='UI Kits'/>
+          <ProductReel query={{
+            sortingStrategy: 'POPULARITY',
+            sortingDirection: 'DESC',
+            category: 'icons',
+            size: 4,
+            keyword: '',
+            topPrice: -1,
+            bottomPrice: -1,
+            current: 1,
+          }} href='/products?sortingStrategy=POPULARITY&sortingDirection=DESC&category=icons' title='Icons'/>
         </MaxWidthWrapper>
         <section className='border-t border-gray-200 bg-gray-50'>
           <MaxWidthWrapper className='py-20'>

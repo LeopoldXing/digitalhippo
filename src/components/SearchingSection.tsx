@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import SearchForm from "@/forms/SearchForm";
 import { searchingCondition } from "@/types";
 import { useSearchProduct } from "@/hooks/productHooks";
@@ -13,6 +13,7 @@ const SearchingSection = () => {
   const router = useRouter();
   const searchParam = useSearchParams();
   const pathname = usePathname();
+
 
   const defaultConditions: searchingCondition = {
     keyword: searchParam.get("keyword") || "",
@@ -34,8 +35,6 @@ const SearchingSection = () => {
     defaultConditions.category = 'all'
   }
 
-  console.log("default参数")
-  console.log(JSON.stringify(defaultConditions, null, 2));
 
   const [conditions, setConditions] = useState(defaultConditions)
   const { productSearchingResult, isLoading } = useSearchProduct({ condition: defaultConditions });
@@ -45,15 +44,16 @@ const SearchingSection = () => {
     router.replace(`${pathname}/?${paramString}`)
   }
 
+  useEffect(() => {
+    updateUrl()
+  }, [conditions]);
+  
   const handlePageChange = async (targetPageNumber: number): Promise<void> => {
     setConditions(prevState => ({ ...prevState, current: targetPageNumber }))
-    updateUrl()
   }
 
   const handleSearch = async (condition: searchingCondition) => {
-    setConditions(condition)
-    updateUrl()
-    console.log(condition)
+    setConditions(prevState => condition)
   }
 
   return (
