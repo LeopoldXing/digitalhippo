@@ -1,4 +1,6 @@
-import { ProductApiType } from "@/types";
+import { ProductApiType, searchingCondition } from "@/types";
+import qs from "qs";
+import { ProductSearchingResultType } from "@/hooks/productHooks";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -16,4 +18,15 @@ const getProductRequest = async (productId: string | number): Promise<ProductApi
   return response.json();
 }
 
-export { getProductRequest }
+const searchProductRequest = async ({ condition }: { condition: searchingCondition }): Promise<ProductSearchingResultType> => {
+  const params = qs.stringify(condition);
+
+  const response = await fetch(`${BASE_URL}/api/product/search?${params}`, { method: "GET", cache: "no-cache" })
+
+  if (!response.ok) {
+    throw new Error("Error searching product");
+  }
+  return response.json();
+}
+
+export { getProductRequest, searchProductRequest }

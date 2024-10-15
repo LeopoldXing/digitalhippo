@@ -54,3 +54,14 @@ export type OrderApiType = {
 export type CartItem = {
   product: ProductApiType
 }
+
+export type searchingCondition = {
+  keyword: string;
+  category: 'ui_kits' | 'icons' | 'all';
+  topPrice: number;
+  bottomPrice: number;
+  size: number;
+  current: number;
+  sortingStrategy: 'CREATED_TIMESTAMP' | 'POPULARITY' | 'RELEVANCE' | 'PRICE';
+  sortingDirection: 'DESC' | 'ASC' | 'NONE';
+}

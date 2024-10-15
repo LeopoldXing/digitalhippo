@@ -29,16 +29,16 @@ const Home = async () => {
     },
   ]
 
-/*  const emailHtmlString = await render(
-      <EmailTemplate
-          actionLabel="verify your email"
-          buttonText="Verify"
-          href="http://localhost:8080/api/user/verify-email"
-      />,
-      { pretty: true }
-  );
+  /*  const emailHtmlString = await render(
+        <EmailTemplate
+            actionLabel="verify your email"
+            buttonText="Verify"
+            href="http://localhost:8080/api/user/verify-email"
+        />,
+        { pretty: true }
+    );
 
-  console.log(emailHtmlString);*/
+    console.log(emailHtmlString);*/
 
   return (
       <>
@@ -55,7 +55,16 @@ const Home = async () => {
               <Button variant='ghost'>Our quality promise &rarr;</Button>
             </div>
           </div>
-          <ProductReel query={{ sortingDirection: 'DESC', size: 4 }} href='/products?sort=recent' title='Brand new'/>
+          <ProductReel query={{
+            sortingStrategy: 'POPULARITY',
+            sortingDirection: 'DESC',
+            size: 4,
+            keyword: '',
+            topPrice: -1,
+            bottomPrice: -1,
+            current: 1,
+            category: 'all'
+          }} href='/products?sortStrategy=CREATED_TIMESTAMP&sortDirection=DESC' title='Brand new'/>
         </MaxWidthWrapper>
         <section className='border-t border-gray-200 bg-gray-50'>
           <MaxWidthWrapper className='py-20'>

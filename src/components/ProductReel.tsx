@@ -3,14 +3,14 @@
 import React from 'react';
 import Link from "next/link";
 import ProductListing from "@/components/ProductListing";
-import { ProductSearchingConditionType, useSearchProduct } from "@/hooks/productHooks";
-import { ProductApiType } from "@/types";
+import { useSearchProduct } from "@/hooks/productHooks";
+import { ProductApiType, searchingCondition } from "@/types";
 
 interface ProductReelProps {
-  title: string
+  title?: string
   subtitle?: string
   href?: string
-  query: ProductSearchingConditionType
+  query: searchingCondition
   exclude?: string
 }
 

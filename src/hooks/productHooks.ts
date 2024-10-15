@@ -1,20 +1,9 @@
 import qs from 'qs';
 import { useQuery } from "react-query";
-import { ProductApiType } from "@/types";
+import { ProductApiType, searchingCondition } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-export type ProductSearchingConditionType = {
-  keyword?: string;
-  categoryList?: string[];
-  topPrice?: number;
-  bottomPrice?: number;
-  category?: 'ui_kits' | 'icons';
-  size?: number;
-  current?: number;
-  sortingStrategy?: 'CREATED_TIMETAMP' | 'POPULARITY' | 'RELEVANCE';
-  sortingDirection?: 'DESC' | 'ASC' | 'NONE';
-}
 export type ProductSearchingResultType = {
   results: ProductApiType[];
   resultCount: number;
@@ -22,12 +11,12 @@ export type ProductSearchingResultType = {
   current: number;
   size: number;
 }
-const useSearchProduct = ({ condition }: { condition: ProductSearchingConditionType }) => {
+const useSearchProduct = ({ condition }: { condition: searchingCondition }) => {
 
   const searchProductRequest = async (): Promise<ProductSearchingResultType> => {
     const params = qs.stringify(condition);
 
-    const response = await fetch(`${BASE_URL}/api/product/search?${params}`, { method: "GET" })
+    const response = await fetch(`${BASE_URL}/api/product/search?${params}`, { method: "GET", cache: "no-cache" })
 
     if (!response.ok) {
       throw new Error("Error searching product");
@@ -36,7 +25,7 @@ const useSearchProduct = ({ condition }: { condition: ProductSearchingConditionT
   }
 
   const { data: productSearchingResult, isLoading } = useQuery(
-      'searchProductRequest',
+      ['searchProductRequest', condition.category, condition.current, condition.size, condition.sortingDirection, condition.sortingStrategy, condition.bottomPrice, condition.topPrice, condition.keyword],
       searchProductRequest
   )
 
