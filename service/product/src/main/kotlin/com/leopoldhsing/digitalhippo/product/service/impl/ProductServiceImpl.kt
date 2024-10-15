@@ -6,6 +6,8 @@ import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.feign.search.ProductSearchingFeignClient
 import com.leopoldhsing.digitalhippo.feign.stripe.StripeProductFeignClient
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
+import com.leopoldhsing.digitalhippo.model.dto.SearchingResultDto
+import com.leopoldhsing.digitalhippo.model.dto.SearchingResultIndexDto
 import com.leopoldhsing.digitalhippo.model.elasticsearch.ProductIndex
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
@@ -14,6 +16,7 @@ import com.leopoldhsing.digitalhippo.product.repository.ProductElasticsearchRepo
 import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
 import com.leopoldhsing.digitalhippo.product.service.ProductService
+import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
@@ -29,18 +32,21 @@ open class ProductServiceImpl @Autowired constructor(
     private val stripeProductFeignClient: StripeProductFeignClient
 ) : ProductService {
 
-    override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): List<Product> {
+    override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): SearchingResultDto {
         // 1. use searching service to get product id list
-        val searchResultIdList: List<ProductIndex> = productSearchingFeignClient.searchProduct(condition)
+        val searchResult: SearchingResultIndexDto = productSearchingFeignClient.searchProduct(condition)
+        val searchResultIdList: List<Long> = searchResult.results.map { it.id }
 
         // 2. get product info
-        val productList: List<Product> = searchResultIdList.map { productIndex ->
-            productRepository.findById(productIndex.id)
-                .orElseThrow { throw ResourceNotFoundException("product", "id", productIndex.id.toString()) }
+        val productList: List<Product> = searchResultIdList.map { id ->
+            productRepository.findById(id).orElseThrow { throw ResourceNotFoundException("product", "id", id.toString()) }
         }
 
         // 3. return result
-        return productList
+        val res: SearchingResultDto = SearchingResultDto()
+        BeanUtils.copyProperties(searchResult, res)
+        res.results = productList
+        return res
     }
 
     override fun getProduct(productId: Long): Product {

@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum SortingStrategy {
-    CREATED_TIMESTAMP("CREATED_TIMETAMP"),
+    CREATED_TIMESTAMP("CREATED_TIMESTAMP"),
     POPULARITY("POPULARITY"),
-    RELEVANCE("RELEVANCE");
+    RELEVANCE("RELEVANCE"),
+    PRICE("PRICE");
 
     private final String value;
     SortingStrategy(String value) {
