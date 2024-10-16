@@ -1,8 +1,7 @@
 package com.leopoldhsing.digitalhippo.gateway;
 
 import com.leopoldhsing.digitalhippo.gateway.config.GatewayUrlAuthConfig;
-import io.swagger.v3.oas.annotations.OpenAPIDefinition;
-import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
@@ -14,7 +13,6 @@ import org.springframework.http.HttpMethod;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableConfigurationProperties(GatewayUrlAuthConfig.class)
-@OpenAPIDefinition(info = @Info(title = "API Gateway", version = "1.0", description = "Documentation API Gateway v1.0"))
 public class ServerGatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerGatewayApplication.class, args);
@@ -27,5 +25,13 @@ public class ServerGatewayApplication {
                 .route(r -> r.path("/stripe/v3/api-docs").and().method(HttpMethod.GET).uri("lb://stripe"))
                 .route(r -> r.path("/user/v3/api-docs").and().method(HttpMethod.GET).uri("lb://user"))
                 .build();
+    }
+
+    @Bean
+    public OpenAPI customOpenAPI() {
+        return new OpenAPI().info(new io.swagger.v3.oas.models.info.Info()
+                .title("API Gateway Service")
+                .description("API Gateway Service")
+                .version("1.0.0"));
     }
 }

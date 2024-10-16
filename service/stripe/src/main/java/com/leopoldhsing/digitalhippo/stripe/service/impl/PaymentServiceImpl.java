@@ -105,7 +105,7 @@ public class PaymentServiceImpl implements PaymentService {
                 // success url
                 .setSuccessUrl(stripeProperties.getFrontendEndpoint() + "/thank-you?orderId=" + order.getId())
                 // cancel url
-                .setCancelUrl(stripeProperties.getFrontendEndpoint() + "/cart")
+                .setCancelUrl(stripeProperties.getFrontendEndpoint() + "/checkout?loggedIn=true")
                 // line items
                 .addAllLineItem(lineItems)
                 .build();
