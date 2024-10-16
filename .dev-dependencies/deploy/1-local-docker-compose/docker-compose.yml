@@ -6,35 +6,10 @@ services:
       - "4566:4566"
     environment:
       - SERVICES=s3,sns,sqs
+      - DEBUG=1
       - HOSTNAME=localstack
       - HOSTNAME_EXTERNAL=localstack
-      - DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    networks:
-      - digitalhippo-dev-network
-
-  aws-setup:
-    image: amazon/aws-cli:2.18.6
-    container_name: aws-setup-dh-dev
-    depends_on:
-      - localstack
-    environment:
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    entrypoint: /bin/sh -c
-    command: >
-      sh -c "
-      aws --endpoint-url=${LOCALSTACK_ENDPOINT} sns create-topic --name ${SNS_TOPIC_NAME} &&
-      aws --endpoint-url=${LOCALSTACK_ENDPOINT} sqs create-queue --queue-name ${DLQ_QUEUE_NAME} &&
-      DLQ_ARN=$(aws --endpoint-url=${LOCALSTACK_ENDPOINT} sqs get-queue-attributes --queue-url ${LOCALSTACK_ENDPOINT}/000000000000/${DLQ_QUEUE_NAME} --attribute-names QueueArn --query 'Attributes.QueueArn' --output text) &&
-      aws --endpoint-url=${LOCALSTACK_ENDPOINT} sqs create-queue --queue-name ${RECEIPT_EMAIL_QUEUE_NAME} --attributes RedrivePolicy=\"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"5\\\"}\" &&
-      aws --endpoint-url=${LOCALSTACK_ENDPOINT} sqs create-queue --queue-name ${VERIFICATION_EMAIL_QUEUE_NAME} --attributes RedrivePolicy=\"{\\\"deadLetterTargetArn\\\":\\\"$DLQ_ARN\\\",\\\"maxReceiveCount\\\":\\\"5\\\"}\" &&
-      TOPIC_ARN=$(aws --endpoint-url=${LOCALSTACK_ENDPOINT} sns get-topic-attributes --topic-arn arn:aws:sns:${AWS_DEFAULT_REGION}:000000000000:${SNS_TOPIC_NAME} --query 'Attributes.TopicArn' --output text) &&
-      echo SNS_TOPIC_ARN=$TOPIC_ARN > /config/sns_arn.env &&
-      echo DLQ_ARN=$DLQ_ARN > /config/dlq_arn.env
-      "
-    volumes:
-      - ./public-read-policy.json:/public-read-policy.json
+      - DEFAULT_REGION=${AWS_REGION}
     networks:
       - digitalhippo-dev-network
 
@@ -116,30 +91,28 @@ services:
     networks:
       - digitalhippo-dev-network
 
-# digitalhippo application
-#  eureka microservice
+
+  # digitalhippo application
+  #  eureka microservice
   eureka:
-    container_name: dh-eureka-server
-    image: leopoldhsing2/digitalhippo.eureka-server
+    container_name: eureka-server
+    image: digitalhippo/eureka-server:latest
     healthcheck:
-      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      test: "curl --fail --silent localhost:9002/actuator/health/readiness | grep UP || exit 1"
       timeout: 10s
       retries: 40
       interval: 3s
       start_period: 3s
     depends_on:
-      - localstack
-      - redis
-      - postgres
-      - mongodb
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
     networks:
       - digitalhippo-dev-network
 
-# gateway microservice
+  # gateway microservice
   gateway:
-    container_name: dh-gateway
-    image: leopoldhsing2/digitalhippo.gateway
+    container_name: ms-gateway
+    image: digitalhippo/gateway:latest
     healthcheck:
       test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
       timeout: 10s
@@ -147,7 +120,7 @@ services:
       interval: 3s
       start_period: 3s
     environment:
-      REDIS_HOST: localhost
+      REDIS_HOST: redis-dh-dev
       REDIS_PORT: 6379
       REDIS_PASSWORD: 1234
       REDIS_SESSION_DATABASE: 0
@@ -157,6 +130,88 @@ services:
     networks:
       - digitalhippo-dev-network
 
+  # user microservice
+  user:
+    container_name: ms-user
+    image: digitalhippo/user:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9004/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      REDIS_HOST: redis-dh-dev
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 1234
+      REDIS_SESSION_DATABASE: 0
+      ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+      AWS_REGION: ${AWS_REGION}
+      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: 1234567890
+      SNS_TOPIC_ARN: arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic
+      SNS_ENDPOINT: http://localstack:4566
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
+
+  # product microservice
+  product:
+    container_name: ms-product
+    image: digitalhippo/product:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9006/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      REDIS_HOST: redis-dh-dev
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 1234
+      REDIS_SESSION_DATABASE: 0
+      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: 1234567890
+      ES_ENDPOINT: http://elasticsearch:9200
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
+
+  # stripe microservice
+  stripe:
+    container_name: ms-stripe
+    image: digitalhippo/stripe:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9008/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: 1234
+      REDIS_SESSION_DATABASE: 0
+      AWS_REGION: ${AWS_REGION}
+      ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: 1234567890
+      ES_ENDPOINT: http://elasticsearch:9200
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
 
 networks:
   digitalhippo-dev-network:
