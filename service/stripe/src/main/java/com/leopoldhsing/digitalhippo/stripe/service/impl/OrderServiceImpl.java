@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -22,19 +24,33 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public Order createOrder(String payloadId, List<Long> productIdList, Long userId) {
-        // 1. create order
         User user = new User();
         user.setId(userId);
-        List<Product> productList = productIdList.stream().map(productId -> {
-            Product product = new Product();
-            product.setId(productId);
-            return product;
-        }).toList();
+        // 1. fetch product list
+        CompletableFuture<List<Product>> productListFuture = CompletableFuture
+                .supplyAsync(() -> productIdList.stream().map(productId -> {
+                    Product product = new Product();
+                    product.setId(productId);
+                    return product;
+                }).toList());
 
         // 2. clear user's cart
-        cartFeignClient.clearUserCartItems();
+        CompletableFuture<Void> clearCartFuture = CompletableFuture
+                .runAsync(() -> cartFeignClient.clearUserCartItems(userId));
 
-        return orderRepository.save(new Order(payloadId, user, productList, false));
+        // 3. create order and save to database
+        return CompletableFuture
+                .allOf(productListFuture, clearCartFuture)
+                .thenApply(v -> {
+                    Order order;
+                    try {
+                        order = orderRepository.save(new Order(payloadId, user, productListFuture.get(), false));
+                    } catch (InterruptedException | ExecutionException e) {
+                        throw new RuntimeException(e);
+                    }
+                    return order;
+                })
+                .join();
     }
 
     @Override

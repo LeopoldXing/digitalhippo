@@ -18,4 +18,7 @@ public interface CartFeignClient {
 
     @DeleteMapping("/api/cart/inner")
     void clearUserCartItems();
+
+    @DeleteMapping("/api/cart/inner")
+    void clearUserCartItems(Long userId);
 }

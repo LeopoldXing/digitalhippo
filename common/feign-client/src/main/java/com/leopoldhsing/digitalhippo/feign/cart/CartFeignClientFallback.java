@@ -24,4 +24,9 @@ public class CartFeignClientFallback implements CartFeignClient {
     public void clearUserCartItems() {
 
     }
+
+    @Override
+    public void clearUserCartItems(Long userId) {
+
+    }
 }

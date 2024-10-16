@@ -30,4 +30,9 @@ class CartApi @Autowired constructor(val cartService: CartService) {
     fun clearUserCartItems() {
         cartService.clearCart()
     }
+
+    @DeleteMapping
+    fun clearUserCartItems(userId: Long) {
+        cartService.clearCart(userId)
+    }
 }
