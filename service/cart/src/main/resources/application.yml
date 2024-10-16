@@ -11,6 +11,13 @@ spring:
   jpa:
     show-sql: true
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/cart/api-docs
+  swagger-ui:
+    path: /docs/v3/cart/swagger-ui/index.html
+
 eureka:
   instance:
     prefer-ip-address: true

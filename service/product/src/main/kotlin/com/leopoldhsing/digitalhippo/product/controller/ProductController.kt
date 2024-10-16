@@ -1,6 +1,5 @@
 package com.leopoldhsing.digitalhippo.product.controller
 
-import com.leopoldhsing.digitalhippo.common.constants.PaginationConstants
 import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.model.dto.SearchingResultDto
 import com.leopoldhsing.digitalhippo.model.entity.Product

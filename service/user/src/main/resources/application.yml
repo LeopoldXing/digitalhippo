@@ -1,5 +1,7 @@
 server:
   port: 9004
+  servlet:
+    context-path: /
 
 spring:
   application:
@@ -37,6 +39,13 @@ spring:
 aws:
   sns:
     arn: ${SNS_TOPIC_ARN}
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/user/api-docs
+  swagger-ui:
+    path: /docs/v3/user/swagger-ui/index.html
 
 eureka:
   instance:

@@ -27,6 +27,13 @@ spring:
     uris:
       - ${ES_ENDPOINT}
 
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/product/api-docs
+  swagger-ui:
+    path: /docs/v3/product/swagger-ui/index.html
+
 eureka:
   instance:
     prefer-ip-address: true

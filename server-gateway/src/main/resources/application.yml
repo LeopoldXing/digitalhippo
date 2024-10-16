@@ -45,19 +45,27 @@ spring:
         - id: service_user
           uri: lb://user
           predicates:
-            - Path=/api/user/**
+            - Path=/api/user/**, /docs/v3/user/**
         - id: product
           uri: lb://product
           predicates:
-            - Path=/api/product/**
+            - Path=/api/product/**, /docs/v3/product/**
         - id: cart
           uri: lb://cart
           predicates:
-            - Path=/api/cart/**
+            - Path=/api/cart/**, /docs/v3/cart/**
         - id: stripe
           uri: lb://stripe
           predicates:
-            - Path=/api/stripe/**
+            - Path=/api/stripe/**, /docs/v3/stripe/**
+        - id: search
+          uri: lb://search
+          predicates:
+            - Path=/docs/v3/search/**
+        - id: email
+          uri: lb://email
+          predicates:
+            - Path=/docs/v3/email/**
 
 url:
   auth:
@@ -73,6 +81,31 @@ url:
       - /css/**
       - /img/**
       - /fonts/**
+      - /docs/v3/** # documentations
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/api-docs
+  swagger-ui:
+    enabled: true
+    path: /docs/v3/swagger-ui/index.html
+    config-url: /docs/v3/api-docs/swagger-config
+    urls:
+      - name: gateway
+        url: /docs/v3/api-docs
+      - name: user
+        url: /docs/v3/user/api-docs
+      - name: stripe
+        url: /docs/v3/stripe/api-docs
+      - name: cart
+        url: /docs/v3/cart/api-docs
+      - name: search
+        url: /docs/v3/search/api-docs
+      - name: email
+        url: /docs/v3/email/api-docs
+      - name: product
+        url: /docs/v3/product/api-docs
 
 eureka:
   instance:

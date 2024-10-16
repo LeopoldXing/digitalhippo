@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing
 @EntityScan(basePackages = "com.leopoldhsing.digitalhippo")
 @EnableFeignClients(basePackages = "com.leopoldhsing.digitalhippo.feign")
-@EnableConfigurationProperties(StripeProperties.class)
+@EnableConfigurationProperties({StripeProperties.class})
 @SpringBootApplication
 public class StripeApplication {
     public static void main(String[] args) {
