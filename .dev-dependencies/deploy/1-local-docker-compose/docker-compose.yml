@@ -1,18 +1,4 @@
 services:
-  localstack:
-    image: localstack/localstack:3.8
-    container_name: localstack-dh-dev
-    ports:
-      - "4566:4566"
-    environment:
-      - SERVICES=s3,sns,sqs
-      - DEBUG=1
-      - HOSTNAME=localstack
-      - HOSTNAME_EXTERNAL=localstack
-      - DEFAULT_REGION=${AWS_REGION}
-    networks:
-      - digitalhippo-dev-network
-
   redis:
     image: redis:7.0.14
     container_name: redis-dh-dev
@@ -207,6 +193,72 @@ services:
       POSTGRES_PASSWORD: 1234567890
       ES_ENDPOINT: http://elasticsearch:9200
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
+
+  #  search microservice
+  search:
+    container_name: ms-search
+    image: digitalhippo/search:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9003/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      ES_ENDPOINT: http://elasticsearch:9200
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
+
+  #  cart microservice
+  cart:
+    container_name: ms-cart
+    image: digitalhippo/cart:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9007/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
+      POSTGRES_USERNAME: postgres
+      POSTGRES_PASSWORD: 1234567890
+    depends_on:
+      eureka:
+        condition: service_healthy
+    networks:
+      - digitalhippo-dev-network
+
+  #  email microservice
+  email:
+    container_name: ms-email
+    image: digitalhippo/email:latest
+    healthcheck:
+      test: "curl --fail --silent localhost:9003/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s
+    environment:
+      AWS_REGION: ${AWS_REGION}
+      ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+      FRONTEND_ENDPOINT: ${FRONTEND_ENDPOINT}
+      GMAIL_USERNAME: ${GMAIL_USERNAME}
+      GOOGLE_APP_PASSWORD: ${GOOGLE_APP_PASSWORD}
+      SQS_ENDPOINT: ${SQS_ENDPOINT}
+      RECEIPT_SQS_QUEUE_NAME: ${RECEIPT_SQS_QUEUE_NAME}
+      RECEIPT_SQS_QUEUE_URL: ${RECEIPT_SQS_QUEUE_URL}
+      VERIFICATION_SQS_QUEUE_NAME: ${VERIFICATION_SQS_QUEUE_NAME}
+      VERIFICATION_SQS_QUEUE_URL: ${VERIFICATION_SQS_QUEUE_URL}
     depends_on:
       eureka:
         condition: service_healthy
