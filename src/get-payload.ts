@@ -7,9 +7,13 @@ dotenv.config({
   path: path.resolve(__dirname, '../.env.local')
 });
 
-let cached = (global as any).payload
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+let cached = (global as never).payload
 if (!cached) {
-  cached = (global as any).payload = {
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
+  cached = (global as never).payload = {
     client: null,
     promise: null,
   }

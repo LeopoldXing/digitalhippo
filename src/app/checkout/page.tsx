@@ -13,8 +13,6 @@ import { useMutation } from "react-query";
 import { toast } from "sonner";
 import { createPaymentSessionRequest } from "@/api/PaymentRequest";
 import { getCookie } from "cookies-next";
-import { createPayloadOrder } from "@/api/OrderRequest";
-import { User } from "@/types";
 import { getUserRequest } from "@/api/UserRequest";
 import { trpc } from "@/trpc/client";
 
@@ -49,18 +47,8 @@ const Page = () => {
 
   const { mutateAsync: createOrder } = trpc.order.createOrder.useMutation()
   const handleCheckout = async () => {
-    const user: User | undefined = await getUserRequest(accessToken);
-    const payloadOrder = await createOrder({ payloadProductIds })
-    console.log("创建了payload order")
-    console.log(payloadOrder)
-    /*const payloadToken = getCookie('payload-token') || ""
-    const payloadOrderInfo = await createPayloadOrder({
-      userId: user?.payloadId || "",
-      payloadProductIds: payloadProductIds,
-      isPaid: false,
-      payloadToken
-    })*/
-    /*const payloadOrderId = payloadOrderInfo.doc.id;*/
+    await getUserRequest(accessToken);
+    await createOrder({ payloadProductIds })
     const url = await createPaymentSession({ productIdList, payloadOrderId: "43d34252", accessToken })
     if (url) {
       router.push(url)

@@ -11,6 +11,7 @@ import {
 type Props = {
   current: number;
   totalPage: number;
+  // eslint-disable-next-line no-unused-vars
   onPageChange: (page: number) => void;
 }
 

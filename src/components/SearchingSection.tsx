@@ -53,6 +53,7 @@ const SearchingSection = () => {
   }
 
   const handleSearch = async (condition: searchingCondition) => {
+    // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
     setConditions(prevState => condition)
   }
 

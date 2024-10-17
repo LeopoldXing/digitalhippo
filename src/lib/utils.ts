@@ -14,6 +14,7 @@ export function formatPrice(
       locale?: string
     } = {}
 ) {
+  // eslint-disable-next-line no-unused-vars,@typescript-eslint/no-unused-vars
   const { currency = 'CAD', notation = 'compact', locale = 'en-US' } = options
 
   const numericPrice = typeof price === 'string' ? parseFloat(price) : price

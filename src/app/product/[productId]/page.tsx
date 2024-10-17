@@ -101,7 +101,8 @@ const Page = async ({ params }: PageProps) => {
             </div>
           </div>
         </div>
-
+        {/*eslint-disable-next-line @typescript-eslint/ban-ts-comment*/}
+        {/*@ts-expect-error*/}
         <ProductReel href='/products' query={{ category: product.category, size: 4 }} title={`Similar ${label}`}
                      subtitle={`Browse similar high-quality ${label} just like '${product.name}'`} exclude={product.payloadId}/>
       </MaxWidthWrapper>

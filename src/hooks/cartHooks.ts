@@ -6,15 +6,18 @@ import { addToCart, removeFromCart } from "@/api/CartRequest";
 
 type CartState = {
   items: CartItem[]
+  // eslint-disable-next-line no-unused-vars
   addItem: ({ product, accessToken, sendNotification }: {
     product: ProductApiType,
     accessToken: string | undefined,
     sendNotification?: boolean,
     updateBackendCart?: boolean
   }) => void
+  // eslint-disable-next-line no-unused-vars
   removeItem: ({ productId, accessToken }: { productId: string, accessToken: string | undefined }) => void
   clearCart: () => void
   getItems: () => CartItem[]
+  // eslint-disable-next-line no-unused-vars
   hasItem: (productId: string) => boolean
 }
 

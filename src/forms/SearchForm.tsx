@@ -36,6 +36,7 @@ const searchFormSchema = z.object({
 type SearchFormType = z.infer<typeof searchFormSchema>;
 
 type ProductSearchingFormProps = {
+  // eslint-disable-next-line no-unused-vars
   onSearch: (condition: searchingCondition) => void,
   isLoading: boolean;
   defaultConditions?: searchingCondition;
