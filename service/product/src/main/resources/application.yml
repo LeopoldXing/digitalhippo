@@ -4,41 +4,5 @@ server:
 spring:
   application:
     name: product
-  # x86 device use this configuration
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_CACHING_DATABASE}
-  # mac device with ARM chip use this configuration
-#  data:
-#    redis:
-#      host: ${REDIS_HOST}
-#      port: ${REDIS_PORT}
-#      password: ${REDIS_PASSWORD}
-#      database: ${REDIS_CACHING_DATABASE}
-  datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
-  jpa:
-    show-sql: true
-  elasticsearch:
-    uris:
-      - ${ES_ENDPOINT}
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /docs/v3/product/api-docs
-  swagger-ui:
-    path: /docs/v3/product/swagger-ui/index.html
-
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:9002/eureka/
+  profiles:
+    active: prod

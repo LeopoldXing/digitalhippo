@@ -31,8 +31,8 @@ class CartApi @Autowired constructor(val cartService: CartService) {
         cartService.clearCart()
     }
 
-    @DeleteMapping
-    fun clearUserCartItems(userId: Long) {
+    @DeleteMapping("/{userId}")
+    fun clearUserCartItems(@PathVariable userId: Long) {
         cartService.clearCart(userId)
     }
 }

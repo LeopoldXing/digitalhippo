@@ -4,6 +4,7 @@ import com.leopoldhsing.digitalhippo.gateway.config.GatewayUrlAuthConfig;
 import io.swagger.v3.oas.models.OpenAPI;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.gateway.route.RouteLocator;
@@ -13,6 +14,7 @@ import org.springframework.http.HttpMethod;
 
 @SpringBootApplication(exclude = {DataSourceAutoConfiguration.class})
 @EnableConfigurationProperties(GatewayUrlAuthConfig.class)
+@EntityScan(basePackages = {"com.leopoldhsing.digitalhippo"})
 public class ServerGatewayApplication {
     public static void main(String[] args) {
         SpringApplication.run(ServerGatewayApplication.class, args);

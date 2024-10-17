@@ -4,19 +4,8 @@ server:
 spring:
   application:
     name: gateway
-  # x86 device use this configuration
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_SESSION_DATABASE}
-  # mac device with ARM chip use this configuration
-  #  data:
-  #    redis:
-  #      host: ${REDIS_HOST}
-  #      port: ${REDIS_PORT}
-  #      password: ${REDIS_PASSWORD}
-  #      database: ${REDIS_SESSION_DATABASE}
+  profiles:
+    active: prod
   cloud:
     gateway:
       globalcors:
@@ -106,15 +95,6 @@ springdoc:
         url: /docs/v3/email/api-docs
       - name: product
         url: /docs/v3/product/api-docs
-
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:9002/eureka/
 
 management:
   endpoints:

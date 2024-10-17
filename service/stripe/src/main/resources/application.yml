@@ -6,35 +6,5 @@ server:
 spring:
   application:
     name: stripe
-  datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
-  jpa:
-    show-sql: true
-
-stripe:
-  secret-key: ${STRIPE_SECRET_KEY}
-  publishable-key: ${STRIPE_PUBLISHABLE_KEY}
-  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
-  frontend-endpoint: ${FRONTEND_ENDPOINT}
-
-aws:
-  sns:
-    arn: ${SNS_TOPIC_ARN}
-
-springdoc:
-  api-docs:
-    enabled: true
-    path: /docs/v3/stripe/api-docs
-  swagger-ui:
-    path: /docs/v3/stripe/swagger-ui/index.html
-
-eureka:
-  instance:
-    prefer-ip-address: true
-  client:
-    fetch-registry: true
-    register-with-eureka: true
-    service-url:
-      defaultZone: http://localhost:9002/eureka/
+  profiles:
+    active: prod

@@ -73,6 +73,11 @@
                     <to>
                         <image>digitalhippo/gateway:latest</image>
                     </to>
+                    <container>
+                        <ports>
+                            <port>8080</port>
+                        </ports>
+                    </container>
                 </configuration>
             </plugin>
         </plugins>

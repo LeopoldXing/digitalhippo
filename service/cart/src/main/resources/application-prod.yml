@@ -1,0 +1,23 @@
+spring:
+  datasource:
+    url: ${POSTGRES_URL}
+    username: ${POSTGRES_USERNAME}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    show-sql: true
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/cart/api-docs
+  swagger-ui:
+    path: /docs/v3/cart/swagger-ui/index.html
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka:9002/eureka/

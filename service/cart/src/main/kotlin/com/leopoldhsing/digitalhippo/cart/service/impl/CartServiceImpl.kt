@@ -72,6 +72,7 @@ open class CartServiceImpl @Autowired constructor(
         cartRepository.deleteCartByProductIdAndUserId(productId, user.id)
     }
 
+    @Transactional
     override fun clearCart(userId: Long) {
         cartRepository.deleteCartsByUserId(userId)
     }
