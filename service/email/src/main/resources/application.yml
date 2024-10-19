@@ -1,8 +1,5 @@
-server:
-  port: 9005
-
 spring:
   application:
     name: email
   profiles:
-    active: prod
+    active: dev

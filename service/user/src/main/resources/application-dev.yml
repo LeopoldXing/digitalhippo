@@ -1,3 +1,8 @@
+server:
+  port: 9004
+  servlet:
+    context-path: /
+
 spring:
   # x86 device use this configuration
 #  redis:

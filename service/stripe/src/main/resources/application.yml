@@ -1,10 +1,5 @@
-server:
-  port: 9008
-  servlet:
-    context-path: /
-
 spring:
   application:
     name: stripe
   profiles:
-    active: prod
+    active: dev

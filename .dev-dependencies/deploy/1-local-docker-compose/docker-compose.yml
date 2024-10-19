@@ -1,7 +1,7 @@
 services:
   localstack:
     image: localstack/localstack:3.8
-    container_name: localstack-dh-dev
+    container_name: localstack
     ports:
       - "4566:4566"
     environment:
@@ -42,6 +42,7 @@ services:
     environment:
       - REDIS_PASSWORD=1234
     command: [ "redis-server", "--requirepass", "1234" ]
+    restart: always
     ports:
       - "6379:6379"
     networks:
@@ -56,6 +57,7 @@ services:
       POSTGRES_PASSWORD: 1234567890
       POSTGRES_USER: postgres
       POSTGRES_DB: digitalhippo
+    restart: always
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
@@ -64,11 +66,10 @@ services:
   mongodb:
     image: mongodb/mongodb-community-server:7.0.5-ubi8
     container_name: mongodb-dh-dev
+    restart: always
     environment:
       - MONGO_INITDB_ROOT_USERNAME=lupin
       - MONGO_INITDB_ROOT_PASSWORD=1234
-    ports:
-      - "27017:27017"
     networks:
       - digitalhippo-dev-network
 
@@ -76,6 +77,7 @@ services:
   elasticsearch:
     container_name: elasticsearch-dh-dev
     image: elasticsearch:8.14.1
+    restart: always
     environment:
       - discovery.type=single-node
       - bootstrap.memory_lock=false
@@ -87,6 +89,10 @@ services:
         hard: -1
     # volumes:
     #   - es01-log-data:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          memory: 512m
     ports:
       - "9200:9200"
     networks:
@@ -99,6 +105,7 @@ services:
   kibana:
     container_name: kibana-dh-dev
     image: kibana:8.14.1
+    restart: always
     ports:
       - "5601:5601"
     volumes:
@@ -115,37 +122,25 @@ services:
       - digitalhippo-dev-network
 
 
-  # digitalhippo application
+  #  digitalhippo backend application
   #  eureka microservice
   eureka:
     container_name: eureka
     image: digitalhippo/eureka-server:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9002/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     depends_on:
       elasticsearch:
-        condition: service_started
-    networks:
-      - digitalhippo-dev-network
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   # gateway microservice
   gateway:
     container_name: ms-gateway
     image: digitalhippo/gateway:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     ports:
       - "8080:8080"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
       REDIS_HOST: redis-dh-dev
       REDIS_PORT: 6379
       REDIS_PASSWORD: 1234
@@ -155,19 +150,14 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    networks:
-      - digitalhippo-dev-network
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   # user microservice
   user:
     container_name: ms-user
     image: digitalhippo/user:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9004/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       REDIS_HOST: redis-dh-dev
       REDIS_PORT: 6379
@@ -185,19 +175,14 @@ services:
     depends_on:
       eureka:
         condition: service_healthy
-    networks:
-      - digitalhippo-dev-network
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   # product microservice
   product:
     container_name: ms-product
     image: digitalhippo/product:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9006/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       REDIS_HOST: redis-dh-dev
       REDIS_PORT: 6379
@@ -210,19 +195,14 @@ services:
     depends_on:
       eureka:
         condition: service_healthy
-    networks:
-      - digitalhippo-dev-network
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   # stripe microservice
   stripe:
     container_name: ms-stripe
     image: digitalhippo/stripe:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9008/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       REDIS_HOST: redis
       REDIS_PORT: 6379
@@ -238,40 +218,33 @@ services:
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      FRONTEND_ENDPOINT: ${FRONTEND_ENDPOINT}
     depends_on:
       eureka:
         condition: service_healthy
-    networks:
-      - digitalhippo-dev-network
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   #  search microservice
   search:
     container_name: ms-search
     image: digitalhippo/search:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9003/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       ES_ENDPOINT: http://elasticsearch:9200
     depends_on:
       eureka:
         condition: service_healthy
-    networks:
-      - digitalhippo-dev-network
+      elasticsearch:
+        condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   #  cart microservice
   cart:
     container_name: ms-cart
     image: digitalhippo/cart:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9007/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
       POSTGRES_USERNAME: postgres
@@ -279,19 +252,14 @@ services:
     depends_on:
       eureka:
         condition: service_healthy
-    networks:
-      - digitalhippo-dev-network
+    extends:
+      file: common-config.yml
+      service: microservice-config
 
   #  email microservice
   email:
     container_name: ms-email
     image: digitalhippo/email:latest
-    healthcheck:
-      test: "curl --fail --silent localhost:9003/actuator/health/readiness | grep UP || exit 1"
-      timeout: 10s
-      retries: 40
-      interval: 3s
-      start_period: 3s
     environment:
       AWS_REGION: ${AWS_REGION}
       ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
@@ -307,6 +275,30 @@ services:
     depends_on:
       eureka:
         condition: service_healthy
+    extends:
+      file: common-config.yml
+      service: microservice-config
+
+  # digitalhippo frontend application
+  dh-frontend:
+    container_name: digitalhippo-frontend
+    image: leopoldhsing2/digitalhippo-frontend:local-deployment
+    environment:
+      AWS_ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+      S3_ENDPOINT_HOST: ${AWS_S3_ENDPOINT}
+      S3_BUCKET: ${AWS_S3_BUCKET_NAME}
+      PAYLOAD_SECRET: sert56hsdr6t546thr84
+      MONGODB_URL: ${MONGODB_URL}
+    depends_on:
+      gateway:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256m
+    ports:
+      - "3000:3000"
     networks:
       - digitalhippo-dev-network
 

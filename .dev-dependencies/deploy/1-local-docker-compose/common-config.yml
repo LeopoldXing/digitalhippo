@@ -1,0 +1,17 @@
+services:
+  microservice-config:
+    deploy:
+      resources:
+        limits:
+          memory: 512m
+    networks:
+      - digitalhippo-dev-network
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: always
+    healthcheck:
+      test: "curl --fail --silent localhost:8080/actuator/health/readiness | grep UP || exit 1"
+      timeout: 10s
+      retries: 40
+      interval: 3s
+      start_period: 3s

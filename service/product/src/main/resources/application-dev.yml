@@ -1,3 +1,6 @@
+server:
+  port: 9006
+
 spring:
   # x86 device use this configuration
 #  redis:

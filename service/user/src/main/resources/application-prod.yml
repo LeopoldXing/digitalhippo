@@ -1,3 +1,8 @@
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
 spring:
   # x86 device use this configuration
 #  redis:
@@ -48,4 +53,4 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://eureka:9002/eureka/
+      defaultZone: http://eureka:8080/eureka/

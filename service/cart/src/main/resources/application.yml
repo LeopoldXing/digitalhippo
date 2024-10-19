@@ -1,8 +1,5 @@
-server:
-  port: 9007
-
 spring:
   application:
     name: cart
   profiles:
-    active: prod
+    active: dev

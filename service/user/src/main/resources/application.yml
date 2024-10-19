@@ -1,10 +1,5 @@
-server:
-  port: 9004
-  servlet:
-    context-path: /
-
 spring:
   application:
     name: user
   profiles:
-    active: prod
+    active: dev
