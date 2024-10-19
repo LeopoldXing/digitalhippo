@@ -15,12 +15,14 @@ import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo
 import com.leopoldhsing.digitalhippo.product.repository.ProductElasticsearchRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
+import com.leopoldhsing.digitalhippo.product.service.ProductCacheService
 import com.leopoldhsing.digitalhippo.product.service.ProductService
 import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.util.ObjectUtils
 
 @Service
 open class ProductServiceImpl @Autowired constructor(
@@ -29,7 +31,8 @@ open class ProductServiceImpl @Autowired constructor(
     private val productElasticsearchRepository: ProductElasticsearchRepository,
     private val userFeignClient: UserFeignClient,
     private val productSearchingFeignClient: ProductSearchingFeignClient,
-    private val stripeProductFeignClient: StripeProductFeignClient
+    private val stripeProductFeignClient: StripeProductFeignClient,
+    private val productCacheService: ProductCacheService
 ) : ProductService {
 
     override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): SearchingResultDto {
@@ -50,10 +53,34 @@ open class ProductServiceImpl @Autowired constructor(
     }
 
     override fun getProduct(productId: Long): Product {
-        val product = productRepository.findByIdOrNull(productId)
-        if (product == null) {
+        // 1. get product from cache
+        val productFromCache = productCacheService.getProductFromCache(productId.toString())
+        if (productFromCache != null) {
+            // cache hit
+            return productFromCache
+        }
+
+        // 2. cache miss
+        // 2.1 verify this product existence in Product Bitmap
+        var product: Product? = null
+        if (productCacheService.hasProduct(productId)) {
+            // Bitmap shows this product exists
+            // 2.1.1 Query product in Postgres
+            product = productRepository.findByIdOrNull(productId)
+            // 2.1.2 Save this product into cache
+            productCacheService.saveProductToCache(productId.toString(), product)
+            if (product == null) {
+                throw ResourceNotFoundException("product", "id", productId.toString())
+            }
+        } else {
+            // Bitmap shows this product doesn't exist
+            // save product data into cache, even the product doesn't exist, this will prevent null value attack
+            productCacheService.saveProductToCache(productId.toString(), null)
+            // someone is trying to access a product that doesn't exist
             throw ResourceNotFoundException("product", "id", productId.toString())
         }
+
+        // 3. return result
         return product
     }
 
@@ -74,6 +101,9 @@ open class ProductServiceImpl @Autowired constructor(
         // 4. save product info to elasticsearch
         val productIndex: ProductIndex = ProductMapper.mapToProductIndex(product)
         productElasticsearchRepository.save(productIndex)
+
+        // 5. update bitmap
+        productCacheService.addProductToBitmap(product.id)
 
         return product
     }
@@ -135,6 +165,8 @@ open class ProductServiceImpl @Autowired constructor(
                 productRepository.delete(product)
                 // delete from elasticsearch
                 productElasticsearchRepository.deleteById(product.id)
+                // update bitmap
+                productCacheService.removeProductFromBitmap(product.id)
             } else {
                 // current user does not have authority
                 throw AuthenticationFailedException(currentUser.id.toString(), currentUser.email)

@@ -10,7 +10,7 @@ spring:
         access-key: ${ACCESS_KEY}
         secret-key: ${SECRET_KEY}
       sqs:
-        endpoint: ${AWS_ENDPOINT}
+        endpoint: ${SQS_ENDPOINT}
   mail:
     host: smtp.gmail.com
     port: 587

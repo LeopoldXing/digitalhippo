@@ -17,6 +17,10 @@ services:
       - "5432:5432"
     environment:
       POSTGRES_PASSWORD: 1234567890
+      POSTGRES_USER: postgres
+      POSTGRES_DB: digitalhippo
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - digitalhippo-dev-network
 

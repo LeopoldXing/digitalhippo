@@ -141,10 +141,10 @@ services:
     ports:
       - "8080:8080"
     environment:
-      REDIS_HOST: redis-dh-dev
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: 1234
-      REDIS_SESSION_DATABASE: 0
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_SESSION_DATABASE: ${REDIS_SESSION_DATABASE}
     depends_on:
       eureka:
         condition: service_healthy
@@ -167,9 +167,9 @@ services:
       SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
       AWS_ENDPOINT: ${AWS_ENDPOINT}
-      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: 1234567890
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       SNS_TOPIC_ARN: ${SNS_TOPIC_ARN}
       SNS_ENDPOINT: ${SNS_ENDPOINT}
     depends_on:
@@ -184,14 +184,14 @@ services:
     container_name: ms-product
     image: digitalhippo/product:latest
     environment:
-      REDIS_HOST: redis-dh-dev
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: 1234
-      REDIS_CACHING_DATABASE: 1
-      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: 1234567890
-      ES_ENDPOINT: http://elasticsearch:9200
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_CACHING_DATABASE: ${REDIS_CACHING_DATABASE}
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ES_ENDPOINT: ${ES_ENDPOINT}
     depends_on:
       eureka:
         condition: service_healthy
@@ -204,17 +204,17 @@ services:
     container_name: ms-stripe
     image: digitalhippo/stripe:latest
     environment:
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: 1234
-      REDIS_SESSION_DATABASE: 0
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_SESSION_DATABASE: ${REDIS_SESSION_DATABASE}
       AWS_REGION: ${AWS_REGION}
       ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
-      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: 1234567890
-      ES_ENDPOINT: http://elasticsearch:9200
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      ES_ENDPOINT: ${ES_ENDPOINT}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
       STRIPE_PUBLISHABLE_KEY: ${STRIPE_PUBLISHABLE_KEY}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
@@ -231,7 +231,7 @@ services:
     container_name: ms-search
     image: digitalhippo/search:latest
     environment:
-      ES_ENDPOINT: http://elasticsearch:9200
+      ES_ENDPOINT: ${ES_ENDPOINT}
     depends_on:
       eureka:
         condition: service_healthy
@@ -246,9 +246,9 @@ services:
     container_name: ms-cart
     image: digitalhippo/cart:latest
     environment:
-      POSTGRES_URL: jdbc:postgresql://postgres-dh-dev:5432/digitalhippo
-      POSTGRES_USERNAME: postgres
-      POSTGRES_PASSWORD: 1234567890
+      POSTGRES_URL: ${POSTGRES_URL}
+      POSTGRES_USERNAME: ${POSTGRES_USERNAME}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     depends_on:
       eureka:
         condition: service_healthy
