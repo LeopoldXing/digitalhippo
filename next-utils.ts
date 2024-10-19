@@ -1,6 +1,6 @@
 import next from "next"
 
-const PORT = Number(process.env.PORT) || 3006
+const PORT = Number(process.env.NEXT_PUBLIC_APPLICATION_PORT) || 3000
 
 export const nextApp = next({
   dev: process.env.NODE_ENV !== "production",

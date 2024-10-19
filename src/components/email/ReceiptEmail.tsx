@@ -122,7 +122,7 @@ export const ReceiptEmail = ({
                           </Text>
                       ) : null}
                       <Link
-                          href={`http://localhost:3006/thank-you?orderId=${orderId}`}
+                          href={`http://localhost:3000/thank-you?orderId=${orderId}`}
                           style={productLink}>
                         Download Asset
                       </Link>

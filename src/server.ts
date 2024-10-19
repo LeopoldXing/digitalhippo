@@ -8,7 +8,7 @@ import { appRouter } from "./trpc";
 import { inferAsyncReturnType } from "@trpc/server";
 
 const app = express()
-const PORT = Number(process.env.PORT) || 3006
+const PORT = Number(process.env.NEXT_PUBLIC_APPLICATION_PORT) || 3000
 
 const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({ req, res })
 export type ExpressContext = inferAsyncReturnType<typeof createContext>
