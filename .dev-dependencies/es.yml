@@ -23,6 +23,22 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+  logstash:
+    image: logstash:8.14.1
+    container_name: logstash-dh-dev
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    networks:
+      - digitalhippo-dev-network
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
   kibana:
     container_name: kibana-elasticsearch-dev
     image: kibana:8.14.1

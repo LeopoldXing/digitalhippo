@@ -27,17 +27,11 @@
     </properties>
 
     <dependencies>
-        <!--  common-utils  -->
+        <!--  logstash  -->
         <dependency>
-            <groupId>com.leopoldhsing.digitalhippo</groupId>
-            <artifactId>common-utils</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <!--  model  -->
-        <dependency>
-            <groupId>com.leopoldhsing.digitalhippo</groupId>
-            <artifactId>model</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.4</version>
         </dependency>
         <!--  web  -->
         <dependency>
@@ -75,6 +69,18 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <!--  common-utils  -->
+        <dependency>
+            <groupId>com.leopoldhsing.digitalhippo</groupId>
+            <artifactId>common-utils</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+        <!--  model  -->
+        <dependency>
+            <groupId>com.leopoldhsing.digitalhippo</groupId>
+            <artifactId>model</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

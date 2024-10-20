@@ -18,9 +18,11 @@ import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.model.vo.UserLoginResponseVo
 import com.leopoldhsing.digitalhippo.user.config.userSnsTopicProperties
+import com.leopoldhsing.digitalhippo.user.controller.AuthController
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
 import io.awspring.cloud.sns.core.SnsTemplate
+import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
@@ -35,9 +37,13 @@ class UserServiceImpl @Autowired constructor(
     private val userSnsTopicProperties: userSnsTopicProperties,
     private val cartFeignClient: CartFeignClient
 ) : UserService {
+
+    companion object {
+        private val log = getLogger(AuthController::class.java)
+    }
+
     override fun getUser(): User {
         val userId = RequestUtil.getUid()
-
         val user = userRepository.findById(userId).orElseThrow { ResourceNotFoundException("User", "id", userId.toString()) }
         return user
     }
@@ -46,6 +52,8 @@ class UserServiceImpl @Autowired constructor(
      * user sign in
      */
     override fun signIn(email: String, password: String, cartIdList: List<Long>): UserLoginResponseVo {
+        log.info("user $email trying to sign in")
+
         // 1. get user
         val userOption = userRepository.findUserByEmail(email)
         if (userOption == null || !userOption.isPresent) {
@@ -83,6 +91,8 @@ class UserServiceImpl @Autowired constructor(
         // set userid:token
         val signInTokenReversedKey = RedisConstants.USER_PREFIX + RedisConstants.USERID_SUFFIX + user.id
         redisTemplate.opsForValue().set(signInTokenReversedKey, accessToken, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
+
+        log.info("user $email signed in successful")
 
         return UserLoginResponseVo(accessToken, cartItems)
     }
