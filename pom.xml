@@ -28,6 +28,7 @@
         <spring.jpa.version>3.2.6</spring.jpa.version>
         <spring.web.version>3.2.6</spring.web.version>
         <redis.version>3.2.6</redis.version>
+        <redisson.version>3.35.0</redisson.version>
         <redis.reactive.version>3.2.3</redis.reactive.version>
         <openfeign.version>4.1.1</openfeign.version>
         <lombok.version>1.18.30</lombok.version>
@@ -105,6 +106,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-data-redis</artifactId>
                 <version>${redis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.redisson</groupId>
+                <artifactId>redisson</artifactId>
+                <version>${redisson.version}</version>
             </dependency>
             <!--  openfeign  -->
             <dependency>
