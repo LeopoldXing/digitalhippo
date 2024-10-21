@@ -19,7 +19,6 @@ import com.leopoldhsing.digitalhippo.product.repository.ProductImageRepository
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
 import com.leopoldhsing.digitalhippo.product.service.CacheService
 import com.leopoldhsing.digitalhippo.product.service.ProductService
-import org.redisson.api.RedissonClient
 import org.springframework.beans.BeanUtils
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
