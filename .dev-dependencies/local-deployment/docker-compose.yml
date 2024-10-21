@@ -122,7 +122,7 @@ services:
     ports:
       - "5601:5601"
     volumes:
-      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
     healthcheck:
       test: [ "CMD-SHELL", "curl -I http://localhost:5601 || exit 1" ]
       interval: 10s
@@ -172,10 +172,10 @@ services:
     container_name: ms-user
     image: digitalhippo/user:latest
     environment:
-      REDIS_HOST: redis-dh-dev
-      REDIS_PORT: 6379
-      REDIS_PASSWORD: 1234
-      REDIS_SESSION_DATABASE: 0
+      REDIS_HOST: ${REDIS_HOST}
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      REDIS_SESSION_DATABASE: ${REDIS_SESSION_DATABASE}
       ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_REGION: ${AWS_REGION}
@@ -312,6 +312,43 @@ services:
           memory: 256m
     ports:
       - "3000:3000"
+    networks:
+      - digitalhippo-dev-network
+
+# operations
+  prometheus:
+    container_name: prometheus-dh-dev
+    image: prom/prometheus:v2.54.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - digitalhippo-dev-network
+  grafana:
+    container_name: grafana-dh-dev
+    image: grafana/grafana:11.2.2
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    depends_on:
+      - prometheus
+      - gateway
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        /run.sh
+    ports:
+      - "9000:3000"
+    volumes:
+      - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - digitalhippo-dev-network
 

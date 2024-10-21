@@ -63,6 +63,7 @@ url:
       - /api/product/search/**
       - /api/product/*
       - /api/stripe/payment/confirm
+      - /actuator/**
     trusted-uri-patterns:
       - /css/**
       - /img/**
@@ -108,7 +109,7 @@ management:
       probes:
         enabled: true
     shutdown:
-      enabled: true
+      enabled: false
   info:
     env:
       enabled: true
@@ -118,7 +119,7 @@ management:
 
 endpoints:
   shutdown:
-    enabled: true
+    enabled: false
 
 info:
   app:

@@ -79,4 +79,4 @@ terraform/*.bak
 terraform/*.tmp
 terraform/*.temp
 
-.dev-dependencies/deploy/1-local-docker-compose/.env
+.dev-dependencies/local-deployment/.env

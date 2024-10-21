@@ -1,0 +1,37 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "ms-eureka"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:9002"]
+  - job_name: "ms-gateway"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:8080"]
+  - job_name: "ms-cart"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:9007"]
+  - job_name: "ms-email"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:9005"]
+  - job_name: "ms-product"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:9006"]
+  - job_name: "ms-search"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["localhost:9003"]
+  - job_name: "ms-stripe"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "localhost:9008" ]
+  - job_name: "ms-user"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: [ "localhost:9004" ]

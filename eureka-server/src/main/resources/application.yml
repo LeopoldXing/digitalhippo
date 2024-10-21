@@ -19,7 +19,7 @@ management:
       probes:
         enabled: true
     shutdown:
-      enabled: true
+      enabled: false
   info:
     env:
       enabled: true
@@ -29,10 +29,10 @@ management:
 
 endpoints:
   shutdown:
-    enabled: true
+    enabled: false
 
 info:
   app:
     name: "eureka"
-    description: "Digital Hippo eureka server microservice application"
+    description: "Digital Hippo EUREKA microservice application"
     version: "0.0.1"
