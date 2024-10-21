@@ -13,7 +13,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "stripe"}
+                            {"microservice": "ms-stripe"}
                         </pattern>
                     </pattern>
                     <threadName/>
@@ -34,7 +34,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "stripe"}
+                            {"microservice": "ms-stripe"}
                         </pattern>
                     </pattern>
                     <threadName/>

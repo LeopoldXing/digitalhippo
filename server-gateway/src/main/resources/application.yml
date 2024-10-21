@@ -112,6 +112,9 @@ management:
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ms-gateway
 
 endpoints:
   shutdown:

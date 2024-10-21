@@ -13,7 +13,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "gateway"}
+                            {"microservice": "ms-gateway"}
                         </pattern>
                     </pattern>
                     <threadName/>
@@ -34,7 +34,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "gateway"}
+                            {"microservice": "ms-gateway"}
                         </pattern>
                     </pattern>
                     <threadName/>

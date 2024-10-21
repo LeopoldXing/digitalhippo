@@ -3,3 +3,36 @@ spring:
     name: stripe
   profiles:
     active: dev
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  health:
+    readiness-state:
+      enabled: true
+    liveness-state:
+      enabled: true
+  endpoint:
+    health:
+      probes:
+        enabled: true
+    shutdown:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    tags:
+      application: ms-stripe
+
+endpoints:
+  shutdown:
+    enabled: true
+
+info:
+  app:
+    name: "ms-stripe"
+    description: "Digital Hippo STRIPE microservice application"
+    version: "0.0.1"

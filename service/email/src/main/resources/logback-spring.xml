@@ -13,7 +13,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "email"}
+                            {"microservice": "ms-email"}
                         </pattern>
                     </pattern>
                     <threadName/>
@@ -34,7 +34,7 @@
                     <logLevel/>
                     <pattern>
                         <pattern>
-                            {"microservice": "email"}
+                            {"microservice": "ms-email"}
                         </pattern>
                     </pattern>
                     <threadName/>

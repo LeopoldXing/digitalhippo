@@ -23,6 +23,9 @@ management:
   info:
     env:
       enabled: true
+  metrics:
+    tags:
+      application: ms-eureka
 
 endpoints:
   shutdown:
