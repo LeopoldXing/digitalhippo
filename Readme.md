@@ -12,7 +12,7 @@ Welcome to the DigitalHippo project! It aims to provide a modern online marketpl
 
 
 
-This is the repository for DigitalHippo backend application, the frontend repo is available [here](https://github.com/LeopoldXing/digitalhippo). This README will guide you through the key features, technologies used. Check this blog for more information.
+This is the repository for DigitalHippo backend application, the frontend repo is available [here](https://github.com/LeopoldXing/digitalhippo). This README will guide you through the key features, technologies used. Check [this blog](https://blogs.leopoldhsing.com/digitalhippo-technical-details/) for more information.
 
 
 
