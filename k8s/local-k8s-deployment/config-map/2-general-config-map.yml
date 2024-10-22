@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: digitalhippo-general-config-map
+  namespace: digitalhippo
+data:
+  FRONTEND_ENDPOINT: "http://localhost:3000"

@@ -1,32 +1,34 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: server-gateway
+  name: ms-gateway
   namespace: digitalhippo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: server-gateway
+      app: ms-gateway
   template:
     metadata:
       labels:
-        app: server-gateway
+        app: ms-gateway
     spec:
       containers:
-        - name: server-gateway
-          image: digitalhippo/gateway:latest
+        - name: ms-gateway
+          image: leopoldhsing2/digitalhippo.gateway:latest
           imagePullPolicy: IfNotPresent
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
             - name: REDIS_HOST
               valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
                   key: REDIS_HOST
             - name: REDIS_PORT
               valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
                   key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
@@ -35,8 +37,8 @@ spec:
                   key: REDIS_PASSWORD
             - name: REDIS_SESSION_DATABASE
               valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
                   key: REDIS_SESSION_DATABASE
           ports:
             - containerPort: 8080
@@ -48,11 +50,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: server-gateway
+  name: ms-gateway
   namespace: digitalhippo
 spec:
   selector:
-    app: server-gateway
+    app: ms-gateway
   type: ClusterIP
   ports:
     - port: 8080

@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-dh
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-dh
+  template:
+    metadata:
+      labels:
+        app: postgres-dh
+    spec:
+      containers:
+        - name: postgres-dh
+          image: postgres:16.4-alpine
+          ports:
+            - containerPort: 5432
+          env:
+            - name: POSTGRES_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
+                  key: POSTGRES_USER
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: POSTGRES_PASSWORD
+            - name: POSTGRES_DATABASE
+              value: digitalhippo
+          volumeMounts:
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d/init.sql
+              subPath: init.sql
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+      volumes:
+        - name: init-sql
+          configMap:
+            name: digitalhippo-db-config-map
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-dh
+  namespace: digitalhippo
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres-dh
+  ports:
+    - port: 5432
+      targetPort: 5432

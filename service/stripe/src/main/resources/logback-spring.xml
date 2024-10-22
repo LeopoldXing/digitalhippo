@@ -26,7 +26,7 @@
     </springProfile>
     <springProfile name="prod">
         <appender name="logstash" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <destination>logstash-dh-dev:5000</destination>
+            <destination>logstash-dh:5000</destination>
             <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
                 <providers>
                     <mdc/>
