@@ -42,6 +42,11 @@ spec:
                 configMapKeyRef:
                   name: digitalhippo-db-config-map
                   key: REDIS_HOST
+            - name: AWS_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-aws-config-map
+                  key: AWS_ENDPOINT
             - name: REDIS_PORT
               valueFrom:
                 configMapKeyRef:
@@ -62,7 +67,7 @@ spec:
                 configMapKeyRef:
                   name: digitalhippo-db-config-map
                   key: POSTGRES_URL
-            - name: POSTGRES_USER
+            - name: POSTGRES_USERNAME
               valueFrom:
                 configMapKeyRef:
                   name: digitalhippo-db-config-map
