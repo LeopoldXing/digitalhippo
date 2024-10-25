@@ -1,21 +1,21 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-user
+  name: ms-email
   namespace: digitalhippo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-user
+      app: ms-email
   template:
     metadata:
       labels:
-        app: ms-user
+        app: ms-email
     spec:
       containers:
-        - name: ms-user
-          image: leopoldhsing2/digitalhippo.user:latest
+        - name: ms-email
+          image: leopoldhsing2/digitalhippo.email:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: SPRING_PROFILES_ACTIVE
@@ -37,46 +37,41 @@ spec:
                 secretKeyRef:
                   name: digitalhippo-secrets
                   key: AWS_SECRET_ACCESS_KEY
-            - name: SNS_TOPIC_ARN
+            - name: FRONTEND_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-general-config-map
+                  key: FRONTEND_ENDPOINT
+            - name: GMAIL_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: GMAIL_USERNAME
+            - name: GOOGLE_APP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: GOOGLE_APP_PASSWORD
+            - name: RECEIPT_SQS_QUEUE_NAME
               valueFrom:
                 configMapKeyRef:
                   name: digitalhippo-aws-config-map
-                  key: SNS_TOPIC_ARN
-            - name: REDIS_HOST
+                  key: RECEIPT_SQS_QUEUE_NAME
+            - name: RECEIPT_SQS_QUEUE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_HOST
-            - name: REDIS_PORT
+                  name: digitalhippo-aws-config-map
+                  key: RECEIPT_SQS_QUEUE_URL
+            - name: VERIFICATION_SQS_QUEUE_NAME
               valueFrom:
                 configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_PORT
-            - name: REDIS_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
-                  key: REDIS_PASSWORD
-            - name: REDIS_SESSION_DATABASE
+                  name: digitalhippo-aws-config-map
+                  key: VERIFICATION_SQS_QUEUE_NAME
+            - name: VERIFICATION_SQS_QUEUE_URL
               valueFrom:
                 configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_SESSION_DATABASE
-            - name: POSTGRES_URL
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: POSTGRES_URL
-            - name: POSTGRES_USERNAME
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: POSTGRES_USER
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
-                  key: POSTGRES_PASSWORD
+                  name: digitalhippo-aws-config-map
+                  key: VERIFICATION_SQS_QUEUE_URL
           ports:
             - containerPort: 8080
           resources:
@@ -87,11 +82,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-user
+  name: ms-email
   namespace: digitalhippo
 spec:
   selector:
-    app: ms-user
+    app: ms-email
   type: ClusterIP
   ports:
     - port: 8080

@@ -1,47 +1,25 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: ms-user
+  name: ms-product
   namespace: digitalhippo
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: ms-user
+      app: ms-product
   template:
     metadata:
       labels:
-        app: ms-user
+        app: ms-product
     spec:
       containers:
-        - name: ms-user
-          image: leopoldhsing2/digitalhippo.user:latest
+        - name: ms-product
+          image: leopoldhsing2/digitalhippo.product:latest
           imagePullPolicy: IfNotPresent
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: "prod"
-            - name: AWS_REGION
-              value: "ca-central-1"
-            - name: AWS_ENDPOINT
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
-                  key: AWS_ENDPOINT
-            - name: ACCESS_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
-                  key: AWS_ACCESS_KEY_ID
-            - name: SECRET_KEY
-              valueFrom:
-                secretKeyRef:
-                  name: digitalhippo-secrets
-                  key: AWS_SECRET_ACCESS_KEY
-            - name: SNS_TOPIC_ARN
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
-                  key: SNS_TOPIC_ARN
             - name: REDIS_HOST
               valueFrom:
                 configMapKeyRef:
@@ -57,11 +35,11 @@ spec:
                 secretKeyRef:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
-            - name: REDIS_SESSION_DATABASE
+            - name: REDIS_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: digitalhippo-db-config-map
-                  key: REDIS_SESSION_DATABASE
+                  key: REDIS_CACHING_DATABASE
             - name: POSTGRES_URL
               valueFrom:
                 configMapKeyRef:
@@ -77,6 +55,11 @@ spec:
                 secretKeyRef:
                   name: digitalhippo-secrets
                   key: POSTGRES_PASSWORD
+            - name: ES_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-elk-config-map
+                  key: ES_ENDPOINT
           ports:
             - containerPort: 8080
           resources:
@@ -87,11 +70,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: ms-user
+  name: ms-product
   namespace: digitalhippo
 spec:
   selector:
-    app: ms-user
+    app: ms-product
   type: ClusterIP
   ports:
     - port: 8080
