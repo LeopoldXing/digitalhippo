@@ -35,7 +35,7 @@ spec:
                 secretKeyRef:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
-            - name: REDIS_DATABASE
+            - name: REDIS_CACHING_DATABASE
               valueFrom:
                 configMapKeyRef:
                   name: digitalhippo-db-config-map
