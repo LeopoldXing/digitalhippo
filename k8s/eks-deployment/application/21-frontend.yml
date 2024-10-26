@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: digitalhippo-frontend
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: digitalhippo-frontend
+  template:
+    metadata:
+      labels:
+        app: digitalhippo-frontend
+    spec:
+      containers:
+        - name: digitalhippo-frontend
+          image: leopoldhsing2/digitalhippo-frontend:local-k8s-deployment
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: AWS_REGION
+              value: "ca-central-1"
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: AWS_ACCESS_KEY_ID
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: AWS_SECRET_ACCESS_KEY
+            - name: AWS_S3_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-aws-config-map
+                  key: AWS_S3_ENDPOINT
+            - name: AWS_S3_BUCKET_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-aws-config-map
+                  key: AWS_S3_BUCKET_NAME
+            - name: MONGODB_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
+                  key: MONGODB_URL
+          ports:
+            - containerPort: 3000
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: digitalhippo-frontend
+  namespace: digitalhippo
+spec:
+  selector:
+    app: digitalhippo-frontend
+  type: ClusterIP
+  ports:
+    - port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: digitalhippo-frontend-ingress
+  namespace: digitalhippo
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: "localhost"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: digitalhippo-frontend
+                port:
+                  number: 3000

@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mongodb-dh
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongodb-dh
+  template:
+    metadata:
+      labels:
+        app: mongodb-dh
+    spec:
+      containers:
+        - name: mongodb-dh
+          image: mongodb/mongodb-community-server:7.0.5-ubi8
+          ports:
+            - containerPort: 27017
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                configMapKeyRef:
+                  name: digitalhippo-db-config-map
+                  key: MONGO_INITDB_ROOT_USERNAME
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: digitalhippo-secrets
+                  key: MONGODB_PASSWORD
+#          volumeMounts:
+#            - name: mongodb-data
+#              mountPath: /data/db
+#      volumes:
+#        - name: mongodb-data
+#          persistentVolumeClaim:
+#            claimName: mongodb-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongodb-dh
+  namespace: digitalhippo
+spec:
+  selector:
+    app: mongodb-dh
+  ports:
+    - port: 27017
+      targetPort: 27017

@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash-dh
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash-dh
+  template:
+    metadata:
+      labels:
+        app: logstash-dh
+    spec:
+      containers:
+        - name: logstash-dh
+          image: logstash:8.14.1
+          ports:
+            - containerPort: 5000
+          env:
+            - name: LS_JAVA_OPTS
+              value: "-Xmx512m -Xms512m"
+          volumeMounts:
+            - name: logstash-config
+              mountPath: /usr/share/logstash/config/logstash.yml
+              subPath: logstash.yml
+            - name: logstash-pipeline
+              mountPath: /usr/share/logstash/pipeline/logstash.conf
+              subPath: logstash.conf
+      volumes:
+        - name: logstash-config
+          configMap:
+            name: digitalhippo-elk-config-map
+        - name: logstash-pipeline
+          configMap:
+            name: digitalhippo-elk-config-map
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash-dh
+  namespace: digitalhippo
+spec:
+  selector:
+    app: logstash-dh
+  ports:
+    - name: api
+      protocol: TCP
+      port: 5000
+      targetPort: 5000
+  type: ClusterIP
+

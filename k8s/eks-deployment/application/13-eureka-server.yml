@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: eureka
+  namespace: digitalhippo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: eureka
+  template:
+    metadata:
+      labels:
+        app: eureka
+    spec:
+      containers:
+        - name: eureka
+          image: leopoldhsing2/digitalhippo.eureka:latest
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: "prod"
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: eureka
+  namespace: digitalhippo
+spec:
+  type: ClusterIP
+  selector:
+    app: eureka
+  ports:
+    - port: 8080
+      targetPort: 8080

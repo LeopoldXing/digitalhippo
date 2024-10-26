@@ -1,0 +1,63 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: digitalhippo-general-config-map
+  namespace: digitalhippo
+data:
+  FRONTEND_ENDPOINT: "http://localhost:3000"
+  prometheus.yml: |
+    global:
+      scrape_interval: 5s
+      evaluation_interval: 5s
+    scrape_configs:
+      - job_name: "ms-eureka"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["eureka:8080"]
+      - job_name: "ms-gateway"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-gateway:8080"]
+      - job_name: "ms-cart"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-cart:8080"]
+      - job_name: "ms-email"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-email:8080"]
+      - job_name: "ms-product"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-product:8080"]
+      - job_name: "ms-search"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-search:8080"]
+      - job_name: "ms-stripe"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-stripe:8080"]
+      - job_name: "ms-user"
+        metrics_path: "/actuator/prometheus"
+        static_configs:
+          - targets: ["ms-user:8080"]
+  datasource.yml: |
+    apiVersion: 1
+    
+    deleteDatasources:
+      - name: Prometheus
+    
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        uid: prometheus
+        url: http://prometheus-dh:9090
+        access: proxy
+        orgId: 1
+        basicAuth: false
+        isDefault: true
+        version: 1
+        editable: true
+        jsonData:
+          httpMethod: GET
