@@ -29,9 +29,10 @@ metadata:
   name: eureka
   namespace: digitalhippo
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: eureka
   ports:
     - port: 8080
       targetPort: 8080
+      nodePort: 31404

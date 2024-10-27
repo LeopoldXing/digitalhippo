@@ -1,21 +1,6 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: digitalhippo-db-config-map
-  namespace: digitalhippo
-data:
-  MONGODB_URL: "mongodb://lupin:1234@mongodb-dh:27017/"
-  MONGO_INITDB_ROOT_USERNAME: "lupin"
-  REDIS_HOST: "redis-dh"
-  REDIS_PORT: "6379"
-  REDIS_SESSION_DATABASE: "0"
-  REDIS_CACHING_DATABASE: "1"
-  POSTGRES_URL: "jdbc:postgresql://postgres-dh:5432/digitalhippo"
-  POSTGRES_USER: "postgres"
-  init.sql: |
-    -- user microservice -------------------------------------------------------------------
-    CREATE TABLE public.users
-    (
+-- user microservice -------------------------------------------------------------------
+CREATE TABLE public.users
+(
     id            bigserial             NOT NULL,
     payload_id    varchar NULL,
     username      varchar NULL,
@@ -31,12 +16,12 @@ data:
     updated_at    timestamp             NOT NULL,
     updated_by    varchar               NOT NULL,
     CONSTRAINT users_pk PRIMARY KEY (id)
-    );
-    
-    -- product microservice -------------------------------------------------------------------
-    -- product
-    CREATE TABLE public.products
-    (
+);
+
+-- product microservice -------------------------------------------------------------------
+-- product
+CREATE TABLE public.products
+(
     id                bigserial                   NOT NULL,
     user_id           bigserial                   NOT NULL,
     payload_id        varchar                     NOT NULL,
@@ -53,23 +38,23 @@ data:
     updated_at        timestamp                   NOT NULL,
     updated_by        varchar                     NOT NULL,
     CONSTRAINT products_pk PRIMARY KEY (id)
-    );
-    
-    -- Column comments
-    
-    COMMENT
-    ON COLUMN public.products.category IS 'ui_kits | icons';
-    COMMENT
-    ON COLUMN public.products.approved_for_sale IS 'pending | approved | denied';
-    
-    -- public.products foreign keys
-    ALTER TABLE public.products
+);
+
+-- Column comments
+
+COMMENT
+ON COLUMN public.products.category IS 'ui_kits | icons';
+COMMENT
+ON COLUMN public.products.approved_for_sale IS 'pending | approved | denied';
+
+-- public.products foreign keys
+ALTER TABLE public.products
     ADD CONSTRAINT products_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);
-    
-    
-    -- product microservice - product_images -------------------------------------------------------------------
-    CREATE TABLE public.product_images
-    (
+
+
+-- product microservice - product_images -------------------------------------------------------------------
+CREATE TABLE public.product_images
+(
     id         bigserial NOT NULL,
     product_id bigserial NOT NULL,
     payload_id varchar   NOT NULL,
@@ -85,43 +70,43 @@ data:
     updated_at timestamp NOT NULL,
     updated_by varchar   NOT NULL,
     CONSTRAINT product_images_pk PRIMARY KEY (id)
-    );
-    
-    -- Column comments
-    
-    COMMENT
-    ON COLUMN public.product_images.filesize IS 'calculated in KB';
-    COMMENT
-    ON COLUMN public.product_images.height IS 'pixels';
-    COMMENT
-    ON COLUMN public.product_images.width IS '-1 means no limit';
-    COMMENT
-    ON COLUMN public.product_images.mime_type IS 'image/*';
-    COMMENT
-    ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
-    
-    
-    -- public.product_images foreign keys
-    
-    ALTER TABLE public.product_images
+);
+
+-- Column comments
+
+COMMENT
+ON COLUMN public.product_images.filesize IS 'calculated in KB';
+COMMENT
+ON COLUMN public.product_images.height IS 'pixels';
+COMMENT
+ON COLUMN public.product_images.width IS '-1 means no limit';
+COMMENT
+ON COLUMN public.product_images.mime_type IS 'image/*';
+COMMENT
+ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
+
+
+-- public.product_images foreign keys
+
+ALTER TABLE public.product_images
     ADD CONSTRAINT product_images_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
-    
-    -- Column comments
-    
-    COMMENT
-    ON COLUMN public.product_images.filesize IS 'calculated in KB';
-    COMMENT
-    ON COLUMN public.product_images.height IS 'pixels';
-    COMMENT
-    ON COLUMN public.product_images.width IS '-1 means no limit';
-    COMMENT
-    ON COLUMN public.product_images.mime_type IS 'image/*';
-    COMMENT
-    ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
-    
-    -- order microservice -------------------------------------------------------------------
-    CREATE TABLE public.orders
-    (
+
+-- Column comments
+
+COMMENT
+ON COLUMN public.product_images.filesize IS 'calculated in KB';
+COMMENT
+ON COLUMN public.product_images.height IS 'pixels';
+COMMENT
+ON COLUMN public.product_images.width IS '-1 means no limit';
+COMMENT
+ON COLUMN public.product_images.mime_type IS 'image/*';
+COMMENT
+ON COLUMN public.product_images.file_type IS 'thumbnail, card, tablet';
+
+-- order microservice -------------------------------------------------------------------
+CREATE TABLE public.orders
+(
     id         bigserial NOT NULL,
     payload_id varchar NULL,
     user_id    bigserial NOT NULL,
@@ -131,16 +116,16 @@ data:
     updated_at timestamp NULL,
     updated_by varchar NULL,
     CONSTRAINT orders_pk PRIMARY KEY (id)
-    );
-    
-    -- public.orders foreign keys
-    
-    ALTER TABLE public.orders
+);
+
+-- public.orders foreign keys
+
+ALTER TABLE public.orders
     ADD CONSTRAINT orders_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);
-    
-    -- public.link_orders_products definition
-    CREATE TABLE public.link_orders_products
-    (
+
+-- public.link_orders_products definition
+CREATE TABLE public.link_orders_products
+(
     id         bigserial NOT NULL,
     product_id bigserial NOT NULL,
     order_id   bigserial NOT NULL,
@@ -149,19 +134,19 @@ data:
     updated_at timestamp NULL,
     updated_by varchar NULL,
     CONSTRAINT link_orders_products_pk PRIMARY KEY (id)
-    );
-    
-    -- public.link_orders_products foreign keys
-    
-    ALTER TABLE public.link_orders_products
+);
+
+-- public.link_orders_products foreign keys
+
+ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_orders_fk FOREIGN KEY (order_id) REFERENCES public.orders (id);
-    ALTER TABLE public.link_orders_products
+ALTER TABLE public.link_orders_products
     ADD CONSTRAINT link_orders_products_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
-    
-    
-    -- public.carts definition
-    CREATE TABLE public.carts
-    (
+
+
+-- public.carts definition
+CREATE TABLE public.carts
+(
     id         bigserial NOT NULL,
     product_id bigserial NOT NULL,
     user_id    bigserial NOT NULL,
@@ -170,11 +155,11 @@ data:
     updated_at timestamp NOT NULL,
     updated_by varchar   NOT NULL,
     CONSTRAINT carts_pk PRIMARY KEY (id)
-    );
-    
-    -- public.carts foreign keys
-    
-    ALTER TABLE public.carts
+);
+
+-- public.carts foreign keys
+
+ALTER TABLE public.carts
     ADD CONSTRAINT carts_products_fk FOREIGN KEY (product_id) REFERENCES public.products (id);
-    ALTER TABLE public.carts
+ALTER TABLE public.carts
     ADD CONSTRAINT carts_users_fk FOREIGN KEY (user_id) REFERENCES public.users (id);

@@ -22,13 +22,13 @@ spec:
               value: "prod"
             - name: REDIS_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_HOST
             - name: REDIS_PORT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
@@ -36,10 +36,7 @@ spec:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
             - name: REDIS_SESSION_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_SESSION_DATABASE
+              value: "0"
           ports:
             - containerPort: 8080
           resources:
@@ -55,7 +52,8 @@ metadata:
 spec:
   selector:
     app: ms-gateway
-  type: ClusterIP
+  type: NodePort
   ports:
     - port: 8080
       targetPort: 8080
+      nodePort: 31400

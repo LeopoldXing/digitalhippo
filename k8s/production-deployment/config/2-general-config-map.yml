@@ -4,7 +4,7 @@ metadata:
   name: digitalhippo-general-config-map
   namespace: digitalhippo
 data:
-  FRONTEND_ENDPOINT: "http://localhost:3000"
+  FRONTEND_ENDPOINT: "https://localhost:3000"
   prometheus.yml: |
     global:
       scrape_interval: 5s

@@ -1,1 +1,0 @@
-kubectl port-forward --namespace digitalhippo svc/digitalhippo-frontend 3000:3000

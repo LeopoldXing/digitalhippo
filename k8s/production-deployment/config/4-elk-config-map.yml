@@ -4,17 +4,12 @@ metadata:
   name: digitalhippo-elk-config-map
   namespace: digitalhippo
 data:
-  ES_ENDPOINT: "http://elasticsearch-dh:9200"
-  kibana.yml: |
-    server.host: "0.0.0.0"
-    server.port: 5601
-    elasticsearch.hosts: [ "http://elasticsearch-dh:9200" ]
-    monitoring.ui.container.elasticsearch.enabled: true
+  ES_ENDPOINT: "http://elasticsearch-external:9200"
   logstash.yml: |
     http.host: "0.0.0.0"
     path.config: /usr/share/logstash/pipeline
     xpack.monitoring.enabled: true
-    xpack.monitoring.elasticsearch.hosts: [ "elasticsearch-dh:9200" ]
+    xpack.monitoring.elasticsearch.hosts: [ "elasticsearch-external:9200" ]
   logstash.conf: |
     input {
         tcp{
@@ -24,7 +19,7 @@ data:
     }
       output{
       elasticsearch{
-      hosts => ["elasticsearch-dh:9200"]
+      hosts => ["elasticsearch-external:9200"]
       index => "digitalhippo-logs-%{microservice}"
       }
     }
