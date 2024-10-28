@@ -7,13 +7,13 @@ data:
   kibana.yml: |
     server.port: 5601
     server.host: "0.0.0.0"
-    elasticsearch.hosts: [ "************" ]
+    elasticsearch.hosts: [ "*******" ]
     monitoring.ui.container.elasticsearch.enabled: true
   logstash.yml: |
     http.host: "0.0.0.0"
     path.config: /usr/share/logstash/pipeline
     xpack.monitoring.enabled: true
-    xpack.monitoring.elasticsearch.hosts: [ "*************" ]
+    xpack.monitoring.elasticsearch.hosts: [ "********" ]
   logstash.conf: |
     input {
         tcp{
@@ -23,7 +23,7 @@ data:
     }
       output{
       elasticsearch{
-      hosts => ["************"]
+      hosts => ["********"]
       index => "digitalhippo-logs-%{microservice}"
       }
     }

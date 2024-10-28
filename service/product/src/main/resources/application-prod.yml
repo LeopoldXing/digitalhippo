@@ -9,6 +9,10 @@ spring:
 #    password: ${REDIS_PASSWORD}
 #    database: ${REDIS_CACHING_DATABASE}
   # mac device with ARM chip use this configuration
+  devtools:
+    remote:
+      restart:
+        enabled: false
   data:
     redis:
       host: ${REDIS_HOST}
