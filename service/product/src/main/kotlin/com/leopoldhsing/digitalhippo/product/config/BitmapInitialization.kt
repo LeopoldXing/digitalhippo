@@ -16,7 +16,7 @@ open class BitmapInitialization constructor(
     /**
      * initialize product id bitmap
      */
-    //@PostConstruct
+    @PostConstruct
     open fun bitmapInitializer() {
         try {
             // 1. get all product ids

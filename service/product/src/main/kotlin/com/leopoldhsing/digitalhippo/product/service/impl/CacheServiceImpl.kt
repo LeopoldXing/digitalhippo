@@ -34,7 +34,7 @@ class CacheServiceImpl constructor(
     override fun saveDataToCache(cacheKey: String, data: Any?, ttl: Long, timeUnit: TimeUnit) {
         val mapper = ObjectMapper()
         mapper.registerModule(JavaTimeModule())
-        stringRedisTemplate.opsForValue().set(cacheKey, mapper.writeValueAsString(data), ttl, timeUnit)
+        stringRedisTemplate.opsForValue().set(cacheKey, mapper.writeValueAsString(data), if (ttl <= 0L) 1L else ttl, timeUnit)
     }
 
     override fun hasData(bitmapKey: String, identifier: Long): Boolean {
