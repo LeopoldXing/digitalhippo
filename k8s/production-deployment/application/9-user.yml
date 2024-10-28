@@ -39,18 +39,18 @@ spec:
                   key: AWS_SECRET_ACCESS_KEY
             - name: SNS_TOPIC_ARN
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: SNS_TOPIC_ARN
             - name: REDIS_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_HOST
             - name: REDIS_PORT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
@@ -58,19 +58,16 @@ spec:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
             - name: REDIS_SESSION_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_SESSION_DATABASE
+              value: "0"
             - name: POSTGRES_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_URL
             - name: POSTGRES_USERNAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:

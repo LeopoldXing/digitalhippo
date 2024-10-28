@@ -22,8 +22,8 @@ spec:
               value: "prod"
             - name: ES_ENDPOINT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-elk-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: ES_ENDPOINT
           ports:
             - containerPort: 8080

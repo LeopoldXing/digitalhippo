@@ -39,33 +39,30 @@ spec:
                   key: AWS_SECRET_ACCESS_KEY
             - name: REDIS_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_HOST
             - name: REDIS_PORT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
-            - name: REDIS_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_SESSION_DATABASE
+            - name: REDIS_SESSION_DATABASE
+              value: "0"
             - name: POSTGRES_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_URL
             - name: POSTGRES_USERNAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -74,8 +71,8 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: ES_ENDPOINT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-elk-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: ES_ENDPOINT
             - name: STRIPE_WEBHOOK_SECRET
               valueFrom:

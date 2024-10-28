@@ -22,13 +22,13 @@ spec:
               value: "prod"
             - name: POSTGRES_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_URL
             - name: POSTGRES_USERNAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:

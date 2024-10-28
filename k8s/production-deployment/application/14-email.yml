@@ -54,23 +54,23 @@ spec:
                   key: GOOGLE_APP_PASSWORD
             - name: RECEIPT_SQS_QUEUE_NAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: RECEIPT_SQS_QUEUE_NAME
             - name: RECEIPT_SQS_QUEUE_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: RECEIPT_SQS_QUEUE_URL
             - name: VERIFICATION_SQS_QUEUE_NAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: VERIFICATION_SQS_QUEUE_NAME
             - name: VERIFICATION_SQS_QUEUE_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-aws-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: VERIFICATION_SQS_QUEUE_URL
           ports:
             - containerPort: 8080

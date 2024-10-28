@@ -22,13 +22,13 @@ spec:
               value: "prod"
             - name: REDIS_HOST
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_HOST
             - name: REDIS_PORT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: REDIS_PORT
             - name: REDIS_PASSWORD
               valueFrom:
@@ -36,19 +36,16 @@ spec:
                   name: digitalhippo-secrets
                   key: REDIS_PASSWORD
             - name: REDIS_CACHING_DATABASE
-              valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
-                  key: REDIS_CACHING_DATABASE
+              value: "1"
             - name: POSTGRES_URL
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_URL
             - name: POSTGRES_USERNAME
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-db-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: POSTGRES_USER
             - name: POSTGRES_PASSWORD
               valueFrom:
@@ -57,8 +54,8 @@ spec:
                   key: POSTGRES_PASSWORD
             - name: ES_ENDPOINT
               valueFrom:
-                configMapKeyRef:
-                  name: digitalhippo-elk-config-map
+                secretKeyRef:
+                  name: digitalhippo-secrets
                   key: ES_ENDPOINT
           ports:
             - containerPort: 8080
