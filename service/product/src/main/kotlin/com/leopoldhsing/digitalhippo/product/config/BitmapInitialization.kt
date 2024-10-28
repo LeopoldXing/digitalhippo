@@ -2,8 +2,7 @@ package com.leopoldhsing.digitalhippo.product.config
 
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
 import com.leopoldhsing.digitalhippo.product.repository.ProductRepository
-import org.springframework.boot.context.event.ApplicationReadyEvent
-import org.springframework.context.ApplicationListener
+import jakarta.annotation.PostConstruct
 import org.springframework.context.annotation.Configuration
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.util.CollectionUtils
@@ -12,18 +11,12 @@ import org.springframework.util.CollectionUtils
 open class BitmapInitialization constructor(
     private val redisTemplate: StringRedisTemplate,
     private val productRepository: ProductRepository
-) : ApplicationListener<ApplicationReadyEvent> {
-
-    /**
-     * making sure the springboot instance fully started
-     */
-    override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        bitmapInitializer()
-    }
+) {
 
     /**
      * initialize product id bitmap
      */
+    //@PostConstruct
     open fun bitmapInitializer() {
         try {
             // 1. get all product ids

@@ -3,6 +3,8 @@ spring:
     name: product
   profiles:
     active: dev
+  main:
+    web-application-type: servlet
 
 management:
   endpoints:
@@ -29,7 +31,7 @@ management:
 
 endpoints:
   shutdown:
-    enabled: true
+    enabled: false
 
 info:
   app:

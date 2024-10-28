@@ -1,5 +1,7 @@
 server:
   port: 8080
+  servlet:
+    context-path: /
 
 spring:
   # x86 device use this configuration
@@ -25,6 +27,9 @@ spring:
     password: ${POSTGRES_PASSWORD}
   jpa:
     show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
   elasticsearch:
     uris:
       - ${ES_ENDPOINT}
