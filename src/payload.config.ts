@@ -30,8 +30,8 @@ export default buildConfig({
             config: {
               endpoint: `https://${process.env.S3_ENDPOINT_HOST}`,
               credentials: {
-                accessKeyId: process.env.AWS_ACCESS_KEY!,
-                secretAccessKey: process.env.AWS_SECRET_KEY!
+                accessKeyId: process.env.ACCESS_KEY!,
+                secretAccessKey: process.env.SECRET_KEY!
               }
             },
             bucket: process.env.S3_BUCKET!
@@ -44,8 +44,8 @@ export default buildConfig({
             config: {
               endpoint: process.env.S3_ENDPOINT,
               credentials: {
-                accessKeyId: process.env.AWS_ACCESS_KEY!,
-                secretAccessKey: process.env.AWS_SECRET_KEY!
+                accessKeyId: process.env.ACCESS_KEY!,
+                secretAccessKey: process.env.SECRET_KEY!
               }
             },
             bucket: process.env.S3_BUCKET!
