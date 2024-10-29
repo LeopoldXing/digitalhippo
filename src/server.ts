@@ -9,6 +9,7 @@ import { inferAsyncReturnType } from "@trpc/server";
 
 const app = express()
 const PORT = Number(process.env.NEXT_PUBLIC_APPLICATION_PORT) || 3000
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.com';
 
 const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({ req, res })
 export type ExpressContext = inferAsyncReturnType<typeof createContext>
@@ -47,7 +48,7 @@ const start = async () => {
 
     app.listen(PORT, async () => {
       payload.logger.info(
-          `Next.js App URL: ${process.env.NEXT_PUBLIC_FRONTEND_URL}`
+          `Next.js App URL: ${FRONTEND_URL}`
       )
     })
   })

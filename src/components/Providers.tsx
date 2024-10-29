@@ -5,13 +5,15 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { httpBatchLink } from "@trpc/client";
 import { trpc } from "@/trpc/client";
 
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.com';
+
 const Providers = ({ children }: PropsWithChildren) => {
   const [queryClient] = useState(() => new QueryClient())
   const [trpcClient] = useState(() =>
       trpc.createClient({
         links: [
           httpBatchLink({
-            url: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/trpc`,
+            url: `${FRONTEND_URL}/api/trpc`,
             fetch(url, options) {
               return fetch(url, { ...options, credentials: 'include' })
             }
