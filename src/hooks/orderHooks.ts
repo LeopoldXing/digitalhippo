@@ -1,7 +1,7 @@
 import { useQuery } from "react-query";
 import { OrderApiType } from "@/types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://digitalhippo-backend.leopoldhsing.cc:31400';
 
 const usePollOrder = ({ orderId, accessToken }: { orderId: string, accessToken: string }) => {
 

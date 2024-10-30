@@ -2,7 +2,7 @@ import qs from 'qs';
 import { useQuery } from "react-query";
 import { ProductApiType, searchingCondition } from "@/types";
 
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://digitalhippo-backend.leopoldhsing.cc:31400';
 
 export type ProductSearchingResultType = {
   results: ProductApiType[];
