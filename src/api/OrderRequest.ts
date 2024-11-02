@@ -1,5 +1,5 @@
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://digitalhippo-backend.leopoldhsing.cc:31400';
-const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.com';
+const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc';
 
 const getOrderRequest = async ({ orderId, accessToken }: { orderId: string, accessToken: string }) => {
   const response = await fetch(`${BASE_URL}/api/stripe/order/${orderId}`, {
