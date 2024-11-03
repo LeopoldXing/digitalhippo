@@ -9,24 +9,37 @@ RUN \
   if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
   elif [ -f package-lock.json ]; then npm ci; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm i; \
-  # Allow install without lockfile, so example works even without Node.js installed locally
   else echo "Warning: Lockfile not found. It is recommended to commit lockfiles to version control." && yarn install; \
   fi
+
+# Copy environment variables file
+COPY .env.local ./
 
 COPY . .
 
 # Environment variables must be present at build time
-# https://github.com/vercel/next.js/discussions/14030
-#ARG ENV_VARIABLE
-#ENV ENV_VARIABLE=${ENV_VARIABLE}
-#ARG NEXT_PUBLIC_ENV_VARIABLE
-#ENV NEXT_PUBLIC_ENV_VARIABLE=${NEXT_PUBLIC_ENV_VARIABLE}
+ARG NEXT_PUBLIC_APPLICATION_PORT
+ARG NEXT_PUBLIC_FRONTEND_URL
+ARG NEXT_PUBLIC_BACKEND_URL
+ARG PAYLOAD_SECRET
+ARG MONGODB_URL
+ARG ACCESS_KEY
+ARG SECRET_KEY
+ARG S3_ENDPOINT
+ARG S3_BUCKET
 
-# Next.js collects completely anonymous telemetry data about general usage. Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line to disable telemetry at build time
+ENV NEXT_PUBLIC_APPLICATION_PORT=${NEXT_PUBLIC_APPLICATION_PORT}
+ENV NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
+ENV NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL}
+ENV PAYLOAD_SECRET=${PAYLOAD_SECRET}
+ENV MONGODB_URL=${MONGODB_URL}
+ENV ACCESS_KEY=${ACCESS_KEY}
+ENV SECRET_KEY=${SECRET_KEY}
+ENV S3_ENDPOINT=${S3_ENDPOINT}
+ENV S3_BUCKET=${S3_BUCKET}
+
+# Disable Next.js telemetry (optional)
 # ENV NEXT_TELEMETRY_DISABLED 1
-
-# Note: Don't expose ports here, Compose will handle that for us
 
 # Build Next.js based on the preferred package manager
 RUN \
