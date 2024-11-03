@@ -36,7 +36,7 @@ spring:
       sns:
         enabled: true
         region: ${AWS_REGION}
-        endpoint: ${AWS_ENDPOINT}
+        endpoint: ${SNS_ENDPOINT}
 
 aws:
   sns:
