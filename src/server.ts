@@ -9,7 +9,7 @@ import { inferAsyncReturnType } from "@trpc/server";
 
 const app = express()
 const PORT = Number(process.env.NEXT_PUBLIC_APPLICATION_PORT) || 443
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc';
+const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc:41400';
 
 const createContext = ({ req, res }: trpcExpress.CreateExpressContextOptions) => ({ req, res })
 export type ExpressContext = inferAsyncReturnType<typeof createContext>

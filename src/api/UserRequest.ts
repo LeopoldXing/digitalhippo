@@ -2,7 +2,7 @@ import { toast } from "sonner";
 import { ErrorResponseType, User } from "@/types";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://digitalhippo-backend.leopoldhsing.cc:31400';
-const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc';
+const FRONTEND_ENDPOINT = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc:41400';
 
 /**
  * query user info by access token

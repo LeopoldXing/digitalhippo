@@ -17,7 +17,7 @@ dotenv.config({
 })
 
 export default buildConfig({
-  serverURL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc',
+  serverURL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc:41400',
   collections: [Users, Products, Media, ProductFiles, Orders],
   plugins: [
     // Pass the plugin to Payload
