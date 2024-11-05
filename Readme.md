@@ -1,5 +1,3 @@
-![thumbnail](https://hilda-notes-service.s3.ca-central-1.amazonaws.com/2024/10/6ddcc89c1e4839d0562736fc82306392bcfa63522c118c17748366e9a0944b61.jpg)
-
 # DigitalHippo
 
 
@@ -12,7 +10,7 @@ Welcome to the DigitalHippo project! It aims to provide a modern online marketpl
 
 
 
-This is the repository for DigitalHippo backend application, the frontend repo is available [here](https://github.com/LeopoldXing/digitalhippo). This README will guide you through the key features, technologies used. Check [this blog](https://blogs.leopoldhsing.com/digitalhippo-technical-details/) for more information.
+This is the repository for DigitalHippo backend application, the frontend repo is available [here](https://github.com/LeopoldXing/digitalhippo). This README will guide you through the key features, technologies used. Check [here](https://blogs.leopoldhsing.com/digitalhippo-technical-details/) for more information.
 
 
 
