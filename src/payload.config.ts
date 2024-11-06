@@ -28,7 +28,7 @@ export default buildConfig({
           // Create the S3 adapter
           adapter: s3Adapter({
             config: {
-              endpoint: process.env.S3_ENDPOINT,
+              endpoint: `https://${process.env.S3_ENDPOINT_HOST}`,
               region: process.env.REGION,
               credentials: {
                 accessKeyId: process.env.ACCESS_KEY!,
@@ -43,7 +43,7 @@ export default buildConfig({
           // Create the S3 adapter
           adapter: s3Adapter({
             config: {
-              endpoint: process.env.S3_ENDPOINT,
+              endpoint: `https://${process.env.S3_ENDPOINT_HOST}`,
               region: process.env.REGION,
               credentials: {
                 accessKeyId: process.env.ACCESS_KEY!,
