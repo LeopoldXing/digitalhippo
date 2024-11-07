@@ -4,6 +4,7 @@ import com.leopoldhsing.digitalhippo.email.config.EmailProperties
 import com.leopoldhsing.digitalhippo.email.service.EmailService
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import jakarta.mail.internet.MimeMessage
+import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.stereotype.Service
@@ -13,6 +14,10 @@ class EmailServiceImpl @Autowired constructor(
     private val javaMailSender: JavaMailSender,
     private val emailProperties: EmailProperties
 ) : EmailService {
+
+    companion object {
+        private val log = getLogger(EmailServiceImpl::class.java)
+    }
 
     override fun sendVerificationEmail(email: String, verificationToken: String): Boolean {
         // 1. construct email message
@@ -27,6 +32,8 @@ class EmailServiceImpl @Autowired constructor(
 
         // 2. send email
         javaMailSender.send(message)
+
+        log.info("verification email sent: {}", message)
         return true;
     }
 
@@ -47,5 +54,7 @@ class EmailServiceImpl @Autowired constructor(
 
         // 2. send email
         javaMailSender.send(message)
+
+        log.info("receipt email sent: {}", message)
     }
 }

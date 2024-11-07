@@ -7,6 +7,7 @@ import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto
 import com.leopoldhsing.digitalhippo.model.dto.SnsNotificationDto
 import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType
 import io.awspring.cloud.sqs.annotation.SqsListener
+import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Component
 
@@ -16,9 +17,13 @@ class ReceiptEmailListener @Autowired constructor(
     private val emailService: EmailService
 ) {
 
+    companion object {
+        private val log = getLogger(ReceiptEmailListener::class.java)
+    }
+
     @SqsListener("#{awsSqsProperties.receiptQueueUrl}")
     fun listenToQueueOne(message: String) {
-        println("Received message from receipt email queue: $message")
+        log.info("Received message from receipt email queue: {}", message)
         // 1. construct notification object
         val mapper = ObjectMapper()
         val snsNotificationDto: SnsNotificationDto = mapper.readValue(message, SnsNotificationDto::class.java)
@@ -29,6 +34,7 @@ class ReceiptEmailListener @Autowired constructor(
         if (snsMessageDto.type === NotificationType.RECEIPT) {
             // 3. send email
             emailService.sendReceiptEmail(snsMessageDto.email, snsMessageDto.orderPayloadId, snsMessageDto.products)
+            log.info("prepare to send receipt email: {}", snsMessageDto)
         }
     }
 }
