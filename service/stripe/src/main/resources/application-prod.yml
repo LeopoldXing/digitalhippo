@@ -13,6 +13,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_KEY}
+      sns:
+        enabled: true
+        region: ${AWS_REGION}
+        endpoint: ${SNS_ENDPOINT}
 
 stripe:
   secret-key: ${STRIPE_SECRET_KEY}

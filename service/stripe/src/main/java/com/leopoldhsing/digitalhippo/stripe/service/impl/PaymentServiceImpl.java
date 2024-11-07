@@ -2,13 +2,13 @@ package com.leopoldhsing.digitalhippo.stripe.service.impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.leopoldhsing.digitalhippo.common.constants.StripeConstants;
 import com.leopoldhsing.digitalhippo.common.exception.StripeSignatureInvalidException;
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil;
 import com.leopoldhsing.digitalhippo.feign.product.ProductFeignClient;
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
-import com.leopoldhsing.digitalhippo.model.entity.User;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeProperties;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeSnsTopicProperties;
 import com.leopoldhsing.digitalhippo.stripe.service.OrderService;
@@ -21,6 +21,7 @@ import com.stripe.model.*;
 import com.stripe.net.Webhook;
 import io.awspring.cloud.sns.core.SnsTemplate;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
@@ -38,7 +40,6 @@ public class PaymentServiceImpl implements PaymentService {
     private final OrderService orderService;
     private final SnsTemplate snsTemplate;
     private final StripeSnsTopicProperties stripeSnsTopicProperties;
-    private final UserFeignClient userFeignClient;
 
     public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsTemplate snsTemplate, StripeSnsTopicProperties stripeSnsTopicProperties, UserFeignClient userFeignClient) {
         this.stripeProperties = stripeProperties;
@@ -47,7 +48,6 @@ public class PaymentServiceImpl implements PaymentService {
         this.orderService = orderService;
         this.snsTemplate = snsTemplate;
         this.stripeSnsTopicProperties = stripeSnsTopicProperties;
-        this.userFeignClient = userFeignClient;
     }
 
     @PostConstruct
@@ -101,7 +101,11 @@ public class PaymentServiceImpl implements PaymentService {
                                 ).build()
                 )
                 // metadata
-                .putAllMetadata(metadata)
+                .setPaymentIntentData(
+                        SessionCreateParams.PaymentIntentData.builder()
+                                .putAllMetadata(metadata)
+                                .build()
+                )
                 // success url
                 .setSuccessUrl(stripeProperties.getFrontendEndpoint() + "/thank-you?orderId=" + order.getId())
                 // cancel url
@@ -114,6 +118,7 @@ public class PaymentServiceImpl implements PaymentService {
         Session session;
         try {
             session = Session.create(params);
+            log.info("checkout session created, session: {}, orderId: {}", session, metadata.get(StripeConstants.ORDER_ID));
         } catch (StripeException e) {
             throw new RuntimeException(e);
         }
@@ -130,8 +135,11 @@ public class PaymentServiceImpl implements PaymentService {
             event = Webhook.constructEvent(payload, sigHeader, stripeProperties.getWebhookSecret());
         } catch (SignatureVerificationException e) {
             // signature verified failed, return 400
+            log.error("signature verification failed", e);
             throw new StripeSignatureInvalidException();
         }
+
+        log.info("signature verified, event: {}", event);
 
         // 2. handle payment result & return response code
         return switch (event.getType()) {
@@ -142,6 +150,7 @@ public class PaymentServiceImpl implements PaymentService {
             }
             case "payment_intent.payment_failed" -> {
                 // payment failed
+                log.error("payment failed, paymentInfo: {}", event);
                 handlePaymentFailure(event);
                 yield StripeConstants.PAYMENT_FAILED;
             }
@@ -157,18 +166,20 @@ public class PaymentServiceImpl implements PaymentService {
         if (paymentIntent != null) {
             String orderId = paymentIntent.getMetadata().get(StripeConstants.ORDER_ID);
 
+            log.info("payment successful, paymentInfo: {}, orderId: {}", event, orderId);
+
             // 1. update order status in postgres database
             Order order = orderService.updateOrderStatus(Long.valueOf(orderId), true);
 
             // 2. construct email params
-            User currentUser = userFeignClient.getCurrentUser();
             Map<String, String> receiptEmailParams = new HashMap<>();
             receiptEmailParams.put("type", "receipt");
-            receiptEmailParams.put("email", currentUser.getEmail());
+            receiptEmailParams.put("email", order.getUser().getEmail());
             receiptEmailParams.put("orderPayloadId", order.getPayloadId());
             ObjectMapper objectMapper = new ObjectMapper();
             String productsJson;
             try {
+                objectMapper.registerModule(new JavaTimeModule());
                 productsJson = objectMapper.writeValueAsString(order.getProducts());
             } catch (JsonProcessingException e) {
                 throw new RuntimeException("Failed to serialize order products to JSON", e);
@@ -177,6 +188,7 @@ public class PaymentServiceImpl implements PaymentService {
 
             // 3. send receipt email
             snsTemplate.sendNotification(stripeSnsTopicProperties.getArn(), receiptEmailParams, "receipt email");
+            log.info("receipt email sent, email params: {}", receiptEmailParams);
         }
     }
 
