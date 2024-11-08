@@ -21,21 +21,21 @@ import com.leopoldhsing.digitalhippo.user.config.userSnsTopicProperties
 import com.leopoldhsing.digitalhippo.user.controller.AuthController
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
-import io.awspring.cloud.sns.core.SnsTemplate
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.util.CollectionUtils
+import software.amazon.awssdk.services.sns.SnsClient
 import java.util.concurrent.TimeUnit
 
 @Service
 class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
-    private val snsTemplate: SnsTemplate,
     private val redisTemplate: StringRedisTemplate,
     private val userSnsTopicProperties: userSnsTopicProperties,
-    private val cartFeignClient: CartFeignClient
+    private val cartFeignClient: CartFeignClient,
+    private val snsClient: SnsClient
 ) : UserService {
 
     companion object {
@@ -124,8 +124,10 @@ class UserServiceImpl @Autowired constructor(
     override fun createUser(payloadId: String, originalEmail: String, password: String, role: UserRole, cartItemIdList: List<Long>): User {
         // 1. Determine if the email already exists
         val email = InputSanitizeString.sanitizeString(originalEmail)
+        log.info("prepare to create user {}", email)
         val userOptional = userRepository.findUserByEmail(email)
         if (userOptional?.isPresent!!) {
+            log.error("user {} already exists, sign up failed", email)
             throw UserAlreadyExistsException(email)
         }
 
@@ -138,15 +140,18 @@ class UserServiceImpl @Autowired constructor(
 
         // 4. Save to database
         val savedUser = userRepository.save(newUser)
+        log.info("user {} saved to database", savedUser.email)
 
         // 5. persist the items in user's cart
         if (!CollectionUtils.isEmpty(cartItemIdList)) {
             cartFeignClient.addItem(AddToCartDto(savedUser, cartItemIdList))
+            log.info("save cart items for new user cart items: {}, user: {}", AddToCartDto(savedUser, cartItemIdList), savedUser.email)
         }
 
         // 6. send verification email
         // generate verification token
         val verificationToken = VerificationTokenUtil.generateVerificationToken()
+        log.info("prepare to send verification email to new user {}, verification token: {}", savedUser.email, verificationToken)
         // put verification token into AWS ElastiCache
         redisTemplate.opsForValue()
             .set(
@@ -155,12 +160,29 @@ class UserServiceImpl @Autowired constructor(
                 3,
                 TimeUnit.DAYS
             )
+        log.info("verification token {} saved to redis, user: {}", verificationToken, savedUser.email)
         // construct sns notification
         val emailVerificationParams: Map<String, String> =
             mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
 
         // send message to AWS SNS
-        snsTemplate.sendNotification(userSnsTopicProperties.arn, emailVerificationParams, "verification email")
+        val publishRequest = software.amazon.awssdk.services.sns.model.PublishRequest.builder()
+            .messageAttributes(
+                mapOf(
+                    "type" to software.amazon.awssdk.services.sns.model.MessageAttributeValue.builder()
+                        .dataType("String")
+                        .stringValue("verification")
+                        .build()
+                )
+            )
+            .message(emailVerificationParams.toString())
+            .topicArn(userSnsTopicProperties.arn)
+            .subject("Verification email")
+            .build()
+
+        snsClient.publish(publishRequest)
+
+        log.info("verification email for user {} sent, params: {}", savedUser.email, publishRequest)
 
         // 7. Return result
         return savedUser
