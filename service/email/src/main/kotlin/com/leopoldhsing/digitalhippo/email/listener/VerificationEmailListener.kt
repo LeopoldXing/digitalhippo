@@ -1,6 +1,7 @@
 package com.leopoldhsing.digitalhippo.email.listener
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.leopoldhsing.digitalhippo.email.config.AwsSqsProperties
 import com.leopoldhsing.digitalhippo.email.service.EmailService
 import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto
@@ -23,18 +24,18 @@ class VerificationEmailListener @Autowired constructor(
 
     @SqsListener("#{awsSqsProperties.verificationQueueUrl}")
     fun listenToQueueOne(message: String) {
-        log.info("Received message from verification queue: {}", message)
         // 1. construct notification object
         val mapper = ObjectMapper()
+        mapper.registerModule(JavaTimeModule())
         val snsNotificationDto: SnsNotificationDto = mapper.readValue(message, SnsNotificationDto::class.java)
         val snsMessageString: String = snsNotificationDto.message
         val snsMessageDto: SnsMessageDto = mapper.readValue(snsMessageString, SnsMessageDto::class.java)
 
         // 2. determine if this message is for verification email
         if (snsMessageDto.type === NotificationType.VERIFICATION) {
+            log.info("Received message from verification queue: {}", message)
             // 3. send email
             emailService.sendVerificationEmail(snsMessageDto.email, snsMessageDto.verificationToken)
-            log.info("prepare to send verification email: {}", snsMessageDto)
         }
     }
 }

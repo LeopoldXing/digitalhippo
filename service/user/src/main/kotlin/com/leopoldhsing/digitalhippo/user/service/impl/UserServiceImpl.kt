@@ -1,5 +1,7 @@
 package com.leopoldhsing.digitalhippo.user.service.impl
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
@@ -164,6 +166,9 @@ class UserServiceImpl @Autowired constructor(
         // construct sns notification
         val emailVerificationParams: Map<String, String> =
             mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
+        val objectMapper = ObjectMapper()
+        objectMapper.registerModule(JavaTimeModule())
+        val jsonMessage = objectMapper.writeValueAsString(emailVerificationParams)
 
         // send message to AWS SNS
         val publishRequest = software.amazon.awssdk.services.sns.model.PublishRequest.builder()
@@ -175,7 +180,7 @@ class UserServiceImpl @Autowired constructor(
                         .build()
                 )
             )
-            .message(emailVerificationParams.toString())
+            .message(jsonMessage)
             .topicArn(userSnsTopicProperties.arn)
             .subject("Verification email")
             .build()

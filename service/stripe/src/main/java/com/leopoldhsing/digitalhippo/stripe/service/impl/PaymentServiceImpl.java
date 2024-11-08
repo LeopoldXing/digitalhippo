@@ -1,6 +1,5 @@
 package com.leopoldhsing.digitalhippo.stripe.service.impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.leopoldhsing.digitalhippo.common.constants.StripeConstants;
@@ -8,7 +7,9 @@ import com.leopoldhsing.digitalhippo.common.exception.StripeSignatureInvalidExce
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil;
 import com.leopoldhsing.digitalhippo.feign.product.ProductFeignClient;
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient;
+import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
+import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeProperties;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeSnsTopicProperties;
 import com.leopoldhsing.digitalhippo.stripe.service.OrderService;
@@ -179,22 +180,15 @@ public class PaymentServiceImpl implements PaymentService {
             Order order = orderService.updateOrderStatus(Long.valueOf(orderId), true);
 
             // 2. construct email params
-            Map<String, String> receiptEmailParams = new HashMap<>();
-            receiptEmailParams.put("type", "receipt");
-            receiptEmailParams.put("email", order.getUser().getEmail());
-            receiptEmailParams.put("orderPayloadId", order.getPayloadId());
-            String productsJson;
-            try {
-                productsJson = objectMapper.writeValueAsString(order.getProducts());
-            } catch (JsonProcessingException e) {
-                log.error("Failed to serialize order products to JSON when constructing receipt email for order {}", orderId, e);
-                throw new RuntimeException("Failed to serialize order products to JSON", e);
-            }
-            receiptEmailParams.put("products", productsJson);
+            SnsMessageDto snsMessageDto = new SnsMessageDto();
+            snsMessageDto.setType(NotificationType.RECEIPT);
+            snsMessageDto.setEmail(order.getUser().getEmail());
+            snsMessageDto.setOrderPayloadId(order.getPayloadId());
+            snsMessageDto.setProducts(order.getProducts());
 
             // 3. send receipt email
-            sendSnsNotification(receiptEmailParams, "receipt email");
-            log.info("receipt email sent, email params: {}", receiptEmailParams);
+            sendSnsNotification(snsMessageDto, "Receipt Email");
+            log.info("Receipt email sent, email params: {}", snsMessageDto);
         }
     }
 
@@ -208,12 +202,12 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     // send notification
-    private void sendSnsNotification(Map<String, String> messageParams, String subject) {
+    private void sendSnsNotification(SnsMessageDto snsMessageDto, String subject) {
         try {
-            // convert message to json
-            String message = objectMapper.writeValueAsString(messageParams);
+            // Convert snsMessageDto to JSON string
+            String message = objectMapper.writeValueAsString(snsMessageDto);
 
-            // construct PublishRequest
+            // Construct PublishRequest
             PublishRequest publishRequest = PublishRequest.builder()
                     .topicArn(stripeSnsTopicProperties.getArn())
                     .message(message)
@@ -221,17 +215,17 @@ public class PaymentServiceImpl implements PaymentService {
                     .messageAttributes(Map.of(
                             "type", MessageAttributeValue.builder()
                                     .dataType("String")
-                                    .stringValue("receipt")
+                                    .stringValue(String.valueOf(NotificationType.RECEIPT))
                                     .build()
                     ))
                     .build();
 
-            // send message
+            // Send message
             PublishResponse response = snsClient.publish(publishRequest);
-            log.info("Message ID: {}", response.messageId());
+            log.info("Receipt email SQS Message ID: {}", response.messageId());
 
         } catch (Exception e) {
-            log.error("Failed to send sns notification", e);
+            log.error("Failed to send SNS notification", e);
             throw new RuntimeException("Failed to send SNS notification", e);
         }
     }
