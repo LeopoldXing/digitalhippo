@@ -10,6 +10,8 @@ import org.springframework.core.io.ResourceLoader
 import org.springframework.mail.javamail.JavaMailSender
 import org.springframework.mail.javamail.MimeMessageHelper
 import org.springframework.stereotype.Service
+import java.text.NumberFormat
+import java.util.Locale
 
 @Service
 class EmailServiceImpl @Autowired constructor(
@@ -67,19 +69,103 @@ class EmailServiceImpl @Autowired constructor(
         orderPayloadId: String,
         products: List<Product>
     ) {
-        // 1. construct email message
-        val message = javaMailSender.createMimeMessage()
-        // recipient
-        message.setRecipients(MimeMessage.RecipientType.TO, email)
-        // subject
-        message.subject = "DigitalHippo Receipt for order $orderPayloadId"
-        // content
-        val htmlContent = "111111111"
-        message.setContent(htmlContent, "text/html; charset=utf-8")
+        /*
+        try {
+            // 1. Create the email message
+            val message = javaMailSender.createMimeMessage()
+            val helper = MimeMessageHelper(message, true, "UTF-8")
 
-        // 2. send email
-        javaMailSender.send(message)
+            // Set recipient, sender, and subject
+            helper.setTo(email)
+            helper.setFrom("no-reply@digitalhippo.com")
+            helper.setSubject("DigitalHippo Receipt for order $orderPayloadId")
 
-        log.info("receipt email sent: {}", message)
+            // 2. Load email template
+            val templateResource = resourceLoader.getResource("classpath:receipt_email_template.html")
+            var htmlContent = templateResource.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+
+            // 3. Replace global placeholders
+            val dateFormat = DateTimeFormatter.ofPattern("dd MMM yyyy")
+            val invoiceDate = LocalDate.now().format(dateFormat)
+            val total = products.sumOf { it.price } + 1 // Assume transaction fee is 1
+
+            htmlContent = htmlContent
+                .replace("{{EMAIL}}", email)
+                .replace("{{INVOICE_DATE}}", invoiceDate)
+                .replace("{{ORDER_ID}}", orderPayloadId)
+                .replace("{{TRANSACTION_FEE}}", formatPrice(1.0))
+                .replace("{{TOTAL_PRICE}}", formatPrice(total))
+
+            // 4. Generate HTML for the product list
+            val productsHtml = StringBuilder()
+            var productIndex = 1
+            val inlineImages = mutableMapOf<String, Resource>()
+
+            for (product in products) {
+                val productTemplate = """
+            <tr>
+                <td>
+                    <table width="100%">
+                        <tr>
+                            <!-- Product image -->
+                            <td width="64" style="padding:10px;">
+                                <img src="cid:productImage${productIndex}" width="64" height="64" alt="Product Image" style="border-radius:14px; border:1px solid rgba(128,128,128,0.2);">
+                            </td>
+                            <!-- Product information -->
+                            <td style="padding-left:22px;">
+                                <p style="font-size:12px; font-weight:600; margin:0;">${product.name}</p>
+                                <p style="font-size:12px; color:#666666; margin:0;">${product.description ?: ""}</p>
+                                <a href="${emailProperties.frontendEndpoint}/thank-you?orderId=$orderPayloadId" style="font-size:12px; color:#0070c9; text-decoration:none;">Download Asset</a>
+                            </td>
+                            <!-- Product price -->
+                            <td align="right" style="padding-right:20px;">
+                                <p style="font-size:12px; font-weight:600; margin:0;">${formatPrice(product.price)}</p>
+                            </td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            """.trimIndent()
+
+                productsHtml.append(productTemplate)
+
+                // Load product image resource
+                val imageUrl = product.images?.firstOrNull()?.image?.url
+                if (imageUrl != null) {
+                    val imageResource = resourceLoader.getResource(imageUrl)
+                    inlineImages["productImage$productIndex"] = imageResource
+                }
+
+                productIndex++
+            }
+
+            // 5. Replace product list placeholder
+            htmlContent = htmlContent.replace("{{PRODUCTS_SECTION}}", productsHtml.toString())
+
+            // 6. Embed logo image
+            val logoImageResource = resourceLoader.getResource("classpath:hippo-email-sent.png")
+            helper.addInline("logoImage", logoImageResource, "image/png")
+
+            // 7. Embed product images
+            inlineImages.forEach { (cid, resource) ->
+                helper.addInline(cid, resource)
+            }
+
+            // 8. Set email content
+            helper.setText(htmlContent, true)
+
+            // 9. Send the email
+            javaMailSender.send(message)
+            log.info("Receipt email sent to: {}", email)
+        } catch (e: Exception) {
+            log.error("Failed to send receipt email to: {}", email, e)
+        }*/
     }
+
+    // Helper function: Format price
+    private fun formatPrice(price: Double): String {
+        val formatter = NumberFormat.getCurrencyInstance(Locale.CANADA)
+        return formatter.format(price)
+    }
+
 }
