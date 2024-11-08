@@ -9,6 +9,9 @@ spring:
       credentials:
         access-key: ${ACCESS_KEY}
         secret-key: ${SECRET_KEY}
+      sqs:
+        enabled: true
+        endpoint: ${SQS_ENDPOINT}
   mail:
     host: smtp.gmail.com
     port: 587

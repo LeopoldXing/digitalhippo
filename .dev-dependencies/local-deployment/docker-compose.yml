@@ -27,7 +27,7 @@ services:
       aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name digitalhippo-receipt-email-queue &&
       aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name digitalhippo-verification-email-queue &&
       aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic --protocol sqs --notification-endpoint arn:aws:sqs:ca-central-1:000000000000:digitalhippo-receipt-email-queue &&
-      aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic --protocol sqs --notification-endpoint arn:aws:sqs:ca-central-1:000000000000:digitalhippo-verification-email-queue &&
+      aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic --protocol sqs --notification-endpoint arn:aws:sqs:ca-central-1:000000000000:digitalhippo-verification-email-queue
       "
     networks:
       - digitalhippo-prod-network
@@ -262,6 +262,7 @@ services:
       AWS_REGION: ${AWS_REGION}
       ACCESS_KEY: ${AWS_ACCESS_KEY_ID}
       SECRET_KEY: ${AWS_SECRET_ACCESS_KEY}
+      SQS_ENDPOINT: ${SQS_ENDPOINT}
       FRONTEND_ENDPOINT: ${FRONTEND_ENDPOINT}
       GMAIL_USERNAME: ${GMAIL_USERNAME}
       GOOGLE_APP_PASSWORD: ${GOOGLE_APP_PASSWORD}

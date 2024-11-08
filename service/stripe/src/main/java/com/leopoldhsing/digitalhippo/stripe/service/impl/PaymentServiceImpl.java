@@ -25,6 +25,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
+import software.amazon.awssdk.services.sns.SnsClient;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -38,16 +42,19 @@ public class PaymentServiceImpl implements PaymentService {
     private final ProductFeignClient productFeignClient;
     private final ProductStripeService productStripeService;
     private final OrderService orderService;
-    private final SnsTemplate snsTemplate;
+    private final ObjectMapper objectMapper;
     private final StripeSnsTopicProperties stripeSnsTopicProperties;
+    private final SnsClient snsClient;
 
-    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsTemplate snsTemplate, StripeSnsTopicProperties stripeSnsTopicProperties, UserFeignClient userFeignClient) {
+    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsTemplate snsTemplate, StripeSnsTopicProperties stripeSnsTopicProperties, UserFeignClient userFeignClient, SnsClient snsClient) {
         this.stripeProperties = stripeProperties;
         this.productFeignClient = productFeignClient;
         this.productStripeService = productStripeService;
         this.orderService = orderService;
-        this.snsTemplate = snsTemplate;
         this.stripeSnsTopicProperties = stripeSnsTopicProperties;
+        this.snsClient = snsClient;
+        this.objectMapper = new ObjectMapper();
+        this.objectMapper.registerModule(new JavaTimeModule());
     }
 
     @PostConstruct
@@ -160,7 +167,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     // handle case payment successful
-    private void handlePaymentSuccess(Event event) {
+    public void handlePaymentSuccess(Event event) {
         var paymentIntent = (com.stripe.model.PaymentIntent) event.getDataObjectDeserializer().getObject().orElse(null);
 
         if (paymentIntent != null) {
@@ -176,18 +183,17 @@ public class PaymentServiceImpl implements PaymentService {
             receiptEmailParams.put("type", "receipt");
             receiptEmailParams.put("email", order.getUser().getEmail());
             receiptEmailParams.put("orderPayloadId", order.getPayloadId());
-            ObjectMapper objectMapper = new ObjectMapper();
             String productsJson;
             try {
-                objectMapper.registerModule(new JavaTimeModule());
                 productsJson = objectMapper.writeValueAsString(order.getProducts());
             } catch (JsonProcessingException e) {
+                log.error("Failed to serialize order products to JSON when constructing receipt email for order {}", orderId, e);
                 throw new RuntimeException("Failed to serialize order products to JSON", e);
             }
             receiptEmailParams.put("products", productsJson);
 
             // 3. send receipt email
-            snsTemplate.sendNotification(stripeSnsTopicProperties.getArn(), receiptEmailParams, "receipt email");
+            sendSnsNotification(receiptEmailParams, "receipt email");
             log.info("receipt email sent, email params: {}", receiptEmailParams);
         }
     }
@@ -198,6 +204,35 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (paymentIntent != null) {
             String orderId = paymentIntent.getMetadata().get(StripeConstants.ORDER_ID);
+        }
+    }
+
+    // send notification
+    private void sendSnsNotification(Map<String, String> messageParams, String subject) {
+        try {
+            // convert message to json
+            String message = objectMapper.writeValueAsString(messageParams);
+
+            // construct PublishRequest
+            PublishRequest publishRequest = PublishRequest.builder()
+                    .topicArn(stripeSnsTopicProperties.getArn())
+                    .message(message)
+                    .subject(subject)
+                    .messageAttributes(Map.of(
+                            "type", MessageAttributeValue.builder()
+                                    .dataType("String")
+                                    .stringValue("receipt")
+                                    .build()
+                    ))
+                    .build();
+
+            // send message
+            PublishResponse response = snsClient.publish(publishRequest);
+            log.info("Message ID: {}", response.messageId());
+
+        } catch (Exception e) {
+            log.error("Failed to send sns notification", e);
+            throw new RuntimeException("Failed to send SNS notification", e);
         }
     }
 }

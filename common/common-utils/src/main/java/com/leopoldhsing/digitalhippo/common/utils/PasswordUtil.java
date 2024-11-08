@@ -1,7 +1,5 @@
 package com.leopoldhsing.digitalhippo.common.utils;
 
-import org.springframework.util.StringUtils;
-
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -13,7 +11,7 @@ public class PasswordUtil {
         SecureRandom random = new SecureRandom();
         byte[] salt = new byte[16]; // 128-bit salt
         random.nextBytes(salt);
-        return new String(salt, StandardCharsets.UTF_8);
+        return Base64.getEncoder().encodeToString(salt);
     }
 
     public static String hashPassword(String password, String salt) {
