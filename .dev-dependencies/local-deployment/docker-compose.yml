@@ -1,4 +1,37 @@
 services:
+  localstack:
+    image: localstack/localstack:3.8
+    container_name: localstack
+#    ports:
+#      - "4566:4566"
+    environment:
+      - SERVICES=sns,sqs
+      - DEBUG=1
+      - LOCALSTACK_HOST=${LOCALSTACK_HOST}
+    networks:
+      - digitalhippo-prod-network
+
+  aws-init:
+    image: amazon/aws-cli
+    depends_on:
+      localstack:
+        condition: service_healthy
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_REGION}
+    entrypoint: /bin/sh -c
+    command: >
+      "
+      aws --endpoint-url=http://localstack:4566 sns create-topic --name digitalhippo-email-topic &&
+      aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name digitalhippo-receipt-email-queue &&
+      aws --endpoint-url=http://localstack:4566 sqs create-queue --queue-name digitalhippo-verification-email-queue &&
+      aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic --protocol sqs --notification-endpoint arn:aws:sqs:ca-central-1:000000000000:digitalhippo-receipt-email-queue &&
+      aws --endpoint-url=http://localstack:4566 sns subscribe --topic-arn arn:aws:sns:ca-central-1:000000000000:digitalhippo-email-topic --protocol sqs --notification-endpoint arn:aws:sqs:ca-central-1:000000000000:digitalhippo-verification-email-queue &&
+      "
+    networks:
+      - digitalhippo-prod-network
+
   mongodb-dh:
     image: mongodb/mongodb-community-server:7.0.5-ubi8
     container_name: mongodb-dh
@@ -99,6 +132,8 @@ services:
         condition: service_healthy
       logstash:
         condition: service_started
+      localstack:
+        condition: service_healthy
     extends:
       file: common-config.yml
       service: microservice-config
