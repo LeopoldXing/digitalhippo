@@ -60,6 +60,7 @@ url:
     sign-out-uri-patterns: /api/user/sign-out
     inner-uri-patterns: /api/**/inner/**
     public-uri-patterns:
+      - /api/user/verify-email
       - /api/product/search/**
       - /api/product/*
       - /api/stripe/payment/confirm

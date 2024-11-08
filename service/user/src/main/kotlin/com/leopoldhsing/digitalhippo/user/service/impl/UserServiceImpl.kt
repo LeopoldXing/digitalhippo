@@ -154,7 +154,7 @@ class UserServiceImpl @Autowired constructor(
         // generate verification token
         val verificationToken = VerificationTokenUtil.generateVerificationToken()
         log.info("prepare to send verification email to new user {}, verification token: {}", savedUser.email, verificationToken)
-        // put verification token into AWS ElastiCache
+        // put verification token into Redis
         redisTemplate.opsForValue()
             .set(
                 RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + verificationToken,
@@ -197,6 +197,7 @@ class UserServiceImpl @Autowired constructor(
      * verify user email
      */
     override fun verifyEmail(token: String): Boolean {
+        log.info("verify email, token: {}", token)
         // 1. get verification token key
         val verificationTokenKey = RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + token
 
@@ -204,6 +205,7 @@ class UserServiceImpl @Autowired constructor(
         val hasVerificationToken =
             redisTemplate.hasKey(verificationTokenKey)
         if (!hasVerificationToken) {
+            log.error("verify email failed, token: {}", token)
             throw VerificationTokenExpiredException(token)
         }
 
@@ -213,9 +215,11 @@ class UserServiceImpl @Autowired constructor(
         // 4. change userId to verified
         if (userId != null) {
             val user = userRepository.findById(userId.toLong()).orElseThrow { ResourceNotFoundException("User", "userId", userId) }
+            log.info("email verified, token: {}, user: {}", token, user)
             user.isVerified = true
             userRepository.save(user)
         } else {
+            log.error("token valid, but user not found, token: {}, userId: {}", token, userId.toString())
             throw ResourceNotFoundException("User", "userId", userId)
         }
 
