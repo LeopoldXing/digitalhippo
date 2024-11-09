@@ -16,7 +16,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.*
 
-@Tag(name = "Product Management", description = "APIs for managing products (CREATE, READ, UPDATE, DELETE)")
+@Tag(name = "REST APIs for Product Management", description = "REST APIs for managing products (CREATE, READ, UPDATE, DELETE)")
 @Controller
 @RequestMapping("/api/product")
 class ProductController @Autowired constructor(
