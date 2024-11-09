@@ -9,6 +9,7 @@ import com.leopoldhsing.digitalhippo.feign.product.ProductFeignClient;
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient;
 import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
+import com.leopoldhsing.digitalhippo.model.entity.ProductImage;
 import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeProperties;
 import com.leopoldhsing.digitalhippo.stripe.config.StripeSnsTopicProperties;
@@ -184,7 +185,13 @@ public class PaymentServiceImpl implements PaymentService {
             snsMessageDto.setType(NotificationType.RECEIPT);
             snsMessageDto.setEmail(order.getUser().getEmail());
             snsMessageDto.setOrderPayloadId(order.getPayloadId());
-            snsMessageDto.setProducts(order.getProducts());
+            // filter product images
+            List<com.leopoldhsing.digitalhippo.model.entity.Product> orderProducts = order.getProducts();
+            orderProducts.forEach(product -> {
+                List<ProductImage> productImages = product.getProductImages().stream().filter(productImage -> "TABLET".equalsIgnoreCase(productImage.getFileType().getValue())).toList();
+                product.setProductImages(productImages);
+            });
+            snsMessageDto.setProducts(orderProducts);
 
             // 3. send receipt email
             sendSnsNotification(snsMessageDto, "Receipt Email");

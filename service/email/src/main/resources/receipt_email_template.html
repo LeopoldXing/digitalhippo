@@ -1,12 +1,8 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title><!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <title>Your DigitalHippo Receipt</title>
+  <title>Your DigitalHippo Receipt</title>
 </head>
 <body style="font-family:'Helvetica Neue',Helvetica,Arial,sans-serif; background-color:#ffffff; margin:0; padding:20px;">
 <!-- Main container -->
@@ -18,7 +14,8 @@
         <tr>
           <!-- Logo image -->
           <td align="left">
-            <img src="cid:logoImage" width="100" height="100" alt="DigitalHippo" style="display:block;">
+            <img src="https://digitalhippo-leopoldxing.s3.ca-central-1.amazonaws.com/hippo_email_sent.png" width="100" height="100"
+                 alt="DigitalHippo" style="display:block;">
           </td>
           <!-- Title -->
           <td align="right" style="vertical-align:bottom;">
@@ -37,15 +34,15 @@
         <tr>
           <td>
             <strong style="color:#666666;">EMAIL</strong><br>
-            <a href="mailto:{{EMAIL}}" style="color:#0070c9; text-decoration:none;">{{EMAIL}}</a>
+            <a href="mailto:{{EMAIL}}" style="color:#0070c9; text-decoration:none;">{{ EMAIL }}</a>
           </td>
           <td>
             <strong style="color:#666666;">INVOICE DATE</strong><br>
-            <span>{{INVOICE_DATE}}</span>
+            <span>{{ INVOICE_DATE }}</span>
           </td>
           <td>
             <strong style="color:#666666;">ORDER ID</strong><br>
-            <a href="#" style="color:#0070c9; text-decoration:none;">{{ORDER_ID}}</a>
+            <a href="#" style="color:#0070c9; text-decoration:none;">{{ ORDER_ID }}</a>
           </td>
         </tr>
       </table>
@@ -60,7 +57,7 @@
   </tr>
 
   <!-- Product list -->
-  {{PRODUCTS_SECTION}}
+  {{ PRODUCTS_SECTION }}
 
   <!-- Transaction fee -->
   <tr>
@@ -72,7 +69,7 @@
             <p style="font-size:12px; font-weight:600; margin:0;">Transaction Fee</p>
           </td>
           <td align="right" style="padding-right:20px;">
-            <p style="font-size:12px; font-weight:600; margin:0;">{{TRANSACTION_FEE}}</p>
+            <p style="font-size:12px; font-weight:600; margin:0;">{{ TRANSACTION_FEE }}</p>
           </td>
         </tr>
       </table>
@@ -90,7 +87,7 @@
           </td>
           <td width="1" style="border-left:1px solid #eeeeee;"></td>
           <td align="right" style="padding-right:20px;">
-            <p style="font-size:16px; font-weight:600; margin:0;">{{TOTAL_PRICE}}</p>
+            <p style="font-size:16px; font-weight:600; margin:0;">{{ TOTAL_PRICE }}</p>
           </td>
         </tr>
       </table>
@@ -113,11 +110,5 @@
     </td>
   </tr>
 </table>
-</body>
-</html>
-</title>
-</head>
-<body>
-
 </body>
 </html>
