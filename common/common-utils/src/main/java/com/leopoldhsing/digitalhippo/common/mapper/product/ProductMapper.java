@@ -48,6 +48,7 @@ public class ProductMapper {
         List<ProductImageVo> productImageVoList = new ArrayList<>();
         if (!CollectionUtils.isEmpty(product.getProductImages())) {
             productImageVoList = product.getProductImages().stream().map(ProductImageMapper::mapToProductImageVo).toList();
+            productImageVoList = productImageVoList.stream().filter(imageVo -> "TABLET".equalsIgnoreCase(imageVo.getFileType())).toList();
         }
         productVo.setProductImages(productImageVoList);
 
