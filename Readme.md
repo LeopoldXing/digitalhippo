@@ -2,7 +2,7 @@
 
 
 
-The frontend of this project was made with the “Josh tried coding” tutorial, with an 100% self-designed, self-coded backend application.
+The frontend of this project was made based on the “Josh tried coding” tutorial, with a self-designed, self-coded backend application.
 
 
 
