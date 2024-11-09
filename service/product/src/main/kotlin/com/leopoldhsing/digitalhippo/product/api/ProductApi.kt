@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*
 
 @Tag(
     name = "Internal Product APIs",
-    description = "APIs for internal microservice communication. External access is restricted. (external access will be blocked directly)"
+    description = "APIs for internal microservice communication. External access is restricted."
 )
 @RestController
 @RequestMapping("/api/product/inner")
