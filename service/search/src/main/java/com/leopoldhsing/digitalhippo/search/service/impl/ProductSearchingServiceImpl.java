@@ -147,9 +147,10 @@ public class ProductSearchingServiceImpl implements ProductSearchingService {
                     toList();
         }
 
+        long totalHits = searchHits.getTotalHits();
         SearchingResultIndexDto searchingResultIndexDto = new SearchingResultIndexDto();
         searchingResultIndexDto.setResults(productIndexList);
-        searchingResultIndexDto.setResultCount(productIndexList.size());
+        searchingResultIndexDto.setResultCount((int) totalHits);
         searchingResultIndexDto.setSize(pageSize);
         searchingResultIndexDto.setCurrent(current);
         searchingResultIndexDto.setTotalPage((int) Math.ceil((double) searchHits.getTotalHits() / pageSize));
