@@ -202,6 +202,10 @@ services:
     depends_on:
       eureka:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     extends:
       file: common-config.yml
       service: microservice-config
@@ -274,6 +278,10 @@ services:
       RECEIPT_SQS_QUEUE_URL: ${RECEIPT_SQS_QUEUE_URL}
       VERIFICATION_SQS_QUEUE_NAME: ${VERIFICATION_SQS_QUEUE_NAME}
       VERIFICATION_SQS_QUEUE_URL: ${VERIFICATION_SQS_QUEUE_URL}
+    deploy:
+      resources:
+        limits:
+          memory: 1g
     depends_on:
       eureka:
         condition: service_healthy
