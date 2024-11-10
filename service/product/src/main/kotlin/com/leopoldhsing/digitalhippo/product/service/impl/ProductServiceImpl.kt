@@ -45,7 +45,9 @@ open class ProductServiceImpl @Autowired constructor(
 
         // 2. get product info
         val productList: List<Product> = searchResultIdList.map { id ->
-            productRepository.findById(id).orElseThrow { throw ResourceNotFoundException("product", "id", id.toString()) }
+            val product = productRepository.findById(id).orElseThrow { throw ResourceNotFoundException("product", "id", id.toString()) }
+            product.productImages = product.productImages.filter { image -> "TABLET".equals(image.fileType.value, true) }
+            product
         }
 
         // 3. return result

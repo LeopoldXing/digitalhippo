@@ -52,7 +52,7 @@ open class UserApplication {
         ).externalDocs(
             ExternalDocumentation()
                 .description("DigitalHippo project documentation")
-                .url("https://blogs.leopoldhsing.com")
+                .url("https://blogs.leopoldhsing.com/digitalhippo/")
         )
     }
 }

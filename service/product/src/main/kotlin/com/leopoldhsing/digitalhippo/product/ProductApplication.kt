@@ -51,7 +51,7 @@ open class ProductApplication {
         ).externalDocs(
             ExternalDocumentation()
                 .description("DigitalHippo project documentations")
-                .url("https://blogs.leopoldhsing.com")
+                .url("https://blogs.leopoldhsing.com/digitalhippo/")
         )
     }
 }

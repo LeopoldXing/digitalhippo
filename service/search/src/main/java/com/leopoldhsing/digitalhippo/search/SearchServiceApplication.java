@@ -37,7 +37,7 @@ public class SearchServiceApplication {
         ).externalDocs(
                 new ExternalDocumentation()
                         .description("DigitalHippo project documentation")
-                        .url("https://blogs.leopoldhsing.com")
+                        .url("https://blogs.leopoldhsing.com/digitalhippo/")
         );
     }
 }

@@ -35,7 +35,7 @@ open class ProductApi @Autowired constructor(private val productService: Product
             )
         ]
     )
-    @PostMapping("/stripe-ids")
+    @PostMapping
     open fun getStripeIdList(
         @Parameter(description = "List of product IDs", required = true)
         @RequestBody productIdList: List<Long>

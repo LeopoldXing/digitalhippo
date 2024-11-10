@@ -26,10 +26,16 @@ class CacheAspect constructor(
     private val redissonClient: RedissonClient
 ) {
 
+    /**
+     * pointcut definition, select all the service methods who has @DigitalHippoCache annotation
+     */
     @Pointcut("@annotation(com.leopoldhsing.digitalhippo.product.cache.annotation.DigitalHippoCache)")
     fun cachePointcut() {
     }
 
+    /**
+     * Around Interceptor, caching logic is implemented here
+     */
     @Around("cachePointcut()")
     fun cacheAroundInterceptor(pjp: ProceedingJoinPoint): Any? {
         // 1. get invoker's params
@@ -78,7 +84,8 @@ class CacheAspect constructor(
                     }
                 } else {
                     // Bitmap shows this data doesn't exist
-                    // save this data into cache, even if it doesn't exist, this will prevent someone maliciously send request for this data to comprise the database
+                    // save this data into cache, even if it doesn't exist,
+                    // this will prevent someone maliciously send request for this data to compromise the database
                     cacheService.saveDataToCache(cacheKey, null, -1L, TimeUnit.MILLISECONDS)
                     // someone is trying to access a data that doesn't exist
                     throw ResourceNotFoundException("product", "id", identifier.toString())
