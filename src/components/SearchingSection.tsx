@@ -58,7 +58,7 @@ const SearchingSection = () => {
   }
 
   return (
-      <div className="w-full mt-[100px]">
+      <div className="w-full mt-[60px]">
         <SearchForm onSearch={handleSearch} isLoading={isLoading} defaultConditions={defaultConditions}/>
         <ProductSearchingResult result={productSearchingResult} condition={defaultConditions}/>
         {productSearchingResult && productSearchingResult.totalPage > 1 && (
