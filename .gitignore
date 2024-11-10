@@ -4,9 +4,6 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-### k8s ###
-/k8s/**/1-secrets.yml
-
 ### STS ###
 .apt_generated
 .classpath
@@ -79,4 +76,7 @@ terraform/*.bak
 terraform/*.tmp
 terraform/*.temp
 
-.dev-dependencies/local-deployment/.env
+deploy/docker-compose-production/.env
+deploy/docker-compose-local/.env
+deploy/k8s-local/**/1-secrets.yml
+deploy/k8s-production/**/1-secrets.yml

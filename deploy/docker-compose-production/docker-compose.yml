@@ -108,6 +108,8 @@ services:
     restart: always
     ports:
       - "31404:5601"
+    environment:
+      - server.publicBaseUrl=${KIBANA_PUBLIC_BASE_URL}
     volumes:
       - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
       - ./data/kibana:/usr/share/kibana/data
