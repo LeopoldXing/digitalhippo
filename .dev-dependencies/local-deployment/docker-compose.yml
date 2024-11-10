@@ -2,8 +2,6 @@ services:
   localstack:
     image: localstack/localstack:3.8
     container_name: localstack
-#    ports:
-#      - "4566:4566"
     environment:
       - SERVICES=sns,sqs
       - DEBUG=1
@@ -38,8 +36,8 @@ services:
     environment:
       - MONGODB_INITDB_ROOT_USERNAME=leopold
       - MONGODB_INITDB_ROOT_PASSWORD=4532879yuewqrrhrfg432
-      #volumes:
-      #- ./mongodb/data:/data/db
+    volumes:
+      - ./data/mongodb:/data/db
     networks:
       - digitalhippo-prod-network
 
@@ -50,6 +48,8 @@ services:
       - REDIS_PASSWORD=1234
     command: [ "redis-server", "--requirepass", "1234" ]
     restart: always
+    volumes:
+      - ./data/redis:/data
     networks:
       - digitalhippo-prod-network
 
@@ -63,6 +63,7 @@ services:
     restart: always
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/postgres:/var/lib/postgresql/data
     networks:
       - digitalhippo-prod-network
 
@@ -79,8 +80,8 @@ services:
       memlock:
         soft: -1
         hard: -1
-    # volumes:
-    #   - es01-log-data:/usr/share/elasticsearch/data
+    volumes:
+      - ./data/elasticsearch:/usr/share/elasticsearch/data
     networks:
       - digitalhippo-prod-network
     healthcheck:
@@ -109,6 +110,7 @@ services:
       - "31404:5601"
     volumes:
       - ./kibana/kibana.yml:/usr/share/kibana/config/kibana.yml
+      - ./data/kibana:/usr/share/kibana/data
     depends_on:
       elasticsearch:
         condition: service_healthy
@@ -285,6 +287,7 @@ services:
       - "31402:9090"
     volumes:
       - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./data/prometheus:/prometheus
     networks:
       - digitalhippo-prod-network
   grafana:
@@ -306,6 +309,7 @@ services:
         /run.sh
     volumes:
       - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+      - ./data/grafana:/var/lib/grafana
     healthcheck:
       test: [ "CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1" ]
       interval: 10s
