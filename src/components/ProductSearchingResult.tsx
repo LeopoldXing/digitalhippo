@@ -3,7 +3,7 @@ import { ProductSearchingResultType } from "@/hooks/productHooks";
 import ProductListing from "@/components/ProductListing";
 import { ProductApiType, searchingCondition } from "@/types";
 
-const ProductSearchingResult = ({ result, condition }: { result?: ProductSearchingResultType, condition: searchingCondition }) => {
+const ProductSearchingResult = ({ result, condition, resultCount }: { result?: ProductSearchingResultType, condition: searchingCondition, resultCount: number }) => {
   if (!result) return;
   const productList: ProductApiType[] = result.results
   const category = condition.category
@@ -12,7 +12,7 @@ const ProductSearchingResult = ({ result, condition }: { result?: ProductSearchi
     if (category === 'ui_kits') title = 'UI KITS';
     else if (category === 'icons') title = 'ICONS';
   }
-  const subtitle = `${result.resultCount} results found`
+  const subtitle = `${resultCount} results found`
 
   return (
       <section className='py-10 mx-4'>

@@ -84,6 +84,7 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
     setCategoryLabel(label);
     form.setValue('category', value)
     setSelectedCategory(value);
+    form.setValue('current', 1)
   }
 
   // sort
@@ -115,6 +116,7 @@ const ProductSearchingForm = ({ onSearch, isLoading = false, defaultConditions }
     const priceOption = PRICE_RANGE.find(option => option.value === value)
     form.setValue('bottomPrice', priceOption?.bottomPrice || -1)
     form.setValue('topPrice', priceOption?.topPrice || -1)
+    form.setValue('current', 1)
     setSelectedPriceRange(value)
   }
 

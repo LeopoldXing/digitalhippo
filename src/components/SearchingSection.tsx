@@ -60,7 +60,7 @@ const SearchingSection = () => {
   return (
       <div className="w-full mt-[60px]">
         <SearchForm onSearch={handleSearch} isLoading={isLoading} defaultConditions={defaultConditions}/>
-        <ProductSearchingResult result={productSearchingResult} condition={defaultConditions}/>
+        <ProductSearchingResult result={productSearchingResult} condition={defaultConditions} resultCount={productSearchingResult?.resultCount || 0}/>
         {productSearchingResult && productSearchingResult.totalPage > 1 && (
             <PaginationSelector totalPage={productSearchingResult?.totalPage || 1} current={productSearchingResult?.current || 1}
                                 onPageChange={handlePageChange}/>
