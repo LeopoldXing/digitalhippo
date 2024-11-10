@@ -128,9 +128,9 @@ public class ProductSearchingServiceImpl implements ProductSearchingService {
         // 1.5 pagination
         Integer current = condition.getCurrent();
         Integer size = condition.getSize();
-        int from = (current != null && size != null) ? ((current - 1) * size) : 0;
+        int pageNumber = (current != null && current > 0) ? current - 1 : 0;
         int pageSize = (size != null) ? size : PaginationConstants.DEFAULT_PAGE_SIZE;
-        searchQuery.withPageable(PageRequest.of(from, pageSize));
+        searchQuery.withPageable(PageRequest.of(pageNumber, pageSize));
 
         // 2. build the final query after adding all conditions
         NativeQuery finalQuery = searchQuery.build();
