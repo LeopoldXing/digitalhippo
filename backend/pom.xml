@@ -8,10 +8,10 @@
         <version>3.2.10</version>
     </parent>
     <groupId>com.leopoldhsing.digitalhippo</groupId>
-    <artifactId>digitalhippo-backend</artifactId>
+    <artifactId>digitalhippo</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>digitalhippo-backend</name>
+    <name>digitalhippo</name>
     <description>Backend application for Digital Hippo Market Project</description>
     <modules>
         <module>common</module>

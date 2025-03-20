@@ -1,0 +1,3 @@
+- **Next.js 14**: React framework for server-side rendering.
+- **TailwindCSS**: Utility-first CSS framework.
+- **Shadcn UI**: Component library for modern UI.
