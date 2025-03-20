@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>com.leopoldhsing.digitalhippo</groupId>
-        <artifactId>digitalhippo-backend</artifactId>
+        <artifactId>digitalhippo</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
@@ -17,7 +17,7 @@
         <module>product</module>
         <module>search</module>
         <module>cart</module>
-        <module>stripe</module>
+        <module>payment</module>
     </modules>
 
     <properties>
