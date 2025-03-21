@@ -6,13 +6,11 @@ import com.leopoldhsing.digitalhippo.common.constants.StripeConstants;
 import com.leopoldhsing.digitalhippo.common.exception.StripeSignatureInvalidException;
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil;
 import com.leopoldhsing.digitalhippo.feign.product.ProductFeignClient;
-import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient;
 import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
 import com.leopoldhsing.digitalhippo.model.entity.ProductImage;
 import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType;
 import com.leopoldhsing.digitalhippo.payment.config.StripeProperties;
-import com.leopoldhsing.digitalhippo.payment.config.StripeSnsTopicProperties;
 import com.leopoldhsing.digitalhippo.payment.service.OrderService;
 import com.leopoldhsing.digitalhippo.payment.service.PaymentService;
 import com.leopoldhsing.digitalhippo.payment.service.ProductStripeService;
@@ -21,9 +19,9 @@ import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.*;
 import com.stripe.net.Webhook;
-import io.awspring.cloud.sns.core.SnsTemplate;
 import jakarta.annotation.PostConstruct;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
@@ -36,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@Slf4j
 @Service
 public class PaymentServiceImpl implements PaymentService {
 
@@ -45,15 +42,15 @@ public class PaymentServiceImpl implements PaymentService {
     private final ProductStripeService productStripeService;
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
-    private final StripeSnsTopicProperties stripeSnsTopicProperties;
     private final SnsClient snsClient;
 
-    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsTemplate snsTemplate, StripeSnsTopicProperties stripeSnsTopicProperties, UserFeignClient userFeignClient, SnsClient snsClient) {
+    private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
+
+    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsClient snsClient) {
         this.stripeProperties = stripeProperties;
         this.productFeignClient = productFeignClient;
         this.productStripeService = productStripeService;
         this.orderService = orderService;
-        this.stripeSnsTopicProperties = stripeSnsTopicProperties;
         this.snsClient = snsClient;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
@@ -192,10 +189,6 @@ public class PaymentServiceImpl implements PaymentService {
                 product.setProductImages(productImages);
             });
             snsMessageDto.setProducts(orderProducts);
-
-            // 3. send receipt email
-            sendSnsNotification(snsMessageDto, "Receipt Email");
-            log.info("Receipt email sent, email params: {}", snsMessageDto);
         }
     }
 
@@ -205,35 +198,6 @@ public class PaymentServiceImpl implements PaymentService {
 
         if (paymentIntent != null) {
             String orderId = paymentIntent.getMetadata().get(StripeConstants.ORDER_ID);
-        }
-    }
-
-    // send notification
-    private void sendSnsNotification(SnsMessageDto snsMessageDto, String subject) {
-        try {
-            // Convert snsMessageDto to JSON string
-            String message = objectMapper.writeValueAsString(snsMessageDto);
-
-            // Construct PublishRequest
-            PublishRequest publishRequest = PublishRequest.builder()
-                    .topicArn(stripeSnsTopicProperties.getArn())
-                    .message(message)
-                    .subject(subject)
-                    .messageAttributes(Map.of(
-                            "type", MessageAttributeValue.builder()
-                                    .dataType("String")
-                                    .stringValue(String.valueOf(NotificationType.RECEIPT))
-                                    .build()
-                    ))
-                    .build();
-
-            // Send message
-            PublishResponse response = snsClient.publish(publishRequest);
-            log.info("Receipt email SQS Message ID: {}", response.messageId());
-
-        } catch (Exception e) {
-            log.error("Failed to send SNS notification", e);
-            throw new RuntimeException("Failed to send SNS notification", e);
         }
     }
 }
