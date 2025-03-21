@@ -25,10 +25,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import com.stripe.model.checkout.Session;
 import com.stripe.param.checkout.SessionCreateParams;
-import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
-import software.amazon.awssdk.services.sns.model.PublishRequest;
-import software.amazon.awssdk.services.sns.model.PublishResponse;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,16 +38,14 @@ public class PaymentServiceImpl implements PaymentService {
     private final ProductStripeService productStripeService;
     private final OrderService orderService;
     private final ObjectMapper objectMapper;
-    private final SnsClient snsClient;
 
     private static final Logger log = LoggerFactory.getLogger(PaymentServiceImpl.class);
 
-    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService, SnsClient snsClient) {
+    public PaymentServiceImpl(StripeProperties stripeProperties, ProductFeignClient productFeignClient, ProductStripeService productStripeService, OrderService orderService) {
         this.stripeProperties = stripeProperties;
         this.productFeignClient = productFeignClient;
         this.productStripeService = productStripeService;
         this.orderService = orderService;
-        this.snsClient = snsClient;
         this.objectMapper = new ObjectMapper();
         this.objectMapper.registerModule(new JavaTimeModule());
     }
