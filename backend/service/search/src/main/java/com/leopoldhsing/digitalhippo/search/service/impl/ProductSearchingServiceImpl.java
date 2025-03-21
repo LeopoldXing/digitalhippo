@@ -10,7 +10,6 @@ import com.leopoldhsing.digitalhippo.model.enumeration.SortingDirection;
 import com.leopoldhsing.digitalhippo.model.enumeration.SortingStrategy;
 import com.leopoldhsing.digitalhippo.model.vo.ProductSearchingConditionVo;
 import com.leopoldhsing.digitalhippo.search.service.ProductSearchingService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.elasticsearch.client.elc.ElasticsearchTemplate;
 import org.springframework.data.elasticsearch.client.elc.NativeQuery;
@@ -27,8 +26,11 @@ import java.util.List;
 @Service
 public class ProductSearchingServiceImpl implements ProductSearchingService {
 
-    @Autowired
-    private ElasticsearchTemplate elasticsearchTemplate;
+    private final ElasticsearchTemplate elasticsearchTemplate;
+
+    public ProductSearchingServiceImpl(ElasticsearchTemplate elasticsearchTemplate) {
+        this.elasticsearchTemplate = elasticsearchTemplate;
+    }
 
     @Override
     public SearchingResultIndexDto searchProducts(ProductSearchingConditionVo condition) {

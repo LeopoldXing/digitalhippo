@@ -13,7 +13,6 @@
     <packaging>pom</packaging>
     <modules>
         <module>user</module>
-        <module>email</module>
         <module>product</module>
         <module>search</module>
         <module>cart</module>
