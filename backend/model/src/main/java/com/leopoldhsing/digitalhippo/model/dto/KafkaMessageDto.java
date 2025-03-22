@@ -11,7 +11,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SnsMessageDto {
+public class KafkaMessageDto {
     private NotificationType type;
     private String email;
     private String verificationToken;

@@ -2,19 +2,15 @@ package com.leopoldhsing.digitalhippo.notification.listener
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
-import com.leopoldhsing.digitalhippo.notification.config.AwsSqsProperties
 import com.leopoldhsing.digitalhippo.notification.service.NotificationService
-import com.leopoldhsing.digitalhippo.model.dto.SnsMessageDto
-import com.leopoldhsing.digitalhippo.model.dto.SnsNotificationDto
+import com.leopoldhsing.digitalhippo.model.dto.KafkaMessageDto
 import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType
-import io.awspring.cloud.sqs.annotation.SqsListener
 import org.slf4j.LoggerFactory.getLogger
-import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.kafka.annotation.KafkaListener
 import org.springframework.stereotype.Component
 
-@Component("receiptEmailListener")
-class ReceiptEmailListener @Autowired constructor(
-    private val awsSqsProperties: AwsSqsProperties,
+@Component
+class ReceiptEmailListener(
     private val notificationService: NotificationService
 ) {
 
@@ -22,20 +18,23 @@ class ReceiptEmailListener @Autowired constructor(
         private val log = getLogger(ReceiptEmailListener::class.java)
     }
 
-    @SqsListener("#{awsSqsProperties.receiptQueueUrl}")
-    fun listenToQueueOne(message: String) {
-        // 1. construct notification object
-        val mapper = ObjectMapper()
-        mapper.registerModule(JavaTimeModule())
-        val snsNotificationDto: SnsNotificationDto = mapper.readValue(message, SnsNotificationDto::class.java)
-        val snsMessageString: String = snsNotificationDto.message
-        val snsMessageDto: SnsMessageDto = mapper.readValue(snsMessageString, SnsMessageDto::class.java)
+    @KafkaListener(topics = ["receipt"], groupId = "receipt-group")
+    fun listen(message: String) {
+        // 1. Create an ObjectMapper instance and register the JavaTimeModule for date/time handling
+        val mapper = ObjectMapper().apply { registerModule(JavaTimeModule()) }
 
-        // 2. determine if this message is for verification email
-        if (snsMessageDto.type === NotificationType.RECEIPT) {
-            log.info("Received message from receipt email queue: {}", message)
-            // 3. send email
-            notificationService.sendReceiptEmail(snsMessageDto.email, snsMessageDto.orderPayloadId, snsMessageDto.products)
+        // 2. Deserialize the received JSON message into a SnsMessageDto object directly
+        val kafkaMessageDto: KafkaMessageDto = mapper.readValue(message, KafkaMessageDto::class.java)
+
+        // 3. Check if the message type is RECEIPT, then process it
+        if (kafkaMessageDto.type == NotificationType.RECEIPT) {
+            log.info("Received receipt email message from Kafka topic 'receipt': {}", message)
+            // 4. Send receipt email using the NotificationService
+            notificationService.sendReceiptEmail(
+                kafkaMessageDto.email,
+                kafkaMessageDto.orderPayloadId,
+                kafkaMessageDto.products
+            )
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.leopoldhsing.digitalhippo.notification
 
-import com.leopoldhsing.digitalhippo.notification.config.AwsSqsProperties
 import com.leopoldhsing.digitalhippo.notification.config.EmailProperties
 import io.swagger.v3.oas.models.ExternalDocumentation
 import io.swagger.v3.oas.models.OpenAPI
@@ -16,7 +15,7 @@ import org.springframework.context.annotation.Bean
 
 @SpringBootApplication(exclude = [DataSourceAutoConfiguration::class])
 @EntityScan(basePackages = ["com.leopoldhsing.digitalhippo"])
-@EnableConfigurationProperties(AwsSqsProperties::class, EmailProperties::class)
+@EnableConfigurationProperties(EmailProperties::class)
 open class NotificationApplication {
 
     companion object {
