@@ -7,7 +7,7 @@ datasources:
   - name: Prometheus
     type: prometheus
     uid: prometheus
-    url: http://prometheus-dh-dev:9090
+    url: http://prometheus-dh:9090
     access: proxy
     orgId: 1
     basicAuth: false

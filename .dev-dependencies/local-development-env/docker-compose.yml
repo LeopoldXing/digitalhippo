@@ -1,18 +1,18 @@
 services:
   redis:
     image: redis:7.0.14
-    container_name: redis-digitalhippo-dev
+    container_name: redis-dh
     environment:
       - REDIS_PASSWORD=1234
     command: [ "redis-server", "--requirepass", "1234" ]
     ports:
       - "6379:6379"
     networks:
-      - digitalhippo-dev-network
+      - digitalhippo-network
 
   postgres:
     image: postgres:16.4-alpine
-    container_name: postgres-digitalhippo-dev
+    container_name: postgres-dh
     ports:
       - "5432:5432"
     environment:
@@ -22,20 +22,131 @@ services:
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - digitalhippo-dev-network
+      - digitalhippo-network
 
   mongodb:
     image: mongodb/mongodb-community-server:7.0.5-ubi8
-    container_name: mongodb-digitalhippo-dev
+    container_name: mongodb-dh
     environment:
       - MONGO_INITDB_ROOT_USERNAME=lupin
       - MONGO_INITDB_ROOT_PASSWORD=1234
     ports:
       - "27017:27017"
     networks:
-      - digitalhippo-dev-network
+      - digitalhippo-network
+
+  # ELK Stack
+  elasticsearch:
+    container_name: elasticsearch-dh
+    image: elasticsearch:8.14.1
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - xpack.security.enabled=false
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    # volumes:
+    #   - es01-log-data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - digitalhippo-network
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -I http://localhost:9200 || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+  logstash:
+    image: logstash:8.14.1
+    container_name: logstash-dh
+    volumes:
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
+      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+    networks:
+      - digitalhippo-network
+    ports:
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+  kibana:
+    container_name: kibana-elasticsearch
+    image: kibana:8.14.1
+    ports:
+      - "5601:5601"
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -I http://localhost:5601 || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - digitalhippo-network
+
+  prometheus:
+    container_name: prometheus-dh
+    image: prom/prometheus:v2.54.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    networks:
+      - digitalhippo-network
+
+  grafana:
+    container_name: grafana-dh
+    image: grafana/grafana:11.2.2
+    environment:
+      - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+    depends_on:
+      - prometheus
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        /run.sh
+    ports:
+      - "9000:3000"
+    volumes:
+      - ./grafana/datasource.yml:/etc/grafana/provisioning/datasources/datasource.yml:ro
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - digitalhippo-network
+
+  kafka:
+    image: bitnami/kafka:3.9.0
+    container_name: kafka-dh
+    ports:
+      - "9092:9092"
+      - "9094:9094"
+    environment:
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+    networks:
+      - digitalhippo-network
 
 networks:
-  digitalhippo-dev-network:
-    name: digitalhippo-dev-network
+  digitalhippo-network:
+    name: digitalhippo-network
     driver: bridge
