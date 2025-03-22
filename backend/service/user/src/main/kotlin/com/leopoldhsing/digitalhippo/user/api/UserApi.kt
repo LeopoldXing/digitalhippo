@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*
 )
 @RestController
 @RequestMapping("/api/inner/user")
-class UserApi @Autowired constructor(val userService: UserService) {
+class UserApi @Autowired constructor(private val userService: UserService) {
 
     @Operation(
         summary = "Get current user",

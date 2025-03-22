@@ -1,7 +1,6 @@
 package com.leopoldhsing.digitalhippo.user
 
 import com.leopoldhsing.digitalhippo.model.audit.AuditAwareImpl
-import com.leopoldhsing.digitalhippo.user.config.userSnsTopicProperties
 import io.swagger.v3.oas.models.ExternalDocumentation
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
@@ -9,7 +8,6 @@ import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.info.License
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.autoconfigure.domain.EntityScan
-import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
 import org.springframework.cloud.openfeign.EnableFeignClients
 import org.springframework.context.annotation.Bean
@@ -20,7 +18,6 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 @EnableJpaAuditing
 @EntityScan(basePackages = ["com.leopoldhsing.digitalhippo"])
 @EnableFeignClients(basePackages = ["com.leopoldhsing.digitalhippo.feign"])
-@EnableConfigurationProperties(userSnsTopicProperties::class)
 open class UserApplication {
 
     companion object {

@@ -33,14 +33,6 @@ spring:
       credentials:
         access-key: ${ACCESS_KEY}
         secret-key: ${SECRET_KEY}
-      sns:
-        enabled: true
-        region: ${AWS_REGION}
-        endpoint: ${SNS_ENDPOINT}
-
-aws:
-  sns:
-    arn: ${SNS_TOPIC_ARN}
 
 springdoc:
   api-docs:

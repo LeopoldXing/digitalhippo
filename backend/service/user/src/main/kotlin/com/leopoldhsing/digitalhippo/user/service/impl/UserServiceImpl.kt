@@ -19,8 +19,8 @@ import com.leopoldhsing.digitalhippo.model.entity.User
 import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.model.vo.UserLoginResponseVo
-import com.leopoldhsing.digitalhippo.user.config.userSnsTopicProperties
 import com.leopoldhsing.digitalhippo.user.controller.AuthController
+import com.leopoldhsing.digitalhippo.user.kafka.KafkaProducer
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
 import org.slf4j.LoggerFactory.getLogger
@@ -28,16 +28,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.redis.core.StringRedisTemplate
 import org.springframework.stereotype.Service
 import org.springframework.util.CollectionUtils
-import software.amazon.awssdk.services.sns.SnsClient
 import java.util.concurrent.TimeUnit
 
 @Service
 class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
     private val redisTemplate: StringRedisTemplate,
-    private val userSnsTopicProperties: userSnsTopicProperties,
     private val cartFeignClient: CartFeignClient,
-    private val snsClient: SnsClient
+    private val kafkaProducer: KafkaProducer
 ) : UserService {
 
     companion object {
@@ -46,8 +44,8 @@ class UserServiceImpl @Autowired constructor(
 
     override fun getUser(): User {
         val userId = RequestUtil.getUid()
-        val user = userRepository.findById(userId).orElseThrow { ResourceNotFoundException("User", "id", userId.toString()) }
-        return user
+        return userRepository.findById(userId)
+            .orElseThrow { ResourceNotFoundException("User", "id", userId.toString()) }
     }
 
     /**
@@ -79,7 +77,6 @@ class UserServiceImpl @Autowired constructor(
             // user already signed in, extend token valid period
             redisTemplate.expire(potentialTokenKey, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
             val accessToken = redisTemplate.opsForValue().get(potentialTokenKey)
-
             return UserLoginResponseVo(accessToken, cartItems)
         }
 
@@ -95,7 +92,6 @@ class UserServiceImpl @Autowired constructor(
         redisTemplate.opsForValue().set(signInTokenReversedKey, accessToken, RedisConstants.ACCESS_TOKEN_VALID_MINUTES, TimeUnit.MINUTES)
 
         log.info("user $email signed in successful")
-
         return UserLoginResponseVo(accessToken, cartItems)
     }
 
@@ -123,12 +119,18 @@ class UserServiceImpl @Autowired constructor(
     /**
      * create new user
      */
-    override fun createUser(payloadId: String, originalEmail: String, password: String, role: UserRole, cartItemIdList: List<Long>): User {
+    override fun createUser(
+        payloadId: String,
+        originalEmail: String,
+        password: String,
+        role: UserRole,
+        cartItemIdList: List<Long>
+    ): User {
         // 1. Determine if the email already exists
         val email = InputSanitizeString.sanitizeString(originalEmail)
         log.info("prepare to create user {}", email)
         val userOptional = userRepository.findUserByEmail(email)
-        if (userOptional?.isPresent!!) {
+        if (userOptional?.isPresent == true) {
             log.error("user {} already exists, sign up failed", email)
             throw UserAlreadyExistsException(email)
         }
@@ -147,47 +149,32 @@ class UserServiceImpl @Autowired constructor(
         // 5. persist the items in user's cart
         if (!CollectionUtils.isEmpty(cartItemIdList)) {
             cartFeignClient.addItem(AddToCartDto(savedUser, cartItemIdList))
-            log.info("save cart items for new user cart items: {}, user: {}", AddToCartDto(savedUser, cartItemIdList), savedUser.email)
+            log.info("save cart items for new user cart items: {}, user: {}",
+                AddToCartDto(savedUser, cartItemIdList), savedUser.email)
         }
 
-        // 6. send verification email
+        // 6. send verification email using Kafka
         // generate verification token
         val verificationToken = VerificationTokenUtil.generateVerificationToken()
         log.info("prepare to send verification email to new user {}, verification token: {}", savedUser.email, verificationToken)
         // put verification token into Redis
-        redisTemplate.opsForValue()
-            .set(
-                RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + verificationToken,
-                savedUser.id.toString(),
-                3,
-                TimeUnit.DAYS
-            )
+        redisTemplate.opsForValue().set(
+            RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + verificationToken,
+            savedUser.id.toString(),
+            3,
+            TimeUnit.DAYS
+        )
         log.info("verification token {} saved to redis, user: {}", verificationToken, savedUser.email)
-        // construct sns notification
+        // construct verification message
         val emailVerificationParams: Map<String, String> =
             mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
         val objectMapper = ObjectMapper()
         objectMapper.registerModule(JavaTimeModule())
         val jsonMessage = objectMapper.writeValueAsString(emailVerificationParams)
 
-        // send message to AWS SNS
-        val publishRequest = software.amazon.awssdk.services.sns.model.PublishRequest.builder()
-            .messageAttributes(
-                mapOf(
-                    "type" to software.amazon.awssdk.services.sns.model.MessageAttributeValue.builder()
-                        .dataType("String")
-                        .stringValue("verification")
-                        .build()
-                )
-            )
-            .message(jsonMessage)
-            .topicArn(userSnsTopicProperties.arn)
-            .subject("Verification email")
-            .build()
-
-        snsClient.publish(publishRequest)
-
-        log.info("verification email for user {} sent, params: {}", savedUser.email, publishRequest)
+        // send message to Kafka using KafkaProducer
+        kafkaProducer.sendMessage("user", jsonMessage)
+        log.info("verification email for user {} sent, message: {}", savedUser.email, jsonMessage)
 
         // 7. Return result
         return savedUser
@@ -202,9 +189,7 @@ class UserServiceImpl @Autowired constructor(
         val verificationTokenKey = RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + token
 
         // 2. search token in ElastiCache
-        val hasVerificationToken =
-            redisTemplate.hasKey(verificationTokenKey)
-        if (!hasVerificationToken) {
+        if (!redisTemplate.hasKey(verificationTokenKey)) {
             log.error("verify email failed, token: {}", token)
             throw VerificationTokenExpiredException(token)
         }
@@ -214,7 +199,8 @@ class UserServiceImpl @Autowired constructor(
 
         // 4. change userId to verified
         if (userId != null) {
-            val user = userRepository.findById(userId.toLong()).orElseThrow { ResourceNotFoundException("User", "userId", userId) }
+            val user = userRepository.findById(userId.toLong())
+                .orElseThrow { ResourceNotFoundException("User", "userId", userId) }
             log.info("email verified, token: {}, user: {}", token, user)
             user.isVerified = true
             userRepository.save(user)
@@ -223,7 +209,7 @@ class UserServiceImpl @Autowired constructor(
             throw ResourceNotFoundException("User", "userId", userId)
         }
 
-        // 6. return result
-        return true;
+        // 5. return result
+        return true
     }
 }
