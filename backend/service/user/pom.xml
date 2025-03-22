@@ -19,15 +19,11 @@
     </properties>
 
     <dependencies>
-        <!--  aws sns  -->
+        <!--  kafka  -->
         <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-starter-sns</artifactId>
-        </dependency>
-        <!--  aws messaging  -->
-        <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-messaging</artifactId>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.3.4</version>
         </dependency>
         <!--  http client  -->
         <dependency>
