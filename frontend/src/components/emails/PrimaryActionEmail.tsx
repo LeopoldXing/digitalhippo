@@ -1,16 +1,4 @@
-import {
-  Body,
-  Button,
-  Container,
-  Head,
-  Hr,
-  Html,
-  Img,
-  Preview,
-  Section,
-  Text,
-  render,
-} from '@react-email/components'
+import { Body, Button, Container, Head, Hr, Html, Img, Preview, render, Section, Text, } from '@react-email/components'
 
 import * as React from "react"
 
@@ -21,9 +9,9 @@ interface EmailTemplateProps {
 }
 
 export const EmailTemplate = ({
-                                actionLabel = "verify your email",
-                                buttonText = "Verify",
-                                href = "http://localhost:8080/api/user/verify-email",
+                                actionLabel,
+                                buttonText,
+                                href,
                               }: EmailTemplateProps) => {
   return (
       <Html>
@@ -67,7 +55,7 @@ export const EmailTemplate = ({
   )
 }
 
-export const VerificationEmail = (
+export const PrimaryActionEmailHtml = (
     props: EmailTemplateProps
 ) => render(<EmailTemplate {...props} />, { pretty: true })
 

@@ -1,25 +1,10 @@
-import { formatPrice } from '../../lib/utils'
-import { Product } from '../../payload-types'
-
-import {
-  Body,
-  Container,
-  Column,
-  Head,
-  Hr,
-  Html,
-  Img,
-  Link,
-  Preview,
-  Row,
-  Section,
-  Text,
-  render,
-} from '@react-email/components'
+import { Body, Column, Container, Head, Hr, Html, Img, Link, Preview, render, Row, Section, Text, } from '@react-email/components'
 
 import * as React from 'react'
 
 import { format } from 'date-fns'
+import { formatPrice } from "@/lib/utils";
+import { Product } from "@/payload-types";
 
 interface ReceiptEmailProps {
   email: string
@@ -29,13 +14,13 @@ interface ReceiptEmailProps {
 }
 
 export const ReceiptEmail = ({
-                               email = "33333333333333",
-                               date = new Date(),
-                               orderId = "2222222222222222",
-                               products = []
+                               email,
+                               date,
+                               orderId,
+                               products,
                              }: ReceiptEmailProps) => {
   const total =
-      111111111111
+      products.reduce((acc, curr) => acc + curr.price, 0) + 1
 
   return (
       <Html>
@@ -46,7 +31,12 @@ export const ReceiptEmail = ({
           <Container style={container}>
             <Section>
               <Column>
-                <Img src={`${process.env.NEXT_PUBLIC_SERVER_URL}/hippo-email-sent.png`} width='100' height='100' alt='DigitalHippo'/>
+                <Img
+                    src={`${process.env.NEXT_PUBLIC_SERVER_URL}/hippo-email-sent.png`}
+                    width='100'
+                    height='100'
+                    alt='DigitalHippo'
+                />
               </Column>
 
               <Column align='right' style={tableCell}>
@@ -59,9 +49,10 @@ export const ReceiptEmail = ({
                   <Text style={informationTableLabel}>
                     EMAIL
                   </Text>
-                  <Link style={{
-                    ...informationTableValue,
-                  }}>
+                  <Link
+                      style={{
+                        ...informationTableValue,
+                      }}>
                     {email}
                   </Link>
                 </Column>
@@ -79,9 +70,10 @@ export const ReceiptEmail = ({
                   <Text style={informationTableLabel}>
                     ORDER ID
                   </Text>
-                  <Link style={{
-                    ...informationTableValue,
-                  }}>
+                  <Link
+                      style={{
+                        ...informationTableValue,
+                      }}>
                     {orderId}
                   </Link>
                 </Column>
@@ -122,7 +114,7 @@ export const ReceiptEmail = ({
                           </Text>
                       ) : null}
                       <Link
-                          href={`http://localhost:3000/thank-you?orderId=${orderId}`}
+                          href={`${process.env.NEXT_PUBLIC_SERVER_URL}/thank-you?orderId=${orderId}`}
                           style={productLink}>
                         Download Asset
                       </Link>

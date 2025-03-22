@@ -16,7 +16,10 @@ const useSearchProduct = ({ condition }: { condition: searchingCondition }) => {
   const searchProductRequest = async (): Promise<ProductSearchingResultType> => {
     const params = qs.stringify(condition);
 
-    const response = await fetch(`${BASE_URL}/api/product/search?${params}`, { method: "GET", cache: "no-cache" })
+    const response = await fetch(`${BASE_URL}/api/product/search?${params}`, {
+      method: "GET",
+      cache: "no-cache"
+    })
 
     if (!response.ok) {
       throw new Error("Error searching product");
@@ -25,7 +28,17 @@ const useSearchProduct = ({ condition }: { condition: searchingCondition }) => {
   }
 
   const { data: productSearchingResult, isLoading } = useQuery(
-      ['searchProductRequest', condition.category, condition.current, condition.size, condition.sortingDirection, condition.sortingStrategy, condition.bottomPrice, condition.topPrice, condition.keyword],
+      [
+        'searchProductRequest',
+        condition.category,
+        condition.current,
+        condition.size,
+        condition.sortingDirection,
+        condition.sortingStrategy,
+        condition.bottomPrice,
+        condition.topPrice,
+        condition.keyword
+      ],
       searchProductRequest
   )
 
