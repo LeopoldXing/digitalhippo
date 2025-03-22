@@ -1,0 +1,51 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    aws:
+      region:
+        static: ${AWS_REGION}
+      credentials:
+        access-key: ${ACCESS_KEY}
+        secret-key: ${SECRET_KEY}
+      sqs:
+        enabled: true
+        endpoint: ${SQS_ENDPOINT}
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: ${GMAIL_USERNAME}
+    password: ${GOOGLE_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+springdoc:
+  api-docs:
+    enabled: true
+    path: /docs/v3/email/api-docs
+  swagger-ui:
+    path: /docs/v3/email/swagger-ui/index.html
+
+aws:
+  sqs:
+    verificationQueueName: ${VERIFICATION_SQS_QUEUE_NAME}
+    verificationQueueUrl: ${VERIFICATION_SQS_QUEUE_URL}
+    receiptQueueName: ${RECEIPT_SQS_QUEUE_NAME}
+    receiptQueueUrl: ${RECEIPT_SQS_QUEUE_URL}
+
+email:
+  frontend-endpoint: ${FRONTEND_ENDPOINT}
+
+eureka:
+  instance:
+    prefer-ip-address: true
+  client:
+    fetch-registry: true
+    register-with-eureka: true
+    service-url:
+      defaultZone: http://eureka:8080/eureka/
