@@ -1,4 +1,4 @@
-package com.leopoldhsing.digitalhippo.email.service
+package com.leopoldhsing.digitalhippo.notification.service
 
 import com.leopoldhsing.digitalhippo.model.entity.Product
 

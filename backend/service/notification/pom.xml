@@ -26,10 +26,11 @@
     </repositories>
 
     <dependencies>
-        <!--  aws sqs  -->
+        <!--  kafka  -->
         <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
+            <version>3.3.4</version>
         </dependency>
         <!--  smtp  -->
         <dependency>
@@ -70,7 +71,6 @@
 
     <build>
         <sourceDirectory>src/main/kotlin</sourceDirectory>
-        <testSourceDirectory>src/test/kotlin</testSourceDirectory>
         <plugins>
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>

@@ -1,7 +1,7 @@
-package com.leopoldhsing.digitalhippo.email
+package com.leopoldhsing.digitalhippo.notification
 
-import com.leopoldhsing.digitalhippo.email.config.AwsSqsProperties
-import com.leopoldhsing.digitalhippo.email.config.EmailProperties
+import com.leopoldhsing.digitalhippo.notification.config.AwsSqsProperties
+import com.leopoldhsing.digitalhippo.notification.config.EmailProperties
 import io.swagger.v3.oas.models.ExternalDocumentation
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact

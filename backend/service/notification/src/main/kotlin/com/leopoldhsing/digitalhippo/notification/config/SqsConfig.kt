@@ -1,4 +1,4 @@
-package com.leopoldhsing.digitalhippo.email.config
+package com.leopoldhsing.digitalhippo.notification.config
 
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.env.Environment

@@ -1,7 +1,7 @@
-package com.leopoldhsing.digitalhippo.email.service.impl
+package com.leopoldhsing.digitalhippo.notification.service.impl
 
-import com.leopoldhsing.digitalhippo.email.config.EmailProperties
-import com.leopoldhsing.digitalhippo.email.service.NotificationService
+import com.leopoldhsing.digitalhippo.notification.config.EmailProperties
+import com.leopoldhsing.digitalhippo.notification.service.NotificationService
 import com.leopoldhsing.digitalhippo.model.entity.Product
 import org.slf4j.LoggerFactory.getLogger
 import org.springframework.beans.factory.annotation.Autowired

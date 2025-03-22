@@ -1,6 +1,6 @@
 spring:
   application:
-    name: email
+    name: notification
   profiles:
     active: dev
 
@@ -25,7 +25,7 @@ management:
       enabled: true
   metrics:
     tags:
-      application: ms-email
+      application: ms-notification
 
 endpoints:
   shutdown:
@@ -34,5 +34,5 @@ endpoints:
 info:
   app:
     name: "ms-email"
-    description: "Digital Hippo EMAIL microservice application"
+    description: "Digital Hippo NOTIFICATION microservice application"
     version: "0.0.1"
