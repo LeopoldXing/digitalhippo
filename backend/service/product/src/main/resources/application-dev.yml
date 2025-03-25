@@ -3,22 +3,22 @@ server:
 
 spring:
   # x86 device use this configuration
-  redis:
-    host: ${REDIS_HOST}
-    port: ${REDIS_PORT}
-    password: ${REDIS_PASSWORD}
-    database: ${REDIS_CACHING_DATABASE}
+#  redis:
+#    host: localhost
+#    port: 6379
+#    password: 1234
+#    database: 1
   # mac device with ARM chip use this configuration
-#  data:
-#    redis:
-#      host: ${REDIS_HOST}
-#      port: ${REDIS_PORT}
-#      password: ${REDIS_PASSWORD}
-#      database: ${REDIS_CACHING_DATABASE}
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: 1234
+      database: 1
   datasource:
-    url: ${POSTGRES_URL}
-    username: ${POSTGRES_USERNAME}
-    password: ${POSTGRES_PASSWORD}
+    url: jdbc:postgresql://localhost:5432/digitalhippo
+    username: postgres
+    password: 1234567890
   jpa:
     show-sql: true
     properties:
@@ -26,7 +26,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   elasticsearch:
     uris:
-      - ${ES_ENDPOINT}
+      - http://localhost:9200
 
 springdoc:
   api-docs:

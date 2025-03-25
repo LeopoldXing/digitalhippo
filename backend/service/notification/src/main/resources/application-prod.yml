@@ -2,27 +2,19 @@ server:
   port: 8080
 
 spring:
-  cloud:
-    aws:
-      region:
-        static: ${AWS_REGION}
-      credentials:
-        access-key: ${ACCESS_KEY}
-        secret-key: ${SECRET_KEY}
-      sqs:
-        enabled: true
-        endpoint: ${SQS_ENDPOINT}
   mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GOOGLE_APP_PASSWORD}
+    host: ${SMTP_PROVIDER_HOST}
+    port: ${SMTP_PROVIDER_PORT}
+    username: ${SMTP_PROVIDER_USERNAME}
+    password: ${SMTP_PROVIDER_PASSWORD}
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  kafka:
+    bootstrap-servers: ${KAFKA_BROKERS}
 
 springdoc:
   api-docs:
@@ -30,13 +22,6 @@ springdoc:
     path: /docs/v3/notification/api-docs
   swagger-ui:
     path: /docs/v3/notification/swagger-ui/index.html
-
-aws:
-  sqs:
-    verificationQueueName: ${VERIFICATION_SQS_QUEUE_NAME}
-    verificationQueueUrl: ${VERIFICATION_SQS_QUEUE_URL}
-    receiptQueueName: ${RECEIPT_SQS_QUEUE_NAME}
-    receiptQueueUrl: ${RECEIPT_SQS_QUEUE_URL}
 
 email:
   frontend-endpoint: ${FRONTEND_ENDPOINT}

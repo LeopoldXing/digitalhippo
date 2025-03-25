@@ -2,26 +2,19 @@ server:
   port: 9005
 
 spring:
-  cloud:
-    aws:
-      region:
-        static: ${AWS_REGION}
-      credentials:
-        access-key: ${ACCESS_KEY}
-        secret-key: ${SECRET_KEY}
-      sqs:
-        endpoint: ${SQS_ENDPOINT}
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${GMAIL_USERNAME}
-    password: ${GOOGLE_APP_PASSWORD}
+    username: xxxxxx@gmail.com
+    password: "xxxxxxxxxxxxxxx"
     properties:
       mail:
         smtp:
           auth: true
           starttls:
             enable: true
+  kafka:
+    bootstrap-servers: localhost:9094
 
 springdoc:
   api-docs:
@@ -30,15 +23,8 @@ springdoc:
   swagger-ui:
     path: /docs/v3/notification/swagger-ui/index.html
 
-aws:
-  sqs:
-    verificationQueueName: ${VERIFICATION_SQS_QUEUE_NAME}
-    verificationQueueUrl: ${VERIFICATION_SQS_QUEUE_URL}
-    receiptQueueName: ${RECEIPT_SQS_QUEUE_NAME}
-    receiptQueueUrl: ${RECEIPT_SQS_QUEUE_URL}
-
 email:
-  frontend-endpoint: ${FRONTEND_ENDPOINT}
+  frontend-endpoint: http://localhost:5379
 
 eureka:
   instance:

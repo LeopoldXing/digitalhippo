@@ -25,16 +25,6 @@
             <artifactId>stripe-java</artifactId>
             <version>${stripe.version}</version>
         </dependency>
-        <!--  aws sns  -->
-        <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-starter-sns</artifactId>
-        </dependency>
-        <!--  aws messaging  -->
-        <dependency>
-            <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-aws-messaging</artifactId>
-        </dependency>
         <!--  http client  -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

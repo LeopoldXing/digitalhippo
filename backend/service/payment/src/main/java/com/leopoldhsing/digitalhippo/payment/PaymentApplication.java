@@ -26,22 +26,19 @@ public class PaymentApplication {
 
     @Bean
     public OpenAPI customOpenAPI() {
-        return new OpenAPI().info(
-                new Info()
+        return new OpenAPI()
+                .info(new Info()
                         .title("Stripe Microservice REST API Documentation")
                         .description("DigitalHippo Backend Stripe Microservice REST API Documentation")
                         .version("1.0.0")
-                        .contact(
-                                new Contact()
-                                        .name("Leopold Hsing")
-                                        .email("leopoldhsing@gmail.com")
-                                        .url("https://www.linkedin.com/in/leopoldhsing/")
-                        )
-                        .license(new License().name("MIT").url("https://opensource.org/licenses/MIT"))
-        ).externalDocs(
-                new ExternalDocumentation()
+                        .contact(new Contact()
+                                .name("Leopold Hsing")
+                                .email("leopoldhsing@gmail.com")
+                                .url("https://www.linkedin.com/in/leopoldhsing/"))
+                        .license(new License().name("MIT").url("https://opensource.org/licenses/MIT")))
+                .externalDocs(new ExternalDocumentation()
                         .description("DigitalHippo project documentation")
                         .url("https://blogs.leopoldhsing.com/digitalhippo/")
-        );
+                );
     }
 }

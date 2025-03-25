@@ -26,7 +26,7 @@ open class RedissonClientConfig constructor(
     open fun redissonClient(): RedissonClient {
         val config: Config = Config()
 
-        log.info("Prepare to connect to Redis, Password: [ ${redisProperties.password} ]; Address: [ redis://${redisProperties.host}:${redisProperties.port} ]")
+        log.info("Prepare to connect to Redis, Port: [ ${redisProperties.port} ]; Address: [ redis://${redisProperties.host}:${redisProperties.port} ]")
 
         config.useSingleServer().address = "redis://${redisProperties.host}:${redisProperties.port}"
         config.useSingleServer().password = redisProperties.password
