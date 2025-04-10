@@ -19,12 +19,6 @@
     </properties>
 
     <dependencies>
-        <!--  kafka  -->
-        <dependency>
-            <groupId>org.springframework.kafka</groupId>
-            <artifactId>spring-kafka</artifactId>
-            <version>3.3.4</version>
-        </dependency>
         <!--  http client  -->
         <dependency>
             <groupId>org.apache.httpcomponents</groupId>

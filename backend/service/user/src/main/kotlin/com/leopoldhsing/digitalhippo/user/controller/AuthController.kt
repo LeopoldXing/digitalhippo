@@ -133,36 +133,4 @@ class AuthController @Autowired constructor(private val userService: UserService
 
         return ResponseEntity.status(HttpStatus.CREATED).body(user)
     }
-
-    @Operation(
-        summary = "Verify Email",
-        description = "Verify user's email using the provided token."
-    )
-    @ApiResponses(
-        value = [
-            ApiResponse(
-                responseCode = "200",
-                description = "Email verified successfully",
-                content = [Content(mediaType = "application/json", schema = Schema(implementation = Boolean::class))]
-            ),
-            ApiResponse(
-                responseCode = "400",
-                description = "Invalid or expired verification token",
-                content = [Content(schema = Schema(implementation = ErrorResponseDto::class))]
-            ),
-            ApiResponse(
-                responseCode = "404",
-                description = "User not found",
-                content = [Content(schema = Schema(implementation = ErrorResponseDto::class))]
-            )
-        ]
-    )
-    @GetMapping("/verify-email")
-    fun verifyEmail(
-        @Parameter(description = "Verification token", required = true)
-        @RequestHeader("token") token: String
-    ): ResponseEntity<Boolean> {
-        val res = userService.verifyEmail(token)
-        return ResponseEntity.status(HttpStatus.OK).body(res)
-    }
 }

@@ -1,18 +1,14 @@
 package com.leopoldhsing.digitalhippo.user.service.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.exception.UserAlreadyExistsException
-import com.leopoldhsing.digitalhippo.common.exception.VerificationTokenExpiredException
 import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
 import com.leopoldhsing.digitalhippo.common.utils.InputSanitizeString
 import com.leopoldhsing.digitalhippo.common.utils.PasswordUtil
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil
 import com.leopoldhsing.digitalhippo.common.utils.SignInTokenUtil
-import com.leopoldhsing.digitalhippo.common.utils.VerificationTokenUtil
 import com.leopoldhsing.digitalhippo.feign.cart.CartFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.AddToCartDto
 import com.leopoldhsing.digitalhippo.model.entity.User
@@ -20,7 +16,6 @@ import com.leopoldhsing.digitalhippo.model.enumeration.UserRole
 import com.leopoldhsing.digitalhippo.model.vo.ProductVo
 import com.leopoldhsing.digitalhippo.model.vo.UserLoginResponseVo
 import com.leopoldhsing.digitalhippo.user.controller.AuthController
-import com.leopoldhsing.digitalhippo.user.kafka.KafkaProducer
 import com.leopoldhsing.digitalhippo.user.repository.UserRepository
 import com.leopoldhsing.digitalhippo.user.service.UserService
 import org.slf4j.LoggerFactory.getLogger
@@ -34,8 +29,7 @@ import java.util.concurrent.TimeUnit
 class UserServiceImpl @Autowired constructor(
     private val userRepository: UserRepository,
     private val redisTemplate: StringRedisTemplate,
-    private val cartFeignClient: CartFeignClient,
-    private val kafkaProducer: KafkaProducer
+    private val cartFeignClient: CartFeignClient
 ) : UserService {
 
     companion object {
@@ -149,67 +143,13 @@ class UserServiceImpl @Autowired constructor(
         // 5. persist the items in user's cart
         if (!CollectionUtils.isEmpty(cartItemIdList)) {
             cartFeignClient.addItem(AddToCartDto(savedUser, cartItemIdList))
-            log.info("save cart items for new user cart items: {}, user: {}",
-                AddToCartDto(savedUser, cartItemIdList), savedUser.email)
+            log.info(
+                "save cart items for new user cart items: {}, user: {}",
+                AddToCartDto(savedUser, cartItemIdList), savedUser.email
+            )
         }
 
-        // 6. send verification email using Kafka
-        // generate verification token
-        val verificationToken = VerificationTokenUtil.generateVerificationToken()
-        log.info("prepare to send verification email to new user {}, verification token: {}", savedUser.email, verificationToken)
-        // put verification token into Redis
-        redisTemplate.opsForValue().set(
-            RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + verificationToken,
-            savedUser.id.toString(),
-            3,
-            TimeUnit.DAYS
-        )
-        log.info("verification token {} saved to redis, user: {}", verificationToken, savedUser.email)
-        // construct verification message
-        val emailVerificationParams: Map<String, String> =
-            mapOf("type" to "verification", "email" to savedUser.email, "verificationToken" to verificationToken)
-        val objectMapper = ObjectMapper()
-        objectMapper.registerModule(JavaTimeModule())
-        val jsonMessage = objectMapper.writeValueAsString(emailVerificationParams)
-
-        // send message to Kafka using KafkaProducer
-        kafkaProducer.sendMessage("user", jsonMessage)
-        log.info("verification email for user {} sent, message: {}", savedUser.email, jsonMessage)
-
-        // 7. Return result
+        // 6. Return result
         return savedUser
-    }
-
-    /**
-     * verify user email
-     */
-    override fun verifyEmail(token: String): Boolean {
-        log.info("verify email, token: {}", token)
-        // 1. get verification token key
-        val verificationTokenKey = RedisConstants.VERIFICATION_TOKEN_PREFIX + RedisConstants.VERIFICATION_TOKEN_SUFFIX + token
-
-        // 2. search token in ElastiCache
-        if (!redisTemplate.hasKey(verificationTokenKey)) {
-            log.error("verify email failed, token: {}", token)
-            throw VerificationTokenExpiredException(token)
-        }
-
-        // 3. check the user id
-        val userId = redisTemplate.opsForValue().get(verificationTokenKey)
-
-        // 4. change userId to verified
-        if (userId != null) {
-            val user = userRepository.findById(userId.toLong())
-                .orElseThrow { ResourceNotFoundException("User", "userId", userId) }
-            log.info("email verified, token: {}, user: {}", token, user)
-            user.isVerified = true
-            userRepository.save(user)
-        } else {
-            log.error("token valid, but user not found, token: {}, userId: {}", token, userId.toString())
-            throw ResourceNotFoundException("User", "userId", userId)
-        }
-
-        // 5. return result
-        return true
     }
 }

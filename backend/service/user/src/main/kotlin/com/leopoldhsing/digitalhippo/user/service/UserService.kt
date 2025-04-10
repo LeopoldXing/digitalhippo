@@ -13,6 +13,4 @@ interface UserService {
     fun signOut()
 
     fun createUser(payloadId: String, email: String, password: String, role: UserRole, cartItemIdList: List<Long>): User
-
-    fun verifyEmail(token: String): Boolean
 }
