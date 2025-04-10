@@ -1,5 +1,5 @@
 server:
-  port: 9006
+  port: 9002
 
 spring:
   # x86 device use this configuration
@@ -42,4 +42,4 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:9002/eureka/
+      defaultZone: http://localhost:9000/eureka/

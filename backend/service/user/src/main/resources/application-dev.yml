@@ -1,5 +1,5 @@
 server:
-  port: 9004
+  port: 9001
   servlet:
     context-path: /
 
@@ -43,4 +43,4 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:9002/eureka/
+      defaultZone: http://localhost:9000/eureka/

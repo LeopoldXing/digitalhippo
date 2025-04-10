@@ -1,5 +1,5 @@
 server:
-  port: 9003
+  port: 9005
 
 spring:
   elasticsearch:
@@ -20,4 +20,4 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:9002/eureka/
+      defaultZone: http://localhost:9000/eureka/
