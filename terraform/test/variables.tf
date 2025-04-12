@@ -64,28 +64,22 @@ variable "elasticsearch_version" {
   default     = "8.14.1"
 }
 
-variable "elasticsearch_instance_count" {
-  description = "Elasticsearch 集群中节点数量，建议至少 3 个。"
+variable "elasticsearch_asg_min_size" {
+  description = "Elasticsearch ASG 最小实例数"
   type        = number
   default     = 3
+}
+
+variable "elasticsearch_asg_max_size" {
+  description = "Elasticsearch ASG 最大实例数"
+  type        = number
+  default     = 6
 }
 
 variable "elasticsearch_instance_type" {
   description = "Elasticsearch 节点 EC2 实例类型。"
   type        = string
   default     = "t3.large"
-}
-
-variable "elasticsearch_ami" {
-  description = "用于 Elasticsearch 节点的 AMI ID（请根据所在区域进行更换）。"
-  type        = string
-  # 此处为占位符，请使用符合要求的 AMI
-  default     = "ami-0xxxxxxxxxxxxxxx"
-}
-
-variable "elasticsearch_key_name" {
-  description = "部署 Elasticsearch 节点的 SSH Key 名称"
-  type        = string
 }
 
 variable "elasticsearch_volume_size" {

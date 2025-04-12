@@ -6,24 +6,34 @@
 # - aws_vpc.digitalhippo_vpc.id
 # - var.vpc_cidr
 # - aws_subnet.private[*].id
-#
-# 新增变量 elasticsearch_version 在 variables.tf 中定义，例如：
-#
-# variable "elasticsearch_version" {
-#   description = "Elasticsearch 版本，默认 8.14.1"
-#   type        = string
-#   default     = "8.14.1"
-# }
 
 #################################################
-# 安全组：用于 Elasticsearch 节点之间和外部调用
+# 数据源：自动获取当前区域最新的 Amazon Linux 2 AMI
+#################################################
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-2.0.*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+#################################################
+# 安全组：用于 Elasticsearch 节点之间和内部调用
 #################################################
 resource "aws_security_group" "elasticsearch_sg" {
   name        = "${var.elasticsearch_cluster_name}-sg"
   description = "Security group for Elasticsearch cluster"
   vpc_id      = aws_vpc.digitalhippo_vpc.id
 
-  # 开放 HTTP 端口（9200）
+  # 开放 HTTP 端口（9200），供内部服务访问
   ingress {
     description = "Allow Elasticsearch HTTP (9200) access within VPC"
     from_port   = 9200
@@ -32,7 +42,7 @@ resource "aws_security_group" "elasticsearch_sg" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  # 开放集群内通信使用的传输端口（9300）
+  # 开放 Elasticsearch 节点间传输端口（9300）
   ingress {
     description = "Allow Elasticsearch transport (9300) access within VPC"
     from_port   = 9300
@@ -41,7 +51,7 @@ resource "aws_security_group" "elasticsearch_sg" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  # 可选：允许 SSH 访问，建议在实际环境中限制来源 IP
+  # 可选：允许 SSH 访问（生产环境建议限制来源 IP）
   ingress {
     description = "Allow SSH access"
     from_port   = 22
@@ -64,40 +74,85 @@ resource "aws_security_group" "elasticsearch_sg" {
 }
 
 #################################################
-# 部署 Elasticsearch 节点的 EC2 实例
+# 内部 NLB 作为统一访问入口
 #################################################
-resource "aws_instance" "elasticsearch_node" {
-  count         = var.elasticsearch_instance_count
-  ami           = var.elasticsearch_ami
+resource "aws_lb" "elasticsearch_lb" {
+  name               = "${var.elasticsearch_cluster_name}-lb"
+  internal           = true
+  load_balancer_type = "network"
+  subnets            = aws_subnet.private[*].id
+  security_groups    = [aws_security_group.elasticsearch_sg.id]
+
+  tags = {
+    Name = "${var.elasticsearch_cluster_name}-lb"
+  }
+}
+
+resource "aws_lb_target_group" "elasticsearch_tg" {
+  name     = "${var.elasticsearch_cluster_name}-tg"
+  port     = 9200
+  protocol = "TCP"
+  vpc_id   = aws_vpc.digitalhippo_vpc.id
+
+  health_check {
+    protocol            = "TCP"
+    port                = "9200"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 30
+    timeout             = 10
+  }
+
+  tags = {
+    Name = "${var.elasticsearch_cluster_name}-tg"
+  }
+}
+
+resource "aws_lb_listener" "elasticsearch_listener" {
+  load_balancer_arn = aws_lb.elasticsearch_lb.arn
+  port              = 9200
+  protocol          = "TCP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.elasticsearch_tg.arn
+  }
+}
+
+#################################################
+# Launch Template：定义 Elasticsearch 节点实例模板
+#################################################
+resource "aws_launch_template" "elasticsearch_lt" {
+  name_prefix   = "${var.elasticsearch_cluster_name}-lt-"
+  image_id      = data.aws_ami.amazon_linux_2.id
   instance_type = var.elasticsearch_instance_type
-  key_name      = var.elasticsearch_key_name
 
-  # 部署在私有子网中；若私有子网数不足，则采用轮转机制
-  subnet_id = element(aws_subnet.private[*].id, count.index % length(aws_subnet.private))
+  vpc_security_group_ids = [aws_security_group.elasticsearch_sg.id]
 
-  vpc_security_group_ids = [
-    aws_security_group.elasticsearch_sg.id
-  ]
-
-  # Root Block Device 设置
-  root_block_device {
-    volume_size = 50
-    volume_type = "gp3"
+  # Root Block Device（可根据需要调整）
+  block_device_mappings {
+    device_name = "/dev/xvda"
+    ebs {
+      volume_size = 50
+      volume_type = "gp3"
+    }
   }
 
-  # 附加用于 Elasticsearch 数据存储的 EBS 卷
-  ebs_block_device {
-    device_name           = "/dev/sdf"
-    volume_size           = var.elasticsearch_volume_size
-    volume_type           = "gp3"
-    delete_on_termination = true
+  # 附加用于存储 Elasticsearch 数据的 EBS 卷
+  block_device_mappings {
+    device_name = "/dev/sdf"
+    ebs {
+      volume_size           = var.elasticsearch_volume_size
+      volume_type           = "gp3"
+      delete_on_termination = true
+    }
   }
 
-  # 利用 user_data 脚本自动安装和启动 Elasticsearch
-  user_data = <<-EOF
+  # user_data 脚本：自动安装并启动指定版本的 Elasticsearch
+  user_data = base64encode(<<-EOF
     #!/bin/bash
     set -ex
-    # 更新系统并安装必要的软件包
+    # 更新系统并安装 Java 11
     sudo yum update -y
     sudo amazon-linux-extras install java-openjdk11 -y
 
@@ -106,20 +161,22 @@ resource "aws_instance" "elasticsearch_node" {
     sudo tar -xzf /tmp/es.tar.gz -C /opt
     sudo mv /opt/elasticsearch-${var.elasticsearch_version} /opt/elasticsearch
 
-    # 创建专用用户并设置权限
+    # 创建专用用户并设置目录权限
     sudo useradd elasticsearch -s /sbin/nologin
-    sudo chown -R elasticsearch:elasticsearch /opt/elasticsearch
     sudo mkdir -p /var/lib/elasticsearch
-    sudo chown elasticsearch:elasticsearch /var/lib/elasticsearch
+    sudo chown -R elasticsearch:elasticsearch /opt/elasticsearch /var/lib/elasticsearch
+
+    # 使用实例元数据中的实例ID作为节点名称
+    NODE_NAME=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
     # 生成 Elasticsearch 配置文件
-    cat <<EOC > /opt/elasticsearch/config/elasticsearch.yml
+    sudo tee /opt/elasticsearch/config/elasticsearch.yml > /dev/null <<EOC
     cluster.name: "${var.elasticsearch_cluster_name}"
-    node.name: "node-${count.index + 1}"
+    node.name: "${NODE_NAME}"
     network.host: 0.0.0.0
     http.port: 9200
-    discovery.seed_hosts: [${join(", ", formatlist("\"%s\"", aws_instance.elasticsearch_node[*].private_ip))}]
-    cluster.initial_master_nodes: [${join(", ", ["\"node-1\"", "\"node-2\"", "\"node-3\""])}]
+    # 采用空的 discovery.seed_hosts，依靠后续集群形成机制；实际生产中建议采用更完善的发现方式
+    discovery.seed_hosts: []
     path.data: /var/lib/elasticsearch
     EOC
 
@@ -137,22 +194,44 @@ resource "aws_instance" "elasticsearch_node" {
 
     [Install]
     WantedBy=multi-user.target
-EOF2
+    EOF2
 
     sudo systemctl daemon-reload
     sudo systemctl enable elasticsearch
     sudo systemctl start elasticsearch
   EOF
+  )
+}
 
-  tags = {
-    Name = "${var.elasticsearch_cluster_name}-node-${count.index + 1}"
+#################################################
+# Auto Scaling Group：管理 Elasticsearch 节点的自动伸缩
+#################################################
+resource "aws_autoscaling_group" "elasticsearch_asg" {
+  name                      = "${var.elasticsearch_cluster_name}-asg"
+  max_size                  = var.elasticsearch_asg_max_size
+  min_size                  = var.elasticsearch_asg_min_size
+  desired_capacity          = var.elasticsearch_asg_min_size
+  launch_template {
+    id      = aws_launch_template.elasticsearch_lt.id
+    version = "$Latest"
+  }
+  vpc_zone_identifier       = aws_subnet.private[*].id
+  target_group_arns         = [aws_lb_target_group.elasticsearch_tg.arn]
+  health_check_type         = "EC2"
+  health_check_grace_period = 300
+  termination_policies      = ["OldestInstance"]
+
+  tag {
+    key                 = "Name"
+    value               = "${var.elasticsearch_cluster_name}-node"
+    propagate_at_launch = true
   }
 }
 
 #################################################
-# 输出 Elasticsearch 节点的私有 IP 地址
+# 输出统一的内部 Elasticsearch Endpoint
 #################################################
-output "elasticsearch_node_private_ips" {
-  description = "Elasticsearch 节点的私有 IP 列表"
-  value       = aws_instance.elasticsearch_node[*].private_ip
+output "elasticsearch_endpoint" {
+  description = "统一的内部 Elasticsearch endpoint，供 EKS 使用"
+  value       = aws_lb.elasticsearch_lb.dns_name
 }
