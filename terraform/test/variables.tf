@@ -64,16 +64,10 @@ variable "elasticsearch_version" {
   default     = "8.14.1"
 }
 
-variable "elasticsearch_asg_min_size" {
-  description = "Elasticsearch ASG 最小实例数"
+variable "elasticsearch_node_count" {
+  description = "Elasticsearch 集群的节点数量，至少 1"
   type        = number
   default     = 3
-}
-
-variable "elasticsearch_asg_max_size" {
-  description = "Elasticsearch ASG 最大实例数"
-  type        = number
-  default     = 6
 }
 
 variable "elasticsearch_instance_type" {

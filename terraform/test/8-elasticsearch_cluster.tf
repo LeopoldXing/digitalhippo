@@ -12,15 +12,15 @@
 #################################################
 data "aws_ami" "amazon_linux_2" {
   most_recent = true
-  owners      = ["amazon"]
+  owners = ["amazon"]
 
   filter {
-    name   = "name"
+    name = "name"
     values = ["amzn2-ami-hvm-2.0.*-x86_64-gp2"]
   }
 
   filter {
-    name   = "virtualization-type"
+    name = "virtualization-type"
     values = ["hvm"]
   }
 }
@@ -81,7 +81,7 @@ resource "aws_lb" "elasticsearch_lb" {
   internal           = true
   load_balancer_type = "network"
   subnets            = aws_subnet.private[*].id
-  security_groups    = [aws_security_group.elasticsearch_sg.id]
+  security_groups = [aws_security_group.elasticsearch_sg.id]
 
   tags = {
     Name = "${var.elasticsearch_cluster_name}-lb"
@@ -120,32 +120,31 @@ resource "aws_lb_listener" "elasticsearch_listener" {
 }
 
 #################################################
-# Launch Template：定义 Elasticsearch 节点实例模板
+# Elasticsearch 节点：使用固定数量的 EC2 实例
 #################################################
-resource "aws_launch_template" "elasticsearch_lt" {
-  name_prefix   = "${var.elasticsearch_cluster_name}-lt-"
-  image_id      = data.aws_ami.amazon_linux_2.id
+resource "aws_instance" "elasticsearch_node" {
+  count         = var.elasticsearch_node_count
+  ami           = data.aws_ami.amazon_linux_2.id
   instance_type = var.elasticsearch_instance_type
+  # 将节点均匀分布到私有子网中
+  subnet_id = element(aws_subnet.private[*].id, count.index % length(aws_subnet.private))
 
-  vpc_security_group_ids = [aws_security_group.elasticsearch_sg.id]
+  vpc_security_group_ids = [
+    aws_security_group.elasticsearch_sg.id
+  ]
 
   # Root Block Device（可根据需要调整）
-  block_device_mappings {
-    device_name = "/dev/xvda"
-    ebs {
-      volume_size = 50
-      volume_type = "gp3"
-    }
+  root_block_device {
+    volume_size = 50
+    volume_type = "gp3"
   }
 
   # 附加用于存储 Elasticsearch 数据的 EBS 卷
-  block_device_mappings {
-    device_name = "/dev/sdf"
-    ebs {
-      volume_size           = var.elasticsearch_volume_size
-      volume_type           = "gp3"
-      delete_on_termination = true
-    }
+  ebs_block_device {
+    device_name           = "/dev/sdf"
+    volume_size           = var.elasticsearch_volume_size
+    volume_type           = "gp3"
+    delete_on_termination = true
   }
 
   # user_data 脚本：自动安装并启动指定版本的 Elasticsearch
@@ -201,31 +200,20 @@ resource "aws_launch_template" "elasticsearch_lt" {
     sudo systemctl start elasticsearch
   EOF
   )
+
+  tags = {
+    Name = "${var.elasticsearch_cluster_name}-node-${count.index + 1}"
+  }
 }
 
 #################################################
-# Auto Scaling Group：管理 Elasticsearch 节点的自动伸缩
+# 注册固定节点到目标组
 #################################################
-resource "aws_autoscaling_group" "elasticsearch_asg" {
-  name                      = "${var.elasticsearch_cluster_name}-asg"
-  max_size                  = var.elasticsearch_asg_max_size
-  min_size                  = var.elasticsearch_asg_min_size
-  desired_capacity          = var.elasticsearch_asg_min_size
-  launch_template {
-    id      = aws_launch_template.elasticsearch_lt.id
-    version = "$Latest"
-  }
-  vpc_zone_identifier       = aws_subnet.private[*].id
-  target_group_arns         = [aws_lb_target_group.elasticsearch_tg.arn]
-  health_check_type         = "EC2"
-  health_check_grace_period = 300
-  termination_policies      = ["OldestInstance"]
-
-  tag {
-    key                 = "Name"
-    value               = "${var.elasticsearch_cluster_name}-node"
-    propagate_at_launch = true
-  }
+resource "aws_lb_target_group_attachment" "elasticsearch_tg_attachment" {
+  count            = var.elasticsearch_node_count
+  target_group_arn = aws_lb_target_group.elasticsearch_tg.arn
+  target_id        = aws_instance.elasticsearch_node[count.index].id
+  port             = 9200
 }
 
 #################################################
