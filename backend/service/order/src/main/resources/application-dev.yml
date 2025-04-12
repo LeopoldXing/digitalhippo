@@ -1,5 +1,7 @@
 server:
-  port: 23003
+  port: 23004
+  servlet:
+    context-path: /
 
 spring:
   datasource:
@@ -12,12 +14,18 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+stripe:
+  secret-key: ${STRIPE_SECRET_KEY}
+  publishable-key: ${STRIPE_PUBLISHABLE_KEY}
+  webhook-secret: ${STRIPE_WEBHOOK_SECRET}
+  frontend-endpoint: ${FRONTEND_ENDPOINT}
+
 springdoc:
   api-docs:
     enabled: true
-    path: /docs/v3/cart/api-docs
+    path: /docs/v3/payment/api-docs
   swagger-ui:
-    path: /docs/v3/cart/swagger-ui/index.html
+    path: /docs/v3/payment/swagger-ui/index.html
 
 eureka:
   instance:
