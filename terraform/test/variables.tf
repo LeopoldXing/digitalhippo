@@ -56,3 +56,46 @@ variable "db_instance_class" {
   type        = string
   default     = "db.serverless"
 }
+
+# --- Elasticsearch 相关变量 ---
+variable "elasticsearch_version" {
+  description = "Elasticsearch 版本，默认 8.14.1"
+  type        = string
+  default     = "8.14.1"
+}
+
+variable "elasticsearch_instance_count" {
+  description = "Elasticsearch 集群中节点数量，建议至少 3 个。"
+  type        = number
+  default     = 3
+}
+
+variable "elasticsearch_instance_type" {
+  description = "Elasticsearch 节点 EC2 实例类型。"
+  type        = string
+  default     = "t3.large"
+}
+
+variable "elasticsearch_ami" {
+  description = "用于 Elasticsearch 节点的 AMI ID（请根据所在区域进行更换）。"
+  type        = string
+  # 此处为占位符，请使用符合要求的 AMI
+  default     = "ami-0xxxxxxxxxxxxxxx"
+}
+
+variable "elasticsearch_key_name" {
+  description = "部署 Elasticsearch 节点的 SSH Key 名称"
+  type        = string
+}
+
+variable "elasticsearch_volume_size" {
+  description = "Elasticsearch 数据盘的 EBS 卷大小（GB）"
+  type        = number
+  default     = 50
+}
+
+variable "elasticsearch_cluster_name" {
+  description = "Elasticsearch 集群名称"
+  type        = string
+  default     = "digitalhippo-es-cluster"
+}
