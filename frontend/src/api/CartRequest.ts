@@ -1,4 +1,4 @@
-const BASE_URL = process.env.BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export const getUserCartItem = async (accessToken: string) => {
   const response = await fetch(`${BASE_URL}/api/cart`, {

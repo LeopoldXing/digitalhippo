@@ -4,7 +4,7 @@ import { getCookie } from "cookies-next";
 import { ProductApiType } from "@/types";
 import { AfterChangeHook, BeforeChangeHook, BeforeDeleteHook } from "payload/dist/collections/config/types";
 
-const BASE_URL = process.env.BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const S3_ENDPOINT_HOST = process.env.S3_ENDPOINT_HOST;
 const S3_BUCKET = process.env.S3_BUCKET;
 
