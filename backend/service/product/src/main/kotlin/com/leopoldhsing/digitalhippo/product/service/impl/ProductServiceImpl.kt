@@ -4,7 +4,7 @@ import com.leopoldhsing.digitalhippo.common.constants.RedisConstants
 import com.leopoldhsing.digitalhippo.common.exception.AuthenticationFailedException
 import com.leopoldhsing.digitalhippo.common.exception.ResourceNotFoundException
 import com.leopoldhsing.digitalhippo.common.mapper.product.ProductMapper
-import com.leopoldhsing.digitalhippo.feign.search.ProductSearchingFeignClient
+import com.leopoldhsing.digitalhippo.product.service.ProductSearchingService
 import com.leopoldhsing.digitalhippo.feign.stripe.StripeProductFeignClient
 import com.leopoldhsing.digitalhippo.feign.user.UserFeignClient
 import com.leopoldhsing.digitalhippo.model.dto.SearchingResultDto
@@ -33,14 +33,14 @@ open class ProductServiceImpl @Autowired constructor(
     private val productImageRepository: ProductImageRepository,
     private val productElasticsearchRepository: ProductElasticsearchRepository,
     private val userFeignClient: UserFeignClient,
-    private val productSearchingFeignClient: ProductSearchingFeignClient,
+    private val productSearchingService: ProductSearchingService,
     private val stripeProductFeignClient: StripeProductFeignClient,
     private val cacheService: CacheService
 ) : ProductService {
 
     override fun conditionalSearchProducts(condition: ProductSearchingConditionVo): SearchingResultDto {
         // 1. use searching service to get product id list
-        val searchResult: SearchingResultIndexDto = productSearchingFeignClient.searchProduct(condition)
+        val searchResult: SearchingResultIndexDto = productSearchingService.searchProducts(condition)
         val searchResultIdList: List<Long> = searchResult.results.map { it.id }
 
         // 2. get product info
