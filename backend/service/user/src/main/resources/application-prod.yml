@@ -44,3 +44,4 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://eureka:8080/eureka/
+    enabled: false

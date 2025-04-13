@@ -29,6 +29,7 @@ spring:
   kafka:
     bootstrap-servers: localhost:9094
 
+
 springdoc:
   api-docs:
     enabled: true
@@ -44,3 +45,4 @@ eureka:
     register-with-eureka: true
     service-url:
       defaultZone: http://localhost:9000/eureka/
+    enabled: true
