@@ -1,4 +1,4 @@
-const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'https://digitalhippo-backend.leopoldhsing.cc:31400';
+const BASE_URL = process.env.BACKEND_URL;
 
 type createPaymentSessionRequestType = {
   productIdList: string[],

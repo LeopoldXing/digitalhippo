@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { httpBatchLink } from "@trpc/client";
 import { trpc } from "@/trpc/client";
 
-const FRONTEND_URL = process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://digitalhippo.leopoldhsing.cc:41400';
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const Providers = ({ children }: PropsWithChildren) => {
   const [queryClient] = useState(() => new QueryClient())

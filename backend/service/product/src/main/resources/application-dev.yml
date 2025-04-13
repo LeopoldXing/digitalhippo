@@ -3,18 +3,18 @@ server:
 
 spring:
   # x86 device use this configuration
-#  redis:
-#    host: localhost
-#    port: 6379
-#    password: 1234
-#    database: 1
+  redis:
+    host: localhost
+    port: 6379
+    password: 1234
+    database: 1
   # mac device with ARM chip use this configuration
-  data:
-    redis:
-      host: localhost
-      port: 6379
-      password: 1234
-      database: 1
+#  data:
+#    redis:
+#      host: localhost
+#      port: 6379
+#      password: 1234
+#      database: 1
   datasource:
     url: jdbc:postgresql://localhost:5432/digitalhippo
     username: postgres
@@ -42,5 +42,5 @@ eureka:
     fetch-registry: true
     register-with-eureka: true
     service-url:
-      defaultZone: http://localhost:9000/eureka/
+      defaultZone: http://localhost:23000/eureka/
     enabled: true
