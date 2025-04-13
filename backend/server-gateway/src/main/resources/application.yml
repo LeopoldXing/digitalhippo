@@ -40,18 +40,10 @@ spring:
           uri: lb://cart
           predicates:
             - Path=/api/cart/**, /docs/v3/cart/**
-        - id: stripe
-          uri: lb://stripe
+        - id: order
+          uri: lb://order
           predicates:
-            - Path=/api/stripe/**, /docs/v3/stripe/**
-        - id: search
-          uri: lb://search
-          predicates:
-            - Path=/docs/v3/search/**
-        - id: email
-          uri: lb://email
-          predicates:
-            - Path=/docs/v3/email/**
+            - Path=/api/order/**, /docs/v3/order/**
 
 url:
   auth:
@@ -63,12 +55,9 @@ url:
       - /api/user/verify-email
       - /api/product/search/**
       - /api/product/*
-      - /api/stripe/payment/confirm
+      - /api/order/payment/confirm
       - /actuator/**
     trusted-uri-patterns:
-      - /css/**
-      - /img/**
-      - /fonts/**
       - /docs/v3/** # documentations
 
 springdoc:

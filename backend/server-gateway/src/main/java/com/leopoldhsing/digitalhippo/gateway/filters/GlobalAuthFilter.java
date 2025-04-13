@@ -3,15 +3,12 @@ package com.leopoldhsing.digitalhippo.gateway.filters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.leopoldhsing.digitalhippo.common.constants.RedisConstants;
 import com.leopoldhsing.digitalhippo.gateway.config.GatewayUrlAuthConfig;
 import com.leopoldhsing.digitalhippo.model.dto.ErrorResponseDto;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -30,13 +27,13 @@ import java.util.List;
 @Component
 public class GlobalAuthFilter implements GlobalFilter {
 
-    @Autowired
-    private GatewayUrlAuthConfig gatewayUrlAuthConfig;
-
-    @Autowired
-    private StringRedisTemplate redisTemplate;
+    private final GatewayUrlAuthConfig gatewayUrlAuthConfig;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    public GlobalAuthFilter(GatewayUrlAuthConfig gatewayUrlAuthConfig) {
+        this.gatewayUrlAuthConfig = gatewayUrlAuthConfig;
+    }
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -51,7 +48,7 @@ public class GlobalAuthFilter implements GlobalFilter {
         // 2.2 trusted uri pattern
         List<String> trustedUriList = gatewayUrlAuthConfig.getTrustedUriPatterns();
         long trustedPatternCount = trustedUriList
-                .parallelStream()
+                .stream()
                 .filter(pattern -> antPathMatcher.match(pattern, path))
                 .count();
         if (trustedPatternCount > 0) {
@@ -65,7 +62,7 @@ public class GlobalAuthFilter implements GlobalFilter {
                 .stream()
                 .filter(pattern -> antPathMatcher.match(pattern, path))
                 .count();
-        if(publicUriPatternCount > 0) {
+        if (publicUriPatternCount > 0) {
             // public url will skip authentication
             return chain.filter(exchange);
         }
@@ -73,7 +70,7 @@ public class GlobalAuthFilter implements GlobalFilter {
         // 2.4 inner call request
         List<String> innerUriList = gatewayUrlAuthConfig.getInnerUriPatterns();
         long innerRequestCount = innerUriList
-                .parallelStream()
+                .stream()
                 .filter(pattern -> antPathMatcher.match(pattern, path))
                 .count();
         if (innerRequestCount > 0) {
@@ -85,7 +82,9 @@ public class GlobalAuthFilter implements GlobalFilter {
         String signInUriPattern = gatewayUrlAuthConfig.getSignInUriPatterns();
         String signUpUriPattern = gatewayUrlAuthConfig.getSignUpUriPatterns();
         String signOutUriPattern = gatewayUrlAuthConfig.getSignOutUriPatterns();
-        if (antPathMatcher.match(signInUriPattern, path) || antPathMatcher.match(signUpUriPattern, path) || antPathMatcher.match(signOutUriPattern, path)) {
+        if (antPathMatcher.match(signInUriPattern, path)
+                || antPathMatcher.match(signUpUriPattern, path)
+                || antPathMatcher.match(signOutUriPattern, path)) {
             // sign-in and sign-up and sign-out requests will be passed directly
             return chain.filter(exchange);
         }
@@ -157,14 +156,13 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * determine if the token exists in redis server
+     * determine if the token exists
      *
      * @param token
      * @return
      */
     private Boolean isTokenValid(String token) {
-        if (!StringUtils.hasLength(token)) return false;
-        String key = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + token;
-        return redisTemplate.hasKey(key);
+        // Removed Redis session check; now only check if token is non-empty
+        return StringUtils.hasLength(token);
     }
 }
