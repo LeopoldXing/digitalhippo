@@ -2,7 +2,7 @@ import { useMutation, useQuery } from "react-query";
 import { toast } from "sonner";
 import { ErrorResponseType, ProductApiType } from "@/types";
 
-const BASE_URL = process.env.BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 /**
  * user sign in api

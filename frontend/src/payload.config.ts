@@ -17,7 +17,7 @@ dotenv.config({
 })
 
 export default buildConfig({
-  serverURL: process.env.FRONTEND_URL,
+  serverURL: process.env.NEXT_PUBLIC_FRONTEND_URL,
   collections: [Users, Products, Media, ProductFiles, Orders],
   plugins: [
     // Pass the plugin to Payload

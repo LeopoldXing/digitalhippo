@@ -2,7 +2,7 @@ import { ProductApiType, searchingCondition } from "@/types";
 import qs from "qs";
 import { ProductSearchingResultType } from "@/hooks/productHooks";
 
-const BASE_URL = process.env.BACKEND_URL;
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 const getProductRequest = async (productId: string | number): Promise<ProductApiType> => {
   const response = await fetch(`${BASE_URL}/api/product/${productId}`, {
