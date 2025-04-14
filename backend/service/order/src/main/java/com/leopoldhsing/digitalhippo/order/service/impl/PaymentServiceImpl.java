@@ -6,10 +6,7 @@ import com.leopoldhsing.digitalhippo.common.constants.StripeConstants;
 import com.leopoldhsing.digitalhippo.common.exception.StripeSignatureInvalidException;
 import com.leopoldhsing.digitalhippo.common.utils.RequestUtil;
 import com.leopoldhsing.digitalhippo.feign.product.ProductFeignClient;
-import com.leopoldhsing.digitalhippo.model.dto.KafkaMessageDto;
 import com.leopoldhsing.digitalhippo.model.entity.Order;
-import com.leopoldhsing.digitalhippo.model.entity.ProductImage;
-import com.leopoldhsing.digitalhippo.model.enumeration.NotificationType;
 import com.leopoldhsing.digitalhippo.order.config.StripeProperties;
 import com.leopoldhsing.digitalhippo.order.service.OrderService;
 import com.leopoldhsing.digitalhippo.order.service.PaymentService;
@@ -170,19 +167,6 @@ public class PaymentServiceImpl implements PaymentService {
 
             // 1. update order status in postgres database
             Order order = orderService.updateOrderStatus(Long.valueOf(orderId), true);
-
-            // 2. construct email params
-            KafkaMessageDto kafkaMessageDto = new KafkaMessageDto();
-            kafkaMessageDto.setType(NotificationType.RECEIPT);
-            kafkaMessageDto.setEmail(order.getUser().getEmail());
-            kafkaMessageDto.setOrderPayloadId(order.getPayloadId());
-            // filter product images
-            List<com.leopoldhsing.digitalhippo.model.entity.Product> orderProducts = order.getProducts();
-            orderProducts.forEach(product -> {
-                List<ProductImage> productImages = product.getProductImages().stream().filter(productImage -> "TABLET".equalsIgnoreCase(productImage.getFileType().getValue())).toList();
-                product.setProductImages(productImages);
-            });
-            kafkaMessageDto.setProducts(orderProducts);
         }
     }
 

@@ -4,9 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 public class RedisConstants {
 
-    public static final String VERIFICATION_TOKEN_PREFIX = "user:";
-    public static final String VERIFICATION_TOKEN_SUFFIX = "verification:";
-
     public static final String USER_PREFIX = "user:";
     public static final String ACCESS_TOKEN_SUFFIX = "token:";
     public static final String USERID_SUFFIX = "uid:";

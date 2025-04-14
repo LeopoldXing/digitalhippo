@@ -23,6 +23,9 @@ const useSignIn = () => {
     });
     if (!response.ok) {
       const res: ErrorResponseType = await response.json();
+      if(res.error == "Not Found") {
+        throw new Error("We can not find any accounts associated with this email")
+      }
       throw new Error(`${res.message || 'Failed to sign in, please try again.'}`)
     }
     return response.json();

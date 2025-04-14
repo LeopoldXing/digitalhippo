@@ -32,15 +32,15 @@ spring:
           uri: lb://user
           predicates:
             - Path=/api/user/**, /docs/v3/user/**
-        - id: product
+        - id: service_product
           uri: lb://product
           predicates:
             - Path=/api/product/**, /docs/v3/product/**
-        - id: cart
+        - id: service_cart
           uri: lb://cart
           predicates:
             - Path=/api/cart/**, /docs/v3/cart/**
-        - id: order
+        - id: service_order
           uri: lb://order
           predicates:
             - Path=/api/order/**, /docs/v3/order/**

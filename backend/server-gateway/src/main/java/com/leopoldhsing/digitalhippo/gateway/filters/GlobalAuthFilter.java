@@ -3,12 +3,14 @@ package com.leopoldhsing.digitalhippo.gateway.filters;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import com.leopoldhsing.digitalhippo.common.constants.RedisConstants;
 import com.leopoldhsing.digitalhippo.gateway.config.GatewayUrlAuthConfig;
 import com.leopoldhsing.digitalhippo.model.dto.ErrorResponseDto;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.annotation.Order;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -29,10 +31,13 @@ public class GlobalAuthFilter implements GlobalFilter {
 
     private final GatewayUrlAuthConfig gatewayUrlAuthConfig;
 
+    private final StringRedisTemplate redisTemplate;
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public GlobalAuthFilter(GatewayUrlAuthConfig gatewayUrlAuthConfig) {
+    public GlobalAuthFilter(GatewayUrlAuthConfig gatewayUrlAuthConfig, StringRedisTemplate redisTemplate) {
         this.gatewayUrlAuthConfig = gatewayUrlAuthConfig;
+        this.redisTemplate = redisTemplate;
     }
 
     @Override
@@ -156,13 +161,14 @@ public class GlobalAuthFilter implements GlobalFilter {
     }
 
     /**
-     * determine if the token exists
+     * determine if the token exists in redis server
      *
      * @param token
      * @return
      */
     private Boolean isTokenValid(String token) {
-        // Removed Redis session check; now only check if token is non-empty
-        return StringUtils.hasLength(token);
+        if (!StringUtils.hasLength(token)) return false;
+        String key = RedisConstants.USER_PREFIX + RedisConstants.ACCESS_TOKEN_SUFFIX + token;
+        return redisTemplate.hasKey(key);
     }
 }
