@@ -4,13 +4,10 @@ server:
     context-path: /
 
 spring:
-  # x86 device use this configuration
-#  redis:
-#    host: ${REDIS_HOST}
-#    port: ${REDIS_PORT}
-#    password: ${REDIS_PASSWORD}
-#    database: ${REDIS_SESSION_DATABASE}
-  # mac device with ARM chip use this configuration
+  devtools:
+    remote:
+      restart:
+        enabled: false
   data:
     redis:
       host: ${REDIS_HOST}
@@ -26,8 +23,6 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
-  kafka:
-    bootstrap-servers: ${KAFKA_BROKERS}
 
 springdoc:
   api-docs:

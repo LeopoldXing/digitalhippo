@@ -2,11 +2,6 @@
 # 8-elasticsearch_cluster.tf
 ###############################
 
-# 假设以下变量在其他模板中已定义并输出：
-# - aws_vpc.digitalhippo_vpc.id
-# - var.vpc_cidr
-# - aws_subnet.private[*].id
-
 #################################################
 # 数据源：自动获取当前区域最新的 Amazon Linux 2 AMI
 #################################################
@@ -26,14 +21,14 @@ data "aws_ami" "amazon_linux_2" {
 }
 
 #################################################
-# 安全组：用于 Elasticsearch 节点之间和内部调用
+# 安全组：用于 Elasticsearch 节点之间及内部访问
 #################################################
 resource "aws_security_group" "elasticsearch_sg" {
   name        = "${var.elasticsearch_cluster_name}-sg"
   description = "Security group for Elasticsearch cluster"
   vpc_id      = aws_vpc.digitalhippo_vpc.id
 
-  # 开放 HTTP 端口（9200），供内部服务访问
+  # 允许 HTTP 端口 9200 (供内部服务访问)
   ingress {
     description = "Allow Elasticsearch HTTP (9200) access within VPC"
     from_port   = 9200
@@ -42,7 +37,7 @@ resource "aws_security_group" "elasticsearch_sg" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  # 开放 Elasticsearch 节点间传输端口（9300）
+  # 允许节点间传输数据时使用的 9300 端口
   ingress {
     description = "Allow Elasticsearch transport (9300) access within VPC"
     from_port   = 9300
@@ -51,7 +46,7 @@ resource "aws_security_group" "elasticsearch_sg" {
     cidr_blocks = [var.vpc_cidr]
   }
 
-  # 可选：允许 SSH 访问（生产环境建议限制来源 IP）
+  # 可选：允许 SSH（生产中建议限制来源，此处已开放）
   ingress {
     description = "Allow SSH access"
     from_port   = 22
@@ -89,18 +84,19 @@ resource "aws_lb" "elasticsearch_lb" {
 }
 
 resource "aws_lb_target_group" "elasticsearch_tg" {
-  name     = "${var.elasticsearch_cluster_name}-tg"
-  port     = 9200
-  protocol = "TCP"
-  vpc_id   = aws_vpc.digitalhippo_vpc.id
+  name   = "${var.elasticsearch_cluster_name}-tg"
+  port   = 9200
+  protocol = "HTTP"      # 由 TCP 改为 HTTP
+  vpc_id = aws_vpc.digitalhippo_vpc.id
 
   health_check {
-    protocol            = "TCP"
-    port                = "9200"
-    healthy_threshold   = 2
-    unhealthy_threshold = 2
-    interval            = 30
+    protocol            = "HTTP"
+    path = "/"   # 或者 "/_cluster/health" 如果 ES 返回健康状态
+    matcher = "200-399"  # 接受 200 至 399 的状态码
+    interval            = 60
     timeout             = 10
+    healthy_threshold   = 3
+    unhealthy_threshold = 3
   }
 
   tags = {
@@ -126,6 +122,7 @@ resource "aws_instance" "elasticsearch_node" {
   count         = var.elasticsearch_node_count
   ami           = data.aws_ami.amazon_linux_2.id
   instance_type = var.elasticsearch_instance_type
+  # 移除 key_name，因为不需要远程 SSH 连接
   # 将节点均匀分布到私有子网中
   subnet_id = element(aws_subnet.private[*].id, count.index % length(aws_subnet.private))
 
@@ -133,7 +130,7 @@ resource "aws_instance" "elasticsearch_node" {
     aws_security_group.elasticsearch_sg.id
   ]
 
-  # Root Block Device（可根据需要调整）
+  # 根块设备配置
   root_block_device {
     volume_size = 50
     volume_type = "gp3"
@@ -143,7 +140,8 @@ resource "aws_instance" "elasticsearch_node" {
   ebs_block_device {
     device_name           = "/dev/sdf"
     volume_size           = var.elasticsearch_volume_size
-    volume_type           = "gp3"
+    volume_type = "gp3"
+    # 设为 false，确保实例终止时数据不会被自动删除
     delete_on_termination = true
   }
 
@@ -161,21 +159,21 @@ resource "aws_instance" "elasticsearch_node" {
     sudo mv /opt/elasticsearch-${var.elasticsearch_version} /opt/elasticsearch
 
     # 创建专用用户并设置目录权限
-    sudo useradd elasticsearch -s /sbin/nologin
+    sudo useradd elasticsearch -s /sbin/nologin || true
     sudo mkdir -p /var/lib/elasticsearch
     sudo chown -R elasticsearch:elasticsearch /opt/elasticsearch /var/lib/elasticsearch
 
-    # 使用实例元数据中的实例ID作为节点名称
+    # 获取实例 ID 作为节点名称
     NODE_NAME=$(curl -s http://169.254.169.254/latest/meta-data/instance-id)
 
     # 生成 Elasticsearch 配置文件
     sudo tee /opt/elasticsearch/config/elasticsearch.yml > /dev/null <<EOC
     cluster.name: "${var.elasticsearch_cluster_name}"
-    node.name: "${NODE_NAME}"
+    node.name: "$${NODE_NAME}"
     network.host: 0.0.0.0
     http.port: 9200
-    # 采用空的 discovery.seed_hosts，依靠后续集群形成机制；实际生产中建议采用更完善的发现方式
-    discovery.seed_hosts: []
+    # 配置 discovery.seed_hosts 为所有节点的私有 IP 地址
+    discovery.seed_hosts: [$${join(", ", formatlist("\"%s\"", aws_instance.elasticsearch_node[*].private_ip))}]
     path.data: /var/lib/elasticsearch
     EOC
 
