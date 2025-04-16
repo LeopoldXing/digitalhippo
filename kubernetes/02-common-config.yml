@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: common-config
+data:
+  # 通用配置
+  SPRING_PROFILES_ACTIVE: "prod"
+  EUREKA_CLIENT_ENABLED: "false"
+
+  # Redis 配置（各服务共享，不同业务可忽略不使用）
+  REDIS_HOST: "redis.example.com"
+  REDIS_PORT: "6379"
+  REDIS_SESSION_DATABASE: "0"        # gateway、user等使用
+  REDIS_CACHING_DATABASE: "1"          # product 使用
+
+  # PostgreSQL 数据库配置（适用于 cart、order、product、user）
+  POSTGRES_URL: "jdbc:postgresql://postgres.example.com:5432/digitalhippo"
+  POSTGRES_USERNAME: "postgres"
+
+  # Elasticsearch 配置（product）
+  ES_ENDPOINT: "http://es.example.com:9200"
+
+  # Stripe 配置（order）
+  STRIPE_FRONTEND_ENDPOINT: "https://frontend.example.com"
+
+  FRONTEND_ENDPOINT: "https://digitalhippo.example.com"

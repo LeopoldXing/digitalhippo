@@ -87,3 +87,10 @@ variable "elasticsearch_cluster_name" {
   type        = string
   default     = "digitalhippo-es-cluster"
 }
+
+# --- Redis 相关变量 ---
+variable "redis_cluster_name" {
+  description = "Redis 集群名称"
+  type        = string
+  default     = "digitalhippo-redis"
+}

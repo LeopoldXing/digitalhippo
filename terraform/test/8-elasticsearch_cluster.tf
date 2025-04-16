@@ -2,6 +2,17 @@
 # 8-elasticsearch_cluster.tf
 ###############################
 
+# 假设以下变量在其他模板中已定义：
+#   var.region
+#   var.vpc_cidr
+#   var.elasticsearch_cluster_name
+#   var.elasticsearch_node_count         (type = number, minimum 1, default 如 3)
+#   var.elasticsearch_instance_type
+#   var.elasticsearch_volume_size
+#   var.elasticsearch_version              (如 "8.14.1")
+#   aws_vpc.digitalhippo_vpc.id
+#   aws_subnet.private[*].id
+
 #################################################
 # 数据源：自动获取当前区域最新的 Amazon Linux 2 AMI
 #################################################
@@ -84,19 +95,19 @@ resource "aws_lb" "elasticsearch_lb" {
 }
 
 resource "aws_lb_target_group" "elasticsearch_tg" {
-  name   = "${var.elasticsearch_cluster_name}-tg"
-  port   = 9200
-  protocol = "HTTP"      # 由 TCP 改为 HTTP
-  vpc_id = aws_vpc.digitalhippo_vpc.id
+  name     = "${var.elasticsearch_cluster_name}-tg"
+  port     = 9200
+  protocol = "TCP"
+  vpc_id   = aws_vpc.digitalhippo_vpc.id
 
   health_check {
     protocol            = "HTTP"
-    path = "/"   # 或者 "/_cluster/health" 如果 ES 返回健康状态
-    matcher = "200-399"  # 接受 200 至 399 的状态码
-    interval            = 60
+    port                = "9200"
+    path                = "/"
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+    interval            = 30
     timeout             = 10
-    healthy_threshold   = 3
-    unhealthy_threshold = 3
   }
 
   tags = {
