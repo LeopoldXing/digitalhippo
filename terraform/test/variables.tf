@@ -58,12 +58,6 @@ variable "db_instance_class" {
 }
 
 # --- Elasticsearch 相关变量 ---
-variable "elasticsearch_version" {
-  description = "Elasticsearch 版本，默认 8.14.1"
-  type        = string
-  default     = "8.14.1"
-}
-
 variable "elasticsearch_node_count" {
   description = "Elasticsearch 集群的节点数量，至少 1"
   type        = number
